@@ -62,7 +62,7 @@ flutter:
     - assets/h1.png
     - assets/h2.png
     - assets/h3.png
-
+    - assets/logousaha.jpg
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
