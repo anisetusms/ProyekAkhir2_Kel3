@@ -1,6 +1,6 @@
 {
-    "name": "frontend",
-    "short_name": "frontend",
+    "name": "hotel_booking",
+    "short_name": "hotel_booking",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
