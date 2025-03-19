@@ -5,9 +5,9 @@
     <uses-permission android:name="android.permission.INTERNET"/>
 
     <application
-        android:label="hotel_booking"
+        android:label="HOMMIE"
         android:name="${applicationName}"
-        android:icon="@mipmap/test">
+        android:icon="@mipmap/test1">
         <activity
             android:name=".MainActivity"
             android:exported="true"

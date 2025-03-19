@@ -1,127 +1,127 @@
 class MyString {
 //----------------------------- Welcome_Screen -----------------------------
-  static const String welcome = "Welcome to";
-  static const String bookNest = "BookNest";
-  static const String vacation = "The best hotel booking in this century\nto accompany your vacation";
+  static const String welcome = "Selamat datang di";
+  static const String bookNest = "Hommie";
+  static const String vacation = " Aplikasi Pemesanan Kost dan Homestay terbaik\n untuk menemani liburan Anda";
 
 //----------------------------- Onboarding_Screen -----------------------------
   static List text = [
-    "Let's\nhave the\nbest\nvacation\nwith us",
-    "Travel\nmade easy\nin your\nhands",
-    "Let’s\ndiscover\nthe world\nwith us"
+    "Mari\nnikmati\nliburan\nterbaik\ndengan kami",
+    "Perjalanan\nmenjadi mudah\ndi tangan Anda",
+    "Mari\ntemukan\ndunia\nbersama kami"
   ];
 
-  static const String description = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.";
-  static const String next = "Next";
-  static const String skip = "Skip";
+  static const String description = "Selamat Datang di Hommie Solusi Praktis untuk Cari dan Pesan Kost dan Homestay dengan Mudah!.";
+  static const String next = "Selanjutnya";
+  static const String skip = "Lewati";
 
 //----------------------------- Login_Option_Screen -----------------------------
-  static const String title = "Let’s you in";
-  static const String facebookTitle = "Continue with Facebook";
-  static const String googleTitle = "Continue with google";
-  static const String appleTitle = "Continue with Apple";
-  static const String or = "or";
-  static const String signInPassword = "Sign in with password";
-  static const String donAccount = "Don’t have an account?";
-  static const String alreadyAccount = "Already have an account?";
-  static const String signUp = "Sign up";
+  static const String title = "Masuk dengan";
+  static const String facebookTitle = "Lanjutkan dengan Facebook";
+  static const String googleTitle = "Lanjutkan dengan Google";
+  static const String appleTitle = "Lanjutkan dengan Apple";
+  static const String or = "atau";
+  static const String signInPassword = "Masuk dengan Kata Sandi";
+  static const String donAccount = "Belum memiliki akun?";
+  static const String alreadyAccount = "Sudah punya akun?";
+  static const String signUp = "Daftar";
 
 //-----------------------------------Login_Screen------------------------------
-  static const String loginTitle = "Login to your Account";
+  static const String loginTitle = "Masuk ke akun Anda";
   static const String emailHintText = "Email";
-  static const String passwordHintText = "Password";
-  static const String signIn = "Sign In";
-  static const String forgotPassword = "Forgot the password?";
-  static const String orContinue = "or continue with";
+  static const String passwordHintText = "Kata Sandi";
+  static const String signIn = "Masuk";
+  static const String forgotPassword = "Lupa kata sandi?";
+  static const String orContinue = "atau masuk dengan";
 
 //-----------------------------------Register_Screen------------------------------
-  static const String registerTitle = "Create your Account";
+  static const String registerTitle = "Buat akun baru";
 
 //-----------------------------------FillProfile_Screen------------------------------
-  static const String fillProfile = "Fill Your Profile";
-  static const String fullName = "Full Name";
-  static const String nickName = "NickName";
-  static const String dateBirth = "Date of Birth";
+  static const String fillProfile = "Isi Profil Anda";
+  static const String fullName = "Nama Lengkap";
+  static const String nickName = "Nama Panggilan";
+  static const String dateBirth = "Tanggal Lahir";
   static const String email = "Email";
-  static const String phoneNumber = "Phone Number";
-  static const String gender = "Gender";
-  static const String continueButton = "Continue";
+  static const String phoneNumber = "Nomor Telepon";
+  static const String gender = "Jenis Kelamin";
+  static const String continueButton = "Lanjut";
   static List<String> genderSelect = [
-    "Male",
-    "Female",
-    "Other",
+    "Laki-laki",
+    "Wanita",
+    "Lainnya",
   ];
 
 //-----------------------------------ChoicePassword_Screen------------------------------
-  static const String choiceForgotPassword = "Forgot Password";
-  static const String passwordDescription = "Select which contact details should we use to reset your password";
-  static const String viaSms = "Via SMS:";
-  static const String mobileNumber = "Enter Mobile Number";
-  static const String viaEmail = "Via Email:";
-  static const String emailId = "Enter Email ID";
+  static const String choiceForgotPassword = "Lupa kata sandi";
+  static const String passwordDescription = "Pilih detail kontak mana yang harus kami gunakan untuk mengatur ulang kata sandi Anda";
+  static const String viaSms = "Melalui SMS:";
+  static const String mobileNumber = "Masukkan nomor telepon";
+  static const String viaEmail = "Melalui Email:";
+  static const String emailId = "Masukkan ID Email";
 
 //-----------------------------------OtpSend_Screen------------------------------
-  static const String codeSend = "Code has been send to ";
-  static const String codeResend = "Resend code in 53 s";
-  static const String verify = "Verify";
+  static const String codeSend = "Kode telah dikirim ke ";
+  static const String codeResend = "Kirim ulang kode dalam 53 detik";
+  static const String verify = "Verifikasi";
 
 //-----------------------------------CreateNewPassword_Screen------------------------------
-  static const String newPassword = "Create New Password";
-  static const String yourNewPassword = "Create Your New Password";
-  static const String enterPassword = "Enter Password";
-  static const String confirmPassword = "Confirm New Password";
-  static const String congratulation = "Congratulations!";
-  static const String congratsDescription = "Your account is ready to use";
-  static const String homepage = "Go to Homepage";
+  static const String newPassword = "Buat Kata Sandi Baru";
+  static const String yourNewPassword = "Buat Kata Sandi Baru Anda";
+  static const String enterPassword = "Masukkan Kata Sandi";
+  static const String confirmPassword = "Konfirmasi Kata Sandi Baru";
+  static const String congratulation = "Selamat!";
+  static const String congratsDescription = "Akun Anda siap digunakan";
+  static const String homepage = "Pergi ke Beranda";
 
 //-----------------------------------BottomBar_Screen------------------------------
-  static const String home = "Home";
-  static const String search = "Search";
-  static const String booking = "Booking";
-  static const String profile = "Profile";
+  static const String home = "Beranda";
+  static const String search = "Pencarian";
+  static const String booking = "Pesanan";
+  static const String profile = "Profil";
 
 //-----------------------------------Home_Screen------------------------------
   static List itemSelect = [
-    "Recommended",
-    "Popular",
-    "Trending",
-    "New Arrive",
+    "Rekomendasi",
+    "Populer",
+    "Tren",
+    "Baru Tiba",
   ];
-  static const String recommended = "Recommended";
-  static const String popular = "Popular";
-  static const String trending = "Trending";
-  static const String recentlyBooked = "Recently Booked";
-  static const String seeAll = "See All";
+  static const String recommended = "Rekomendasi";
+  static const String popular = "Populer";
+  static const String trending = "Tren";
+  static const String recentlyBooked = "Baru Dipesan";
+  static const String seeAll = "Lihat Semua";
 
 //-----------------------------------Notification_Screen------------------------------
-  static const String notification = "Notification";
+  static const String notification = "Notifikasi";
 
 //-----------------------------------filterBottomSheet------------------------------
   static const String filterHotel = "Filter Hotel";
-  static const String country = "Country";
-  static const String reset = "Reset";
-  static const String applyFilter = "Apply Filter";
+  static const String country = "Negara";
+  static const String reset = "Atur Ulang";
+  static const String applyFilter = "Terapkan Filter";
   static List countryName = [
     "Armenia",
-    "France",
+    "Prancis",
     "Italia",
-    "Germany",
+    "Jerman",
     "India",
     "Pakistan",
   ];
-  static const String sortResults = "Sort Results";
+  static const String sortResults = "Urutkan Hasil";
   static List resultsName = [
-    "Highest Popularity",
-    "Highest Price",
-    "Lowest Popularity",
-    "Lowest Price",
+    "Popularitas Tertinggi",
+    "Harga Tertinggi",
+    "Popularitas Terendah",
+    "Harga Terendah",
   ];
-  static const String priceRange = "Price Range Per Night";
-  static const String availabilityTime = "Availability according to time";
+  static const String priceRange = "Rentang Harga Per Malam";
+  static const String availabilityTime = "Ketersediaan menurut waktu";
   static List selectedTime = [
-    "Mornings",
-    "Afternoon",
-    "Evening",
+    "Pagi",
+    "Siang",
+    "Sore",
   ];
   static List selectedTimeRange = [
     "(5:00am - 11:59am)",
@@ -135,76 +135,76 @@ class MyString {
     "2",
     "1",
   ];
-  static const String accommodationType = "Accommodation Type";
+  static const String accommodationType = "Jenis Akomodasi";
   static List<String> accommodationName = [
-    "Hotels",
-    "Resorts",
-    "Villas",
-    "Apartments",
-    "Homestays",
+    "Hotel",
+    "Resor",
+    "Villa",
+    "Apartemen",
+    "Homestay",
   ];
-  static const String facilities = "Facilities";
+  static const String facilities = "Fasilitas";
   static List facilitiesName = [
     "Wifi",
-    "Swimming Pool",
-    "Parking",
-    "Restaurant",
+    "Kolam Renang",
+    "Parkir",
+    "Restoran",
   ];
 
 //-----------------------------------filterBottomSheet------------------------------
   static const String hotelName = "Royale President Hotel";
-  static const String galleryPhotos = "Gallery Photos";
-  static const String details = "Details";
-  static const String badRooms = "4 Badrooms";
-  static const String bathrooms = "2 Bathrooms";
+  static const String galleryPhotos = "Galeri Foto";
+  static const String details = "Detail";
+  static const String badRooms = "4 Kamar Tidur";
+  static const String bathrooms = "2 Kamar Mandi";
   static const String sqft = "4000 sqft";
-  static const String hotelDescription = "Description";
+  static const String hotelDescription = "Deskripsi";
   static const String hotelLongDescription = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in cillum pariatur.";
-  static const String facilites = "Facilites";
-  static const String location = "Location";
-  static const String review = "Review";
-  static const String more = "More";
-  static const String bookNow = "Book Now";
+  static const String facilites = "Fasilitas";
+  static const String location = "Lokasi";
+  static const String review = "Ulasan";
+  static const String more = "Lainnya";
+  static const String bookNow = "Pesan Sekarang";
 
 //-----------------------------------Review_Screen------------------------------
 
   static List reviewRate = [
-    "All",
+    "Semua",
     "5",
     "4",
     "3",
     "2",
     "1",
   ];
-  static const String rating = "Rating";
+  static const String rating = "Penilaian";
 
 //----------------------------------- Rating_BottomSheet ------------------------------
-  static const String rateHotel = "Rate the Hotel";
-  static const String giveRating = "Please give your rating & review";
-  static const String ratingDescription = "The rooms are very comfortable and the natural views are amazing, can't wait to come back again!";
-  static const String rateNow = "Rate now";
-  static const String later = "Later";
+  static const String rateHotel = "Beri Penilaian Hotel";
+  static const String giveRating = "Silakan beri penilaian & ulasan Anda";
+  static const String ratingDescription = "Kamar sangat nyaman dan pemandangan alamnya luar biasa, tidak sabar untuk kembali lagi!";
+  static const String rateNow = "Beri Penilaian Sekarang";
+  static const String later = "Nanti";
 
 //----------------------------------- GalleryPhoto ------------------------------
-  static const String galleryHotelPhotos = "Gallery Hotel Photos";
+  static const String galleryHotelPhotos = "Galeri Foto Hotel";
 
 //----------------------------------- GoogleMap ------------------------------
-  static const String hotelLocation = "Hotel Location";
+  static const String hotelLocation = "Lokasi Hotel";
 
 //----------------------------------- DateTimeSelect ------------------------------
-  static const String selectDate = "Select Date";
-  static const String checkInDate = "Check In Date";
-  static const String checkOutDate = "Check Out Date";
-  static const String checkInTime = "Check In Time";
-  static const String checkOutTime = "Check Out Time";
-  static const String guestAdult = "Guest(Adult)";
-  static const String guestChildren = "Guest(Children)";
+  static const String selectDate = "Pilih Tanggal";
+  static const String checkInDate = "Tanggal Check In";
+  static const String checkOutDate = "Tanggal Check Out";
+  static const String checkInTime = "Waktu Check In";
+  static const String checkOutTime = "Waktu Check Out";
+  static const String guestAdult = "Tamu (Dewasa)";
+  static const String guestChildren = "Tamu (Anak-anak)";
 
 //----------------------------------- SelectRoom ------------------------------
-  static const String selectRoom = "Select Room";
+  static const String selectRoom = "Pilih Kamar";
 
 //----------------------------------- Reservation ------------------------------
-  static const String nameReservation = "Name of Reservation";
+  static const String nameReservation = "Nama Reservasi";
 
 //----------------------------------- PaymentChoice ------------------------------
   static const List<String> choicePaymentList = [
@@ -215,74 +215,74 @@ class MyString {
   static const List<String> choicePaymentCardList = [
     "•••• •••• •••• •••• 4679",
   ];
-  static const String payment = "Payment";
-  static const String paymentMethod = "Payment Methods";
-  static const String addNewCard = "Add New Card";
+  static const String payment = "Pembayaran";
+  static const String paymentMethod = "Metode Pembayaran";
+  static const String addNewCard = "Tambahkan Kartu Baru";
   static const String paypal = "Paypal";
   static const String googlePay = "Google Pay";
   static const String applePay = "Apple Pay";
-  static const String payDebitCreditCard = "Pay with Debit/Credit Card";
-  static const String changeCard = "Change Card";
+  static const String payDebitCreditCard = "Bayar dengan Kartu Debit/Kredit";
+  static const String changeCard = "Ganti Kartu";
   static const String cardNumberShow = "•••• •••• •••• •••• 4679";
 
 //----------------------------------- cancelPayment ------------------------------
-  static const String paid = "Paid";
-  static const String refund = "Refund";
+  static const String paid = "Dibayar";
+  static const String refund = "Pengembalian Dana";
 
 //----------------------------------- AddNewCard ------------------------------
-  static const String newCard = "New Card";
-  static const String addCard = "Add Card";
-  static const String holderName = "Holder Name";
-  static const String cardNumber = "Card Number";
-  static const String expiry = "Expiry";
+  static const String newCard = "Kartu Baru";
+  static const String addCard = "Tambahkan Kartu";
+  static const String holderName = "Nama Pemegang";
+  static const String cardNumber = "Nomor Kartu";
+  static const String expiry = "Kadaluarsa";
   static const String cvv = "CVV";
 
 //----------------------------------- PaymentInfo ------------------------------
-  static const String confirmPayment = "Confirm Payment";
+  static const String confirmPayment = "Konfirmasi Pembayaran";
   static const String checkIn = "Check in";
   static const String checkOut = "Check out";
-  static const String days = "4 Days";
-  static const String night = "4 Nights";
-  static const String taxesFees = "Taxes & Fees (10%)";
+  static const String days = "4 Hari";
+  static const String night = "4 Malam";
+  static const String taxesFees = "Pajak & Biaya (10%)";
   static const String total = "Total";
-  static const String paymentSuccessFull = "Payment Successfull!";
-  static const String paymentSuccessFullSubTitle = "Successfully made payment and hotel booking";
-  static const String viewTicket = "View Ticket";
-  static const String cancel = "Cancel";
-  static const String change = "Change";
+  static const String paymentSuccessFull = "Pembayaran Berhasil!";
+  static const String paymentSuccessFullSubTitle = "Berhasil melakukan pembayaran dan pemesanan hotel";
+  static const String viewTicket = "Lihat Tiket";
+  static const String cancel = "Batal";
+  static const String change = "Ganti";
 
 //----------------------------------- Ticket ------------------------------
-  static const String downloadTicket = "Download Ticket";
-  static const String ticket = "Ticket";
+  static const String downloadTicket = "Unduh Tiket";
+  static const String ticket = "Tiket";
 
 //----------------------------------- profile_Screen ------------------------------
-  static const String editProfile = "Edit Profile";
-  static const String notifications = "Notifications";
-  static const String darkTheme = "Dark Theme";
-  static const String language = "Language";
-  static const String helpCentre = "Help Centre";
-  static const String privacy = "Privacy";
-  static const String rateBooKNest = "Rate BooKNest";
-  static const String logout = "Logout";
-  static const String submit = "Submit";
-  static const String rateTitle = "Rate Learn Ease!";
-  static const String rateSubTitle = "Tap a star to give your ratings. Thankyou!";
+  static const String editProfile = "Edit Profil";
+  static const String notifications = "Notifikasi";
+  static const String darkTheme = "Tema Gelap";
+  static const String language = "Bahasa";
+  static const String helpCentre = "Pusat Bantuan";
+  static const String privacy = "Privasi";
+  static const String rateBooKNest = "Beri Penilaian Hommie";
+  static const String logout = "Keluar";
+  static const String submit = "Kirim";
+  static const String rateTitle = "Beri Penilaian Hommie!";
+  static const String rateSubTitle = "Ketuk bintang untuk memberi penilaian Anda. Terima kasih!";
 
 //----------------------------------- ProfileNotification_Screen ------------------------------
-  static const String generalNotification = "General Notification";
-  static const String sound = "Sound";
-  static const String vibrate = "Vibrate";
-  static const String appUpdates = "App Updates";
-  static const String serviceAvailable = "New Service Available";
-  static const String tipsAvailable = "New tips available";
+  static const String generalNotification = "Notifikasi Umum";
+  static const String sound = "Suara";
+  static const String vibrate = "Getar";
+  static const String appUpdates = "Pembaruan Aplikasi";
+  static const String serviceAvailable = "Layanan Baru Tersedia";
+  static const String tipsAvailable = "Tips Baru Tersedia";
 
 //----------------------------------- EditProfile_Screen ------------------------------
-  static const String update = "Update";
+  static const String update = "Perbarui";
 
 //----------------------------------- ChooseLanguage_Screen ------------------------------
-  static const String chooseLanguage = "Choose Language";
+  static const String chooseLanguage = "Pilih Bahasa";
   static const languageList = [
-    'English',
+    'Inggris',
     'Mandarin',
     'Hindi',
     'Tamil',
@@ -290,50 +290,50 @@ class MyString {
   ];
 
 //----------------------------------- helpCenter_Screen ------------------------------
-  static const String helpCenter = "Help Center";
-  static const String helpYou = "How May We Help You?";
-  static const String browseTopics = "Browse by Topics";
+  static const String helpCenter = "Pusat Bantuan";
+  static const String helpYou = "Bagaimana Kami Dapat Membantu Anda?";
+  static const String browseTopics = "Jelajahi Berdasarkan Topik";
   static const browserTopicList = [
-    'Getting Started',
-    'Account or Profile',
-    'Learning',
-    'Purchase or Refund',
+    'Memulai',
+    'Akun atau Profil',
+    'Pembelajaran',
+    'Pembelian atau Pengembalian Dana',
     'Mobile',
-    'Trust & Safety',
+    'Kepercayaan & Keamanan',
   ];
 
 //----------------------------------- Booking_Screen ------------------------------
-  static const String myBooking = "My Booking";
-  static const String ongoingButton = "Ongoing";
-  static const String completedButton = "Completed";
-  static const String canceledButton = "Canceled";
-  static const String cancelBookingButton = "Cancel Booking";
-  static const String viewTicketButton = "View Ticket";
-  static const String completed = "Yeay, you have completed it!";
-  static const String canceled = "You canceled this hotel booking";
+  static const String myBooking = "Pemesanan Saya";
+  static const String ongoingButton = "Berlangsung";
+  static const String completedButton = "Selesai";
+  static const String canceledButton = "Dibatalkan";
+  static const String cancelBookingButton = "Batalkan Pemesanan";
+  static const String viewTicketButton = "Lihat Tiket";
+  static const String completed = "Yeay, Anda telah menyelesaikannya!";
+  static const String canceled = "Anda membatalkan pemesanan hotel ini";
 
 //----------------------------------- CancelBooking ------------------------------
-  static const String cancelBooking = "Cancel Booking";
-  static const String cancelBookingSubTitle = "Are you sure you want to cancel your hotel booking?";
-  static const String cancelBookingDescription = "Only 80% of the money you can refund from your payment according to our policy";
-  static const String yesContinue = "Yes, Continue";
-  static const String cancelHotelBooking = "Cancel Hotel Booking";
-  static const String refundDescription = "Please select a payment refund method (only 80% will be refunded).";
-  static const String confirmCancel = "Confirm Cancellation";
-  static const String successFull = "Successfull!";
-  static const String successFullDescription = "You have successfully canceled your order. 80% funds will be returned to your account";
-  static const String descriptions = "At Viral Pitch we expect at a day’s start is you, better and happier than yesterday. We have got you covered share your concern or check our frequently asked questions listed below.At Viral Pitch we expect at a day’s start is you, better and happier than yesterday. We have got you covered share your concern.";
+  static const String cancelBooking = "Batalkan Pemesanan";
+  static const String cancelBookingSubTitle = "Apakah Anda yakin ingin membatalkan pemesanan hotel Anda?";
+  static const String cancelBookingDescription = "Hanya 80% dari uang yang dapat Anda kembalikan dari pembayaran Anda sesuai dengan kebijakan kami";
+  static const String yesContinue = "Ya, Lanjutkan";
+  static const String cancelHotelBooking = "Batalkan Pemesanan Hotel";
+  static const String refundDescription = "Silakan pilih metode pengembalian dana pembayaran (hanya 80% yang akan dikembalikan).";
+  static const String confirmCancel = "Konfirmasi Pembatalan";
+  static const String successFull = "Berhasil!";
+  static const String successFullDescription = "Anda telah berhasil membatalkan pesanan Anda. 80% dana akan dikembalikan ke akun Anda";
+  static const String descriptions = "Di Viral Pitch kami berharap pada awal hari Anda, lebih baik dan lebih bahagia dari kemarin. Kami siap membantu Anda berbagi kekhawatiran atau memeriksa pertanyaan yang sering diajukan yang tercantum di bawah ini.";
 
 //----------------------------------- logOut ------------------------------
-  static const String logoutTitle = "Are you sure you want to log out?";
+  static const String logoutTitle = "Apakah Anda yakin ingin keluar?";
   static const faqList = [
-    'What is a Course?',
-    'How to apply for a campaign?',
-    'How to know status of a campaign?',
-    'How to know status of a campaign?',
-    'How to apply for a campaign?',
-    'What is a Course?',
-    'How to know status of a campaign?',
+    'Apa itu Kursus?',
+    'Bagaimana cara mendaftar kampanye?',
+    'Bagaimana cara mengetahui status kampanye?',
+    'Bagaimana cara mengetahui status kampanye?',
+    'Bagaimana cara mendaftar kampanye?',
+    'Apa itu Kursus?',
+    'Bagaimana cara mengetahui status kampanye?',
   ];
-  static const String yesLogout = "Yes, Logout";
+  static const String yesLogout = "Ya, Keluar";
 }
