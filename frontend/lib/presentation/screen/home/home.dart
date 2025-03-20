@@ -34,7 +34,7 @@ class _HomeState extends State<Home> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: 10),
-                  Text("Hello, Danial 👋", style: TextStyle(color: controller.themeController.isDarkMode.value ? MyColors.white : MyColors.successColor, fontWeight: FontWeight.w700, fontSize: 26)),
+                  Text("Hello, Anisetus 👋", style: TextStyle(color: controller.themeController.isDarkMode.value ? MyColors.white : MyColors.successColor, fontWeight: FontWeight.w700, fontSize: 26)),
                   const SizedBox(height: 18),
                   InkWell(
                     onTap: () {
@@ -259,8 +259,8 @@ class _HomeState extends State<Home> {
                               const SizedBox(height: 5),
                               Row(
                                 children: [
-                                  Text("${controller.homeDetails[index].price}", style: const TextStyle(color: MyColors.white, fontWeight: FontWeight.w700, fontSize: 20),),
-                                  const Text(" / per night", style: TextStyle(color: MyColors.white, fontWeight: FontWeight.w400, fontSize: 14),),
+                                  Text("${controller.homeDetails[index].price}", style: const TextStyle(color: MyColors.white, fontWeight: FontWeight.w600, fontSize: 17),),
+                                  const Text(" / Bulan", style: TextStyle(color: MyColors.white, fontWeight: FontWeight.w400, fontSize: 14),),
                                   const Spacer(),
                                   SvgPicture.asset(MyImages.bookMarkLight),
                                 ],
