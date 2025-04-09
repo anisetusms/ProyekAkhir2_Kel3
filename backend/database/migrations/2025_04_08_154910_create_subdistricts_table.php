@@ -9,16 +9,21 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up() {
+    public function up(): void
+    {
         Schema::create('subdistricts', function (Blueprint $table) {
-            $table->id(); // Primary Key
-            $table->string('subdis_name', 100); // Nama Kelurahan/Desa
-            $table->foreignId('dis_id')->constrained('districts')->onDelete('cascade'); // Foreign Key ke districts
+            $table->id();
+            $table->string('name');
+            $table->foreignId('district_id')->constrained()->onDelete('cascade');
             $table->timestamps();
         });
     }
 
-    public function down() {
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
         Schema::dropIfExists('subdistricts');
     }
 };

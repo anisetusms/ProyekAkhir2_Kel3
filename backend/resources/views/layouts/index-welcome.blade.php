@@ -158,7 +158,7 @@
 
 
   <!--start footer -->
-  <section class="page-footer mt-5 py-5">
+  <!-- <section class="page-footer mt-5 py-5">
     <div class="container py-4 px-4 px-lg-0">
       <div class="row g-4">
         <div class="col-12 col-xl-4">
@@ -245,7 +245,7 @@
   
       </div><!--end row-->
     </div>
-  </section>
+  </section> -->
   <!--end footer section-->
 
 
@@ -260,11 +260,19 @@
      <a href="javaScript:;" class="back-to-top"><i class="material-icons-outlined">arrow_upward</i></a>
   <!--End Back To Top Button-->
 
+
+
+
+  <!-- PENTING -->
   <!--start switcher-->
-  <button class="btn btn-grd btn-grd-danger btn-switcher position-fixed top-50 d-flex align-items-center gap-2"
+  <!-- <button class="btn btn-grd btn-grd-danger btn-switcher position-fixed top-50 d-flex align-items-center gap-2"
     type="button" data-bs-toggle="offcanvas" data-bs-target="#staticBackdrop">
     <i class="material-icons-outlined">tune</i>Customize
-  </button>
+  </button> -->
+
+
+
+
 
   <div class="offcanvas offcanvas-end" data-bs-scroll="true" tabindex="-1" id="staticBackdrop">
     <div class="offcanvas-header border-bottom h-70">

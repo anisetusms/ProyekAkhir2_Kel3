@@ -4,7 +4,7 @@ class Routes {
   static List<GetPage> navigator = [
     GetPage(
       name: "/welcome",
-      page: () => const WelcomeScreen(),
+      page: () => const Home(),
       transition: Transition.leftToRight,
       transitionDuration: const Duration(milliseconds: 600),
     ),

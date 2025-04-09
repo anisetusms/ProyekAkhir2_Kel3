@@ -6,6 +6,8 @@ class OnboardingController extends GetxController {
   RxInt changeValue = 0.obs;
   final Rx<PageController> _pageController = PageController(initialPage: 0).obs;
 
+
+
   void nextButton () {
     _pageController.value.animateToPage(
       _pageController.value.page!.toInt() + 1,

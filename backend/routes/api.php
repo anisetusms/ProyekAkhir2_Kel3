@@ -7,3 +7,5 @@ use Illuminate\Support\Facades\Route;
 // Route::post('/cities', [LocationController::class, 'storeCities']);
 // Route::post('/districts', [LocationController::class, 'storeDistricts']);
 // Route::post('/subdistricts', [LocationController::class, 'storeSubdistricts']);
+
+

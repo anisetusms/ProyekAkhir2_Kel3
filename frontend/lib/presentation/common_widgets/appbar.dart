@@ -19,7 +19,6 @@ class CustomFullAppBar extends StatelessWidget implements PreferredSizeWidget {
     ThemeController themeController = Get.put(ThemeController());
 
     return AppBar(
-      // backgroundColor: Colors.transparent,
       scrolledUnderElevation: 0,
       leadingWidth: 43,
       leading: Row(
@@ -68,11 +67,9 @@ PreferredSizeWidget homeAppBar(String title, bool status, bool isDarkMode) {
                   color: const Color(0xfff54336),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: SvgPicture.asset(
-                  MyImages.appIcon,
-                  width: 10,
-                  height: 10,
-                  colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+                child: Image.asset(
+                  'assets/logo/logo1.jpg', // Menggunakan logo dari assets/logo/logo1.jpg
+                  fit: BoxFit.cover,
                 ),
               ),
               const SizedBox(width: 10),
@@ -90,7 +87,6 @@ PreferredSizeWidget homeAppBar(String title, bool status, bool isDarkMode) {
                       },
                       child: Container(
                         padding: const EdgeInsets.all(5),
-                        // color: Colors.red,
                         child: SvgPicture.asset(MyImages.notification,
                             colorFilter: ColorFilter.mode(
                                 isDarkMode ? MyColors.white : MyColors.black,
@@ -105,7 +101,6 @@ PreferredSizeWidget homeAppBar(String title, bool status, bool isDarkMode) {
                       },
                       child: Container(
                         padding: const EdgeInsets.all(5),
-                        // color: Colors.green,
                         child: SvgPicture.asset(MyImages.bookMarkBlack,
                             colorFilter: ColorFilter.mode(
                                 isDarkMode ? MyColors.white : MyColors.black,

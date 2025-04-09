@@ -9,16 +9,21 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up() {
+    public function up(): void
+    {
         Schema::create('cities', function (Blueprint $table) {
-            $table->id(); // Primary Key
-            $table->string('city_name', 100); // Nama Kota/Kabupaten
-            $table->foreignId('prov_id')->constrained('provinces')->onDelete('cascade'); // Foreign Key ke provinces
+            $table->id();
+            $table->string('name');
+            $table->foreignId('province_id')->constrained()->onDelete('cascade');
             $table->timestamps();
         });
     }
 
-    public function down() {
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
         Schema::dropIfExists('cities');
     }
 };
