@@ -76,7 +76,7 @@ class MyString {
 
 //-----------------------------------BottomBar_Screen------------------------------
   static const String home = "Beranda";
-  static const String search = "Pencarian";
+  static const String search = "Pencarian ";
   static const String booking = "Pesanan";
   static const String profile = "Profil";
 
