@@ -16,7 +16,7 @@ class OwnerController extends Controller
         return view('owner.dashboard-owner');
     }
 
-    /**
+    /** 
      * Tampilkan daftar properti milik owner.
      */
     public function showPropertypage()
