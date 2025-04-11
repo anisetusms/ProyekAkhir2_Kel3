@@ -8,9 +8,7 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-
   late LoginController controller;
-  bool showPassword = false;
 
   @override
   void initState() {
@@ -48,17 +46,11 @@ class _LoginScreenState extends State<LoginScreen> {
                       Container(
                         alignment: Alignment.center,
                         height: MediaQuery.of(context).size.height * 0.25,
-                        child: const Text(MyString.loginTitle, style: TextStyle(fontWeight: FontWeight.w700, fontSize: 45)),
+                        child: const Text(
+                          MyString.loginTitle,
+                          style: TextStyle(fontWeight: FontWeight.w700, fontSize: 45),
+                        ),
                       ),
-                      // Focus(
-                      //   child: Builder(
-                      //     builder: (BuildContext context) {
-                      //       final FocusNode emailFocusNode = Focus.of(context);
-                      //       final bool hasFocus = emailFocusNode.hasFocus;
-                      //       return
-                      //     },
-                      //   ),
-                      // ),
                       CustomTextFormField(
                         controller: controller.emailController,
                         obscureText: false,
@@ -68,76 +60,99 @@ class _LoginScreenState extends State<LoginScreen> {
                           return Validations().emailValidation(value);
                         },
                         hintText: MyString.emailHintText,
-                        fillColor: controller.themeController.isDarkMode.value ? MyColors.darkTextFieldColor : MyColors.disabledTextFieldColor,
+                        fillColor: controller.themeController.isDarkMode.value
+                            ? MyColors.darkTextFieldColor
+                            : MyColors.disabledTextFieldColor,
                         prefixIcon: Padding(
                           padding: const EdgeInsets.all(15.0),
                           child: SvgPicture.asset(MyImages.emailBox),
                         ),
                       ),
                       const SizedBox(height: 20),
-                      // Focus(
-                      //   child: Builder(
-                      //     builder: (BuildContext context) {
-                      //       final FocusNode passwordFocusNode = Focus.of(context);
-                      //       final bool hasFocus = passwordFocusNode.hasFocus;
-                      //       return
-                      //     },
-                      //   ),
-                      // ),
-                      CustomTextFormField(
-                        controller: controller.passwordController,
-                        obscureText: controller.password.value,
-                        textInputAction: TextInputAction.done,
-                        validator: (value) {
-                          return Validations().passwordValidation(value);
-                        },
-                        hintText: MyString.passwordHintText,
-                        fillColor: controller.themeController.isDarkMode.value ? MyColors.darkTextFieldColor :MyColors.disabledTextFieldColor,
-                        prefixIcon: Padding(
-                          padding: const EdgeInsets.all(15.0),
-                          child: SvgPicture.asset(MyImages.passwordLock),
-                        ),
-                        suffixIcon: Padding(
-                          padding: const EdgeInsets.all(12.0),
-                          child: InkWell(
-                            onTap: () {
-                              setState(() {
-                                controller.password.value = !controller.password.value;
-                              });
+
+                      // Obx digunakan untuk listen perubahan RxBool show/hide password
+                      Obx(() => CustomTextFormField(
+                            controller: controller.passwordController,
+                            obscureText: controller.password.value,
+                            textInputAction: TextInputAction.done,
+                            validator: (value) {
+                              return Validations().passwordValidation(value);
                             },
-                            child: SvgPicture.asset(controller.password.value ? MyImages.hidePassword : MyImages.showPassword, colorFilter: const ColorFilter.mode(Colors.grey, BlendMode.srcIn),),
-                          ),
-                        ),
-                      ),
+                            hintText: MyString.passwordHintText,
+                            fillColor: controller.themeController.isDarkMode.value
+                                ? MyColors.darkTextFieldColor
+                                : MyColors.disabledTextFieldColor,
+                            prefixIcon: Padding(
+                              padding: const EdgeInsets.all(15.0),
+                              child: SvgPicture.asset(MyImages.passwordLock),
+                            ),
+                            suffixIcon: Padding(
+                              padding: const EdgeInsets.all(12.0),
+                              child: InkWell(
+                                onTap: () {
+                                  controller.password.value = !controller.password.value;
+                                },
+                                child: SvgPicture.asset(
+                                  controller.password.value
+                                      ? MyImages.hidePassword
+                                      : MyImages.showPassword,
+                                  colorFilter: const ColorFilter.mode(Colors.grey, BlendMode.srcIn),
+                                ),
+                              ),
+                            ),
+                          )),
+
                       const SizedBox(height: 30),
-                      SizedBox(
-                        height: 55,
-                        width: MediaQuery.of(context).size.width,
-                        child: Button(
-                          onpressed: () {
-                            return controller.submit();
-                          },
-                          text: MyString.signIn,
-                          shadowColor: controller.themeController.isDarkMode.value ? Colors.transparent : MyColors.buttonShadowColor,
-                        ),
-                      ),
+
+                      // Button login pakai Obx untuk ganti tulisan saat loading
+                      Obx(() => SizedBox(
+                            height: 55,
+                            width: MediaQuery.of(context).size.width,
+                            child: Button(
+                              onpressed: () {
+                                controller.submit();
+                              },
+                              text: controller.isLoading.value ? "Loading..." : MyString.signIn,
+                              shadowColor: controller.themeController.isDarkMode.value
+                                  ? Colors.transparent
+                                  : MyColors.buttonShadowColor,
+                            ),
+                          )),
                       const SizedBox(height: 30),
+
                       InkWell(
-                          onTap: () {
-                            Get.toNamed("/choicePassword");
-                          },
-                          child: Text(MyString.forgotPassword, style: TextStyle(fontSize: 16, color: controller.themeController.isDarkMode.value ? MyColors.textYellowColor : MyColors.successColor, fontWeight: FontWeight.w600),)
+                        onTap: () {
+                          Get.toNamed("/choicePassword");
+                        },
+                        child: Text(
+                          MyString.forgotPassword,
+                          style: TextStyle(
+                              fontSize: 16,
+                              color: controller.themeController.isDarkMode.value
+                                  ? MyColors.textYellowColor
+                                  : MyColors.successColor,
+                              fontWeight: FontWeight.w600),
+                        ),
                       ),
                       const SizedBox(height: 40),
+
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           const CustomDivider(size: 0.23),
-                          Text(MyString.orContinue, style: TextStyle(color: controller.themeController.isDarkMode.value ? MyColors.white : Colors.black54, fontSize: 18),),
+                          Text(
+                            MyString.orContinue,
+                            style: TextStyle(
+                                color: controller.themeController.isDarkMode.value
+                                    ? MyColors.white
+                                    : Colors.black54,
+                                fontSize: 18),
+                          ),
                           const CustomDivider(size: 0.23),
                         ],
                       ),
                       const SizedBox(height: 30),
+
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -149,26 +164,48 @@ class _LoginScreenState extends State<LoginScreen> {
                             padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 15),
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(15),
-                              border: Border.all(color: controller.themeController.isDarkMode.value ? MyColors.white : MyColors.dividerLightTheme),
+                              border: Border.all(
+                                color: controller.themeController.isDarkMode.value
+                                    ? MyColors.white
+                                    : MyColors.dividerLightTheme,
+                              ),
                             ),
-                            child: SvgPicture.asset(MyImages.apple, width: 30,
-                              colorFilter: ColorFilter.mode(controller.themeController.isDarkMode.value ? MyColors.white : MyColors.black, BlendMode.srcIn),),
+                            child: SvgPicture.asset(
+                              MyImages.apple,
+                              width: 30,
+                              colorFilter: ColorFilter.mode(
+                                  controller.themeController.isDarkMode.value
+                                      ? MyColors.white
+                                      : MyColors.black,
+                                  BlendMode.srcIn),
+                            ),
                           ),
                         ],
                       ),
                       const SizedBox(height: 40),
+
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Text(MyString.donAccount, style: TextStyle(color: Colors.grey.shade400,fontWeight: FontWeight.w400, fontSize: 14)),
+                          Text(
+                            MyString.donAccount,
+                            style: TextStyle(
+                                color: Colors.grey.shade400,
+                                fontWeight: FontWeight.w400,
+                                fontSize: 14),
+                          ),
                           InkWell(
                             onTap: () {
                               Get.toNamed("/registerScreen");
                             },
                             child: Container(
                               padding: const EdgeInsets.all(8),
-                              child: Text(MyString.signUp, style: TextStyle(
-                                  color: controller.themeController.isDarkMode.value ? MyColors.textYellowColor : MyColors.primaryColor,
+                              child: Text(
+                                MyString.signUp,
+                                style: TextStyle(
+                                  color: controller.themeController.isDarkMode.value
+                                      ? MyColors.textYellowColor
+                                      : MyColors.primaryColor,
                                   fontWeight: FontWeight.w600,
                                   fontSize: 14,
                                 ),
@@ -179,7 +216,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ],
                   ),
-                )
+                ),
               ),
             ),
           ),
@@ -194,8 +231,10 @@ customLoginOptionButton(String image, bool isDarkMode) {
     padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 15),
     decoration: BoxDecoration(
       borderRadius: BorderRadius.circular(15),
-      border: Border.all(color:isDarkMode ? MyColors.white : MyColors.dividerLightTheme),
+      border: Border.all(
+        color: isDarkMode ? MyColors.white : MyColors.dividerLightTheme,
+      ),
     ),
-    child: SvgPicture.asset(image, width: 30,),
+    child: SvgPicture.asset(image, width: 30),
   );
 }
