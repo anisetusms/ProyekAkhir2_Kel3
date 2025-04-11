@@ -58,8 +58,8 @@
                                         <button type="button" class="btn btn-danger btn-sm rounded-circle" onclick="confirmDelete({{ $property->id }})" title="Delete">
                                             <i class="bi bi-trash"></i>
                                         </button>
-                                    </form> 
-                                </div>                              
+                                    </form>
+                                </div>
                             </td>
                         </tr>
                         @endforeach
@@ -67,7 +67,7 @@
                 </table>
             </div>
         </div>
-        
+
         <!-- Pagination (jika diperlukan) -->
     </div>
 </div>
@@ -94,13 +94,15 @@
         });
     }
 </script>
-    
+
 <style>
     /* Tambahkan border-radius untuk tombol */
-    .swal-confirm, .swal-cancel {
-        border-radius: 12px !important; /* Ubah sesuai selera */
+    .swal-confirm,
+    .swal-cancel {
+        border-radius: 12px !important;
+        /* Ubah sesuai selera */
         padding: 8px 16px;
     }
-</style>    
+</style>
 
 @endsection

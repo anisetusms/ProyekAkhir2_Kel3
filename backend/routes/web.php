@@ -74,6 +74,13 @@ Route::prefix('owner')->name('owner.')->group(function () {
 
 // Location Routes
 Route::prefix('location')->group(function () {
+    // Tambahkan data lokasi
+    Route::post('/provinces', [LocationController::class, 'storeProvinces']);
+    Route::post('/cities', [LocationController::class, 'storeCities']);
+    Route::post('/districts', [LocationController::class, 'storeDistricts']);
+    Route::post('/subdistricts', [LocationController::class, 'storeSubdistricts']);
+
+    // Ambil data lokasi
     Route::get('/provinces', [LocationController::class, 'getProvinces']);
     Route::get('/cities/{province_id}', [LocationController::class, 'getCities']);
     Route::get('/districts/{city_id}', [LocationController::class, 'getDistricts']);

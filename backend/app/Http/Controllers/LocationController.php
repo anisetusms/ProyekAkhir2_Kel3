@@ -17,9 +17,7 @@ class LocationController extends Controller
         ]);
 
         try {
-            DB::statement("CALL insert_province(?)", [
-                $request->prov_name
-            ]);
+            DB::statement("CALL insert_province(?)", [$request->prov_name]);
 
             return response()->json(['message' => 'Provinsi berhasil ditambahkan'], 201);
         } catch (\Exception $e) {
@@ -38,10 +36,7 @@ class LocationController extends Controller
         ]);
 
         try {
-            DB::statement("CALL insert_city(?, ?)", [
-                $request->city_name,
-                $request->prov_id
-            ]);
+            DB::statement("CALL insert_city(?, ?)", [$request->city_name, $request->prov_id]);
 
             return response()->json(['message' => 'Kota/Kabupaten berhasil ditambahkan'], 201);
         } catch (\Exception $e) {
@@ -60,10 +55,7 @@ class LocationController extends Controller
         ]);
 
         try {
-            DB::statement("CALL insert_district(?, ?)", [
-                $request->district_name,
-                $request->city_id
-            ]);
+            DB::statement("CALL insert_district(?, ?)", [$request->district_name, $request->city_id]);
 
             return response()->json(['message' => 'Kecamatan berhasil ditambahkan'], 201);
         } catch (\Exception $e) {
@@ -82,10 +74,7 @@ class LocationController extends Controller
         ]);
 
         try {
-            DB::statement("CALL insert_subdistrict(?, ?)", [
-                $request->subdistrict_name,
-                $request->district_id
-            ]);
+            DB::statement("CALL insert_subdistrict(?, ?)", [$request->subdistrict_name, $request->district_id]);
 
             return response()->json(['message' => 'Kelurahan berhasil ditambahkan'], 201);
         } catch (\Exception $e) {
@@ -109,14 +98,10 @@ class LocationController extends Controller
     /**
      * Ambil Semua Kota/Kabupaten Berdasarkan Provinsi
      */
-    public function getCities($province_id)
+    public function getCities($provinceId)
     {
-        try {
-            $cities = DB::select("CALL getCities(?)", [$province_id]);
-            return response()->json($cities);
-        } catch (\Exception $e) {
-            return response()->json(['message' => 'Terjadi kesalahan saat mengambil data kota/kabupaten', 'error' => $e->getMessage()], 500);
-        }
+        $cities = DB::select('CALL getCities(?)', [$provinceId]);
+        return response()->json($cities);
     }
 
     /**
@@ -142,23 +127,6 @@ class LocationController extends Controller
             return response()->json($subdistricts);
         } catch (\Exception $e) {
             return response()->json(['message' => 'Terjadi kesalahan saat mengambil data kelurahan', 'error' => $e->getMessage()], 500);
-        }
-    }
-
-    public function storeProperty(Request $request)
-    {
-        $request->validate([
-            'subdis_id' => 'required|exists:subdistricts,id', // Validasi kelurahan
-            'images.*' => 'required|file|mimes:jpeg,png,jpg,gif|max:2048', // Validasi gambar
-        ]);
-
-        try {
-            // Proses penyimpanan data properti
-            // Simpan data properti ke database
-            // Simpan gambar ke storage
-            return response()->json(['message' => 'Properti berhasil ditambahkan'], 201);
-        } catch (\Exception $e) {
-            return response()->json(['message' => 'Terjadi kesalahan saat menambahkan properti', 'error' => $e->getMessage()], 500);
         }
     }
 }

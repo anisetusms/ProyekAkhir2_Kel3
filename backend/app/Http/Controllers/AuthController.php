@@ -12,11 +12,15 @@ use Illuminate\Support\Facades\Mail;
 
 class AuthController extends Controller
 {
+
     public function landingpage()
     {
+        set_time_limit(300); 
+
         $properties = DB::select("CALL viewAll_Properties()");
         return view('welcome', compact('properties'));
     }
+
 
     public function showLoginForm()
     {

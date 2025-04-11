@@ -37,8 +37,14 @@ class OwnerController extends Controller
         // Ambil daftar tipe properti untuk dropdown
         $propertyTypes = DB::select("CALL getPropertyTypes()");
 
-        return view('owner.add-property', compact('propertyTypes'));
+        // Ambil daftar provinsi untuk dropdown
+        $provinces = DB::select("CALL getProvinces()");
+        $cities = [];
+        $districts = [];
+
+        return view('owner.add-property', compact('propertyTypes', 'provinces', 'cities', 'districts'));
     }
+    
 
     /**
      * Simpan properti baru.
@@ -46,9 +52,12 @@ class OwnerController extends Controller
     public function store_property(Request $request)
     {
         // Validasi data input
-        $validator = Validator::make($request->all(), [
+        $request->validate([
             'name' => 'required|string|max:255',
             'property_type_id' => 'required|integer|exists:property_types,id',
+            'province_id' => 'required|integer|exists:provinces,id',
+            'city_id' => 'required|integer|exists:cities,id',
+            'district_id' => 'required|integer|exists:districts,id',
             'subdis_id' => 'required|integer|exists:subdistricts,id',
             'price' => 'required|numeric|min:1',
             'description' => 'required|string',
@@ -57,31 +66,29 @@ class OwnerController extends Controller
             'images.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
-        if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
-        }
-
-        // Ambil user_id dari user yang sedang login
-        $userId = auth()->id();
+        $userId = auth()->id(); // Ambil user_id dari user yang sedang login
 
         // Mulai transaksi database
         DB::beginTransaction();
 
         try {
-            // Panggil SP untuk menyimpan data properti dasar
+            // Simpan data properti dasar
             $dataProperty = json_encode([
                 'name' => $request->name,
                 'property_type_id' => $request->property_type_id,
+                'province_id' => $request->province_id,
+                'city_id' => $request->city_id,
+                'district_id' => $request->district_id,
                 'subdis_id' => $request->subdis_id,
                 'description' => $request->description,
-                'user_id' => $userId, // Tambahkan user_id
+                'user_id' => $userId,
             ]);
             DB::statement('CALL store_propertyy(?)', [$dataProperty]);
 
             // Ambil ID properti yang baru ditambahkan
             $newPropertyId = DB::select('SELECT LAST_INSERT_ID() as id')[0]->id;
 
-            // Panggil SP untuk menyimpan harga properti
+            // Simpan harga properti
             $datapriceProperty = json_encode([
                 'property_id' => $newPropertyId,
                 'price' => $request->price,
@@ -99,10 +106,10 @@ class OwnerController extends Controller
                 }
             }
 
-            // Simpan gambar satu per satu
+            // Simpan gambar properti
             if ($request->hasFile('images')) {
                 foreach ($request->file('images') as $image) {
-                    $path = $image->store('property_images', 'public'); // Simpan ke storage/app/public/property_images
+                    $path = $image->store('property_images', 'public'); // Pastikan folder public/storage ada
 
                     $dataphotoProperty = json_encode([
                         'property_id' => $newPropertyId,
@@ -112,15 +119,11 @@ class OwnerController extends Controller
                 }
             }
 
-            // Commit transaksi
-            DB::commit();
-
-            return response()->json(['message' => 'Properti berhasil ditambahkan'], 201);
+            DB::commit(); // Commit transaksi
+            return redirect()->route('owner.property')->with('success', 'Properti berhasil ditambahkan');
         } catch (\Exception $e) {
-            // Rollback transaksi jika terjadi kesalahan
-            DB::rollback();
-
-            return response()->json(['message' => 'Terjadi kesalahan: ' . $e->getMessage()], 500);
+            DB::rollback(); // Rollback jika terjadi kesalahan
+            return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
     }
 
@@ -131,15 +134,12 @@ class OwnerController extends Controller
     {
         $property_id = $request->input('property_id');
 
-        // Validasi jika property_id kosong
         if (!$property_id) {
             return redirect()->back()->with('error', 'Property ID tidak ditemukan.');
         }
 
         try {
-            // Panggil Stored Procedure untuk menandai properti sebagai dihapus
             DB::statement("CALL delete_property(?)", [$property_id]);
-
             return redirect()->back()->with('success', 'Properti berhasil dihapus.');
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
@@ -149,21 +149,33 @@ class OwnerController extends Controller
     /**
      * Tampilkan halaman edit properti.
      */
-    public function edit_property($id)
+    public function edit_property(Request $request, $id)
     {
-        // Mengambil data properti menggunakan Stored Procedure
         $property = DB::select("CALL view_propertyById(?)", [$id]);
 
-        // Pastikan data ditemukan
-        if (!empty($property)) {
-            $property = $property[0]; // Ambil data pertama
-        } else {
-            return redirect()->route('owner.property')->with('error', 'Properti tidak ditemukan.');
+        // Ambil data provinsi
+        $provinces = DB::select("CALL getProvinces()");
+        $cityId = $request->input('city_id');
+        $districts = [];
+
+        // Jika ada city_id, ambil kota dan kecamatan terkait
+        if ($cityId) {
+            $cities = DB::select('CALL getCities(?)', [$cityId]);
+            $districts = DB::select('CALL getDistricts(?)', [$cityId]);
         }
 
-        // Ambil daftar tipe properti untuk dropdown
-        $propertyTypes = DB::select("CALL getPropertyTypes()");
+        return view('owner.kelola-property', compact('property', 'provinces', 'cities', 'districts'));
+    }
 
-        return view('owner.kelola-property', compact('property', 'propertyTypes'));
+    public function getCities($provinceId)
+    {
+        $cities = DB::select('CALL getCities(?)', [$provinceId]);
+        return response()->json($cities);
+    }
+
+    public function showCities($provinceId)
+    {
+        $cities = DB::select('CALL getCities(?)', [$provinceId]);
+        return response()->json($cities);
     }
 }

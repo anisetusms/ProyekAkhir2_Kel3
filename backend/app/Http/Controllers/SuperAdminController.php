@@ -52,14 +52,12 @@ class SuperAdminController extends Controller
             return redirect()->back()->withErrors($validator)->withInput();
         }
 
-        $dataEntrepreneur = json_encode([
-            'name' => $request->name,
-            'email' => $request->email,
-            'username' => $request->username,
-            'password' => bcrypt($request->password),
+        DB::statement('CALL storeEntrepreneur(?, ?, ?, ?)', [
+            $request->name,
+            $request->email,
+            $request->username,
+            bcrypt($request->password),
         ]);
-
-        DB::statement('CALL storeEntrepreneur(?)', [$dataEntrepreneur]);
 
         return redirect()->route('super_admin.entrepreneurs.index')->with('success', 'Entrepreneur added successfully.');
     }
@@ -79,27 +77,26 @@ class SuperAdminController extends Controller
 
     public function updateEntrepreneur(Request $request, $id)
     {
-        // Validasi input
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,' . $id, // Pastikan email unik kecuali untuk user ini
+            'email' => 'required|email|unique:users,email,' . $id,
         ]);
 
-        // Jika validasi gagal, kembalikan ke halaman sebelumnya dengan error
         if ($validator->fails()) {
             return redirect()->back()->withErrors($validator)->withInput();
         }
 
-        // Format data untuk dikirim ke stored procedure
+        // Kamu sudah siapkan JSON tapi tidak dipakai di bawah
         $dataEntrepreneur = json_encode([
             'id' => $id,
             'name' => $request->name,
             'email' => $request->email,
         ]);
 
-        // Panggil stored procedure untuk mengupdate data entrepreneur
         try {
+            // Panggil stored procedure
             DB::statement('CALL updateEntrepreneur(?, ?, ?)', [$id, $request->name, $request->email]);
+
             return redirect()->route('super_admin.entrepreneurs.index')->with('success', 'Entrepreneur updated successfully.');
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Failed to update entrepreneur: ' . $e->getMessage());
@@ -137,7 +134,7 @@ class SuperAdminController extends Controller
             'email' => $request->email,
             'username' => $request->username,
             'password' => bcrypt($request->password),
-            'user_role_id' => 4, // Role ID untuk Admin Platform
+            'user_role_id' => 4, 
             'created_at' => now(),
             'updated_at' => now(),
         ]);

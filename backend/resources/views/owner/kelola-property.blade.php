@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Properti</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
     <div class="container mt-4">
@@ -52,6 +53,11 @@
                         <small class="text-muted">Pisahkan dengan koma (,)</small>
                     </div>
 
+                    <div class="mb-3">
+                        <label for="images" class="form-label">Gambar Properti</label>
+                        <input type="file" class="form-control" id="images" name="images[]" multiple>
+                    </div>
+
                     @if(!empty($property->images))
                         @php $images = json_decode($property->images, true); @endphp
                         <div class="row">
@@ -67,11 +73,52 @@
                         <p class="text-muted">Tidak ada gambar tersedia.</p>
                     @endif                                  
 
+
                     <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
                     <a href="{{ route('owner.property') }}" class="btn btn-secondary">Batal</a>
                 </form>
             </div>
         </div>
     </div>
+
+    <script>
+        document.querySelectorAll('.delete-image').forEach(button => {
+            button.addEventListener('click', function () {
+                let imagePath = this.getAttribute('data-path');
+                
+                Swal.fire({
+                    title: "Yakin ingin menghapus gambar ini?",
+                    text: "Gambar ini akan dihapus secara permanen!",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#d33",
+                    cancelButtonColor: "#3085d6",
+                    confirmButtonText: "Ya, Hapus!",
+                    cancelButtonText: "Batal"
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Send AJAX request to delete the image
+                        fetch('{{ route('owner.delete-image') }}', {
+                            method: 'DELETE',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            },
+                            body: JSON.stringify({ image: imagePath })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                Swal.fire("Terhapus!", "Gambar telah dihapus.", "success");
+                                location.reload(); // Refresh page
+                            } else {
+                                Swal.fire("Gagal!", "Gambar gagal dihapus.", "error");
+                            }
+                        });
+                    }
+                });
+            });
+        });
+    </script>
 </body>
 </html>

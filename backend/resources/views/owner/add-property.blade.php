@@ -4,7 +4,7 @@
 <div class="card">
     <div class="card-body">
         <h2 class="mb-4">Tambah Properti</h2>
-        <form action="{{route('owner.store-property')}}" method="POST" enctype="multipart/form-data">
+        <form id="property-form" action="{{ route('owner.store-property') }}" method="POST" enctype="multipart/form-data">
             @csrf
 
             <!-- Nama Properti -->
@@ -24,31 +24,37 @@
                 </select>
             </div>
 
-            <!-- Pilih Provinsi -->
+            <!-- Provinsi -->
             <div class="mb-3">
                 <label for="province" class="form-label">Provinsi</label>
-                <select class="form-select" id="province" name="province" required>
+                <select name="province_id" id="province" class="form-control" required>
                     <option value="" disabled selected>Pilih Provinsi</option>
+                    @foreach($provinces as $province)
+                    <option value="{{ $province->id }}">{{ $province->prov_name }}</option>
+                    @endforeach
                 </select>
             </div>
 
+            <!-- Kota -->
             <div class="mb-3">
                 <label for="city" class="form-label">Kota/Kabupaten</label>
-                <select class="form-select" id="city" name="city" disabled required>
+                <select class="form-select" id="city" name="city_id" disabled required>
                     <option value="" disabled selected>Pilih Kota</option>
                 </select>
             </div>
 
+            <!-- Kecamatan -->
             <div class="mb-3">
                 <label for="district" class="form-label">Kecamatan</label>
-                <select class="form-select" id="district" name="district" disabled required>
+                <select class="form-select" id="district" name="district_id" disabled required>
                     <option value="" disabled selected>Pilih Kecamatan</option>
                 </select>
             </div>
 
+            <!-- Kelurahan -->
             <div class="mb-3">
                 <label for="subdistrict" class="form-label">Kelurahan</label>
-                <select class="form-select" id="subdistrict" name="subdis_id" required>
+                <select class="form-select" id="subdistrict" name="subdistrict_id" disabled required>
                     <option value="" disabled selected>Pilih Kelurahan</option>
                 </select>
             </div>
@@ -124,10 +130,8 @@
             }
         });
     });
-</script>
 
-<!-- JavaScript untuk Tambah/Hapus Fasilitas -->
-<script>
+    // JavaScript untuk Tambah/Hapus Fasilitas
     document.addEventListener("DOMContentLoaded", function() {
         const facilitiesList = document.getElementById("facilities-list");
         const addFacilityBtn = document.getElementById("add-facility");
@@ -145,7 +149,7 @@
             facilitiesList.appendChild(newFacility);
         });
 
-        // Hapus fasilitas (pastikan event tetap berjalan meskipun klik di ikon)
+        // Hapus fasilitas
         facilitiesList.addEventListener("click", function(e) {
             if (e.target.closest(".remove-facility")) {
                 e.target.closest(".input-group").remove();
@@ -162,91 +166,56 @@
 
 <script>
     $(document).ready(function() {
-        // Ambil data provinsi saat halaman dimuat
-        $.ajax({
-            url: '/location/provinces', // Pastikan URL ini sesuai dengan route
-            type: 'GET',
-            success: function(data) {
-                $.each(data, function(key, province) {
-                    $('#province').append('<option value="' + province.id + '">' + province.prov_name + '</option>');
-                });
-            }
-        });
-
-        // Ambil data kota/kabupaten berdasarkan provinsi
+        // Provinsi → Kota
         $('#province').on('change', function() {
             var province_id = $(this).val();
-            $('#city, #district, #subdistrict')
-                .html('<option value="" disabled selected>Pilih</option>')
-                .prop('disabled', true);
+            $('#city').html('<option value="" disabled selected>Loading...</option>').prop('disabled', true);
+            $('#district').html('<option value="" disabled selected>Pilih Kecamatan</option>').prop('disabled', true);
+            $('#subdistrict').html('<option value="" disabled selected>Pilih Kelurahan</option>').prop('disabled', true);
 
             if (province_id) {
                 $.get('/location/cities/' + province_id, function(data) {
-                    $.each(data, function(key, city) {
-                        $('#city').append('<option value="' + city.id + '">' + city.city_name + '</option>');
+                    $('#city').html('<option value="" disabled selected>Pilih Kota</option>');
+                    $.each(data, function(index, item) {
+                        $('#city').append(`<option value="${item.id}">${item.city_name}</option>`);
                     });
                     $('#city').prop('disabled', false);
                 });
             }
         });
 
-        // Ambil data kecamatan berdasarkan kota/kabupaten
+        // Kota → Kecamatan
         $('#city').on('change', function() {
             var city_id = $(this).val();
-            $('#district, #subdistrict').html('<option value="" disabled selected>Pilih</option>').prop('disabled', true);
+            $('#district').html('<option value="" disabled selected>Loading...</option>').prop('disabled', true);
+            $('#subdistrict').html('<option value="" disabled selected>Pilih Kelurahan</option>').prop('disabled', true);
 
             if (city_id) {
                 $.get('/location/districts/' + city_id, function(data) {
-                    $.each(data, function(key, district) {
-                        $('#district').append('<option value="' + district.id + '">' + district.dis_name + '</option>');
+                    $('#district').html('<option value="" disabled selected>Pilih Kecamatan</option>');
+                    $.each(data, function(index, item) {
+                        $('#district').append(`<option value="${item.id}">${item.dis_name}</option>`);
                     });
                     $('#district').prop('disabled', false);
                 });
             }
         });
 
-        // Ambil data kelurahan berdasarkan kecamatan
+        // Kecamatan → Kelurahan
         $('#district').on('change', function() {
             var district_id = $(this).val();
-            $('#subdistrict').html('<option value="" disabled selected>Pilih Kelurahan</option>').prop('disabled', true);
+            $('#subdistrict').html('<option value="" disabled selected>Loading...</option>').prop('disabled', true);
 
             if (district_id) {
                 $.get('/location/subdistricts/' + district_id, function(data) {
-                    $.each(data, function(key, subdistrict) {
-                        $('#subdistrict').append('<option value="' + subdistrict.id + '">' + subdistrict.subdis_name + '</option>');
+                    $('#subdistrict').html('<option value="" disabled selected>Pilih Kelurahan</option>');
+                    $.each(data, function(index, item) {
+                        $('#subdistrict').append(`<option value="${item.id}">${item.subdis_name}</option>`);
                     });
                     $('#subdistrict').prop('disabled', false);
                 });
             }
         });
-
-
-        $('form').on('submit', function(e) {
-            e.preventDefault();
-
-            var formData = new FormData(this);
-
-            $.ajax({
-                url: $(this).attr('action'),
-                type: $(this).attr('method'),
-                data: formData,
-                processData: false,
-                contentType: false,
-                success: function(response) {
-                    alert('Properti berhasil ditambahkan!');
-                    window.location.reload();
-                },
-                error: function(xhr) {
-                    var errors = xhr.responseJSON.errors;
-                    if (errors) {
-                        $.each(errors, function(key, value) {
-                            alert(value[0]); // Tampilkan pesan error
-                        });
-                    }
-                }
-            });
-        });
     });
 </script>
-
 @endsection
