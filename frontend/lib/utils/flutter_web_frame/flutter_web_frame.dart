@@ -218,41 +218,41 @@ class FlutterWebFrameState extends State<FlutterWebFrame> {
                   );
                 });
           }),
-          footerSection: Observer(builder: (context) {
-            return GetBuilder<ThemeController>(
-                init: ThemeController(),
-                builder: (themeController) {
-                  return Obx(
-                    () => Container(
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(0),
-                        color: themeController.isDarkMode.value
-                            ? MyColors.scaffoldDarkColor
-                            : MyColors.scaffoldLightColor,
-                      ),
-                      width: 475.0,
-                      child: Column(
-                        children: [
-                          Divider(
-                              height: 0,
-                              color: themeController.isDarkMode.value
-                                  ? MyColors.dividerDarkTheme
-                                  : MyColors.dividerLightTheme),
-                          Text('Copyright © 2024. Crafted with passion by Imperia Themes.',
-                                  style: theme.textTheme.bodySmall?.copyWith(
-                                      fontWeight: FontWeight.w500,
-                                      color: themeController.isDarkMode.value
-                                          ? Colors.white.withOpacity(0.50)
-                                          : Colors.black.withOpacity(0.50)),
-                                  textDirection: TextDirection.ltr)
-                              .paddingAll(12),
-                        ],
-                      ),
-                    ),
-                  );
-                });
-          }),
+          // footerSection: Observer(builder: (context) {
+          //   return GetBuilder<ThemeController>(
+          //       init: ThemeController(),
+          //       builder: (themeController) {
+          //         return Obx(
+          //           () => Container(
+          //             alignment: Alignment.center,
+          //             decoration: BoxDecoration(
+          //               borderRadius: BorderRadius.circular(0),
+          //               color: themeController.isDarkMode.value
+          //                   ? MyColors.scaffoldDarkColor
+          //                   : MyColors.scaffoldLightColor,
+          //             ),
+          //             width: 475.0,
+          //             child: Column(
+          //               children: [
+          //                 Divider(
+          //                     height: 0,
+          //                     color: themeController.isDarkMode.value
+          //                         ? MyColors.dividerDarkTheme
+          //                         : MyColors.dividerLightTheme),
+          //                 Text('Copyright © 2024. Crafted with passion by Imperia Themes.',
+          //                         style: theme.textTheme.bodySmall?.copyWith(
+          //                             fontWeight: FontWeight.w500,
+          //                             color: themeController.isDarkMode.value
+          //                                 ? Colors.white.withOpacity(0.50)
+          //                                 : Colors.black.withOpacity(0.50)),
+          //                         textDirection: TextDirection.ltr)
+          //                     .paddingAll(12),
+          //               ],
+          //             ),
+          //           ),
+          //         );
+          //       });
+          // }),
           child: Builder(builder: widget.builder),
         ),
       ),
