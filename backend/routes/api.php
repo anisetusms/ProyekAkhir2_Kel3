@@ -1,9 +1,11 @@
 <?php
 
-use App\Http\Controllers\LocationController;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\PropertyApiController;
 
-// Route::post('/provinces', [LocationController::class, 'storeProvinces']);
-// Route::post('/cities', [LocationController::class, 'storeCities']);
-// Route::post('/districts', [LocationController::class, 'storeDistricts']);
-// Route::post('/subdistricts', [LocationController::class, 'storeSubdistricts']);
+Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+    return $request->user();
+});
+
+Route::apiResource('properties', PropertyApiController::class);

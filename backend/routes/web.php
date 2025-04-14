@@ -63,29 +63,47 @@ Route::get('/dashboard-admin', [AdminController::class, 'showAdminpage'])->name(
 
 // Owner Routes
 Route::prefix('owner')->name('owner.')->group(function () {
-    Route::get('/dashboard', [OwnerController::class, 'showOwnerpage'])->name('dashboard');
+    Route::get('/dashboard-owner', [OwnerController::class, 'dashboard_owner'])->name('dashboard');
     Route::get('/property', [OwnerController::class, 'showPropertypage'])->name('property');
     Route::get('/add-property', [OwnerController::class, 'add_property'])->name('add-property');
-    Route::post('/store-property', [OwnerController::class, 'store_property'])->name('store-property');
-    Route::post('/delete-property', [OwnerController::class, 'delete_property'])->name('delete-property');
-    Route::get('/property/edit/{id}', [OwnerController::class, 'edit_property'])->name('edit-property');
-    Route::post('/property/update/{id}', [OwnerController::class, 'update_property'])->name('update-property');
+    Route::post('/store_property', [OwnerController::class, 'store_property'])->name('store_property');
+    Route::get('/edit-property/{id}', [OwnerController::class, 'edit_property'])->name('edit-property');
+    Route::post('/update-property/{id}', [OwnerController::class, 'update_property'])->name('update-property');
+    Route::delete('/delete-property/{id}', [OwnerController::class, 'delete_property'])->name('delete-property');
+    Route::get('get-cities/{provinceId}', [OwnerController::class, 'getCities']);
+    Route::post('/provinces', [OwnerController::class, 'storeProvinces']);
+    Route::post('/cities', [OwnerController::class, 'storeCities']);
+    Route::post('/districts', [OwnerController::class, 'storeDistricts']);
+    Route::post('/subdistricts', [OwnerController::class, 'storeSubdistricts']);
+    Route::get('/provinces', [OwnerController::class, 'getProvinces']);
+    // Route::get('/get-districts/{city}', [OwnerController::class, 'getDistricts']);
+    // Route::get('/get-subdistricts/{district}', [OwnerController::class, 'getSubdistricts']);
+    // Location APIs
+    Route::get('/get-cities/{provinceId}', [OwnerController::class, 'getCities']);
+    Route::get('/get-districts/{cityId}', [OwnerController::class, 'getDistricts']);
+    Route::get('/get-subdistricts/{districtId}', [OwnerController::class, 'getSubdistricts']);
+    // Rute untuk menampilkan halaman edit properti
+    Route::get('/edit-property/{id}', [OwnerController::class, 'editProperty'])->name('edit-property');
+
+    // Rute untuk menyimpan perubahan properti
+    Route::put('/update-property/{id}', [OwnerController::class, 'updateProperty'])->name('update-property');
 });
+
 
 // Location Routes
-Route::prefix('location')->group(function () {
-    // Tambahkan data lokasi
-    Route::post('/provinces', [LocationController::class, 'storeProvinces']);
-    Route::post('/cities', [LocationController::class, 'storeCities']);
-    Route::post('/districts', [LocationController::class, 'storeDistricts']);
-    Route::post('/subdistricts', [LocationController::class, 'storeSubdistricts']);
+// Route::prefix('location')->group(function () {
+//     // Tambahkan data lokasi
+//     Route::post('/provinces', [LocationController::class, 'storeProvinces']);
+//     Route::post('/cities', [LocationController::class, 'storeCities']);
+//     Route::post('/districts', [LocationController::class, 'storeDistricts']);
+//     Route::post('/subdistricts', [LocationController::class, 'storeSubdistricts']);
 
-    // Ambil data lokasi
-    Route::get('/provinces', [LocationController::class, 'getProvinces']);
-    Route::get('/cities/{province_id}', [LocationController::class, 'getCities']);
-    Route::get('/districts/{city_id}', [LocationController::class, 'getDistricts']);
-    Route::get('/subdistricts/{district_id}', [LocationController::class, 'getSubdistricts']);
-});
+//     // Ambil data lokasi
+//     Route::get('/provinces', [LocationController::class, 'getProvinces']);
+//     Route::get('/get-cities/{province_id}', [LocationController::class, 'getCities']);
+//     Route::get('/get-districts/{city}', [LocationController::class, 'getDistricts']);
+//     Route::get('/get-subdistricts/{district}', [LocationController::class, 'getSubdistricts']);
+// });
 
 // Super Admin Routes
 Route::prefix('super-admin')->name('super_admin.')->group(function () {

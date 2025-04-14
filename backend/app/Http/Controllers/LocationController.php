@@ -98,9 +98,9 @@ class LocationController extends Controller
     /**
      * Ambil Semua Kota/Kabupaten Berdasarkan Provinsi
      */
-    public function getCities($provinceId)
+    public function getCities($province_id)
     {
-        $cities = DB::select('CALL getCities(?)', [$provinceId]);
+        $cities = DB::select('CALL getCities(?)', [$province_id]);
         return response()->json($cities);
     }
 

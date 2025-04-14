@@ -1,221 +1,487 @@
 @extends('layouts.index-owner')
-
 @section('content')
-<div class="card">
-    <div class="card-body">
-        <h2 class="mb-4">Tambah Properti</h2>
-        <form id="property-form" action="{{ route('owner.store-property') }}" method="POST" enctype="multipart/form-data">
-            @csrf
+<div class="container">
+    @if ($errors->any())
+        <div class="alert alert-danger">
+            <ul>
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+    <h2>Tambah Properti</h2>
+    <form action="{{ route('owner.store_property') }}" method="POST" enctype="multipart/form-data">
+        @csrf
 
-            <!-- Nama Properti -->
-            <div class="mb-3">
-                <label for="name" class="form-label">Nama Properti</label>
-                <input type="text" class="form-control" id="name" name="name" placeholder="Masukkan nama properti" required>
+        <div class="row mb-4">
+            <div class="col-md-8">
+                <div class="form-group mb-3">
+                    <label for="name">Nama Properti</label>
+                    <input type="text" id="name" name="name" class="form-control @error('name') is-invalid @enderror" value="{{ old('name') }}" required>
+                    @error('name')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <div class="form-group mb-3">
+                    <label for="description">Deskripsi Properti</label>
+                    <textarea id="description" name="description" class="form-control @error('description') is-invalid @enderror" rows="5" required>{{ old('description') }}</textarea>
+                    @error('description')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <div class="form-group mb-3">
+                    <label for="property_type_id">Tipe Properti</label>
+                    <select id="property_type_id" name="property_type_id" class="form-control @error('property_type_id') is-invalid @enderror" required>
+                        <option value="">Pilih Tipe Properti</option>
+                        @foreach ($propertyTypes as $type)
+                            <option value="{{ $type->id }}" {{ old('property_type_id') == $type->id ? 'selected' : '' }}>{{ $type->property_type }}</option>
+                        @endforeach
+                    </select>
+                    @error('property_type_id')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
             </div>
 
-            <!-- Property Type -->
-            <div class="mb-3">
-                <label for="property_type" class="form-label">Tipe Properti</label>
-                <select class="form-select" id="property_type" name="property_type_id" required>
-                    <option value="" disabled selected>Pilih tipe properti</option>
-                    @foreach ($propertyTypes as $type)
-                    <option value="{{ $type->id }}">{{ $type->property_type }}</option>
-                    @endforeach
-                </select>
+            <div class="col-md-4">
+                <div class="form-group mb-3">
+                    <label for="featured_image">Gambar Utama</label>
+                    <div class="border p-2 text-center">
+                        <img id="featured-image-preview" src="#" alt="Preview" class="img-fluid mb-2 d-none" style="max-height: 150px;">
+                        <input type="file" id="featured_image" name="featured_image" class="form-control-file @error('featured_image') is-invalid @enderror" required onchange="previewFeaturedImage(this)">
+                        <small class="text-muted">Format: JPEG, PNG, JPG, GIF (Max 2MB)</small>
+                    </div>
+                    @error('featured_image')
+                        <div class="invalid-feedback d-block">{{ $message }}</div>
+                    @enderror
+                </div>
             </div>
+        </div>
 
-            <!-- Provinsi -->
-            <div class="mb-3">
-                <label for="province" class="form-label">Provinsi</label>
-                <select name="province_id" id="province" class="form-control" required>
-                    <option value="" disabled selected>Pilih Provinsi</option>
-                    @foreach($provinces as $province)
-                    <option value="{{ $province->id }}">{{ $province->prov_name }}</option>
-                    @endforeach
-                </select>
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Lokasi Properti</h5>
             </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="province_id">Provinsi</label>
+                            <select id="province_id" name="province_id" class="form-control @error('province_id') is-invalid @enderror" required>
+                                <option value="">Pilih Provinsi</option>
+                                @foreach ($provinces as $province)
+                                    <option value="{{ $province->id }}" {{ old('province_id') == $province->id ? 'selected' : '' }}>{{ $province->prov_name }}</option>
+                                @endforeach
+                            </select>
+                            @error('province_id')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
 
-            <!-- Kota -->
-            <div class="mb-3">
-                <label for="city" class="form-label">Kota/Kabupaten</label>
-                <select class="form-select" id="city" name="city_id" disabled required>
-                    <option value="" disabled selected>Pilih Kota</option>
-                </select>
-            </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="city_id">Kabupaten/Kota</label>
+                            <select id="city_id" name="city_id" class="form-control @error('city_id') is-invalid @enderror" required>
+                                <option value="">Pilih Kabupaten/Kota</option>
+                                @if(old('province_id'))
+                                    @php
+                                        $cities = DB::select('CALL getCities(?)', [old('province_id')]);
+                                    @endphp
+                                    @foreach($cities as $city)
+                                        <option value="{{ $city->id }}" {{ old('city_id') == $city->id ? 'selected' : '' }}>{{ $city->name }}</option>
+                                    @endforeach
+                                @endif
+                            </select>
+                            @error('city_id')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
 
-            <!-- Kecamatan -->
-            <div class="mb-3">
-                <label for="district" class="form-label">Kecamatan</label>
-                <select class="form-select" id="district" name="district_id" disabled required>
-                    <option value="" disabled selected>Pilih Kecamatan</option>
-                </select>
-            </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="district_id">Kecamatan</label>
+                            <select id="district_id" name="district_id" class="form-control @error('district_id') is-invalid @enderror" required>
+                                <option value="">Pilih Kecamatan</option>
+                            </select>
+                            @error('district_id')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
 
-            <!-- Kelurahan -->
-            <div class="mb-3">
-                <label for="subdistrict" class="form-label">Kelurahan</label>
-                <select class="form-select" id="subdistrict" name="subdistrict_id" disabled required>
-                    <option value="" disabled selected>Pilih Kelurahan</option>
-                </select>
-            </div>
-
-            <!-- Harga -->
-            <div class="mb-3">
-                <label for="price" class="form-label">Harga (Rp)</label>
-                <input type="text" class="form-control" id="price" name="price" placeholder="Masukkan harga sewa" required oninput="formatRupiah(this)">
-            </div>
-
-            <!-- Deskripsi -->
-            <div class="mb-3">
-                <label for="description" class="form-label">Deskripsi</label>
-                <textarea class="form-control" id="description" name="description" rows="4" placeholder="Deskripsi properti" required></textarea>
-            </div>
-
-            <!-- Fasilitas -->
-            <div class="mb-3">
-                <label class="form-label">Fasilitas</label>
-                <div id="facilities-list">
-                    <div class="input-group mb-2">
-                        <input type="text" name="facilities[]" class="form-control" placeholder="Masukkan fasilitas" required>
-                        <button type="button" class="btn btn-danger remove-facility">
-                            <span class="material-icons-outlined">delete</span>
-                        </button>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="subdistrict_id">Kelurahan</label>
+                            <select id="subdistrict_id" name="subdistrict_id" class="form-control @error('subdistrict_id') is-invalid @enderror" required>
+                                <option value="">Pilih Kelurahan</option>
+                            </select>
+                            @error('subdistrict_id')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
                     </div>
                 </div>
-                <button type="button" class="btn btn-secondary mt-2" id="add-facility">Tambah Fasilitas</button>
-            </div>
 
-            <!-- Upload Gambar -->
-            <div class="mb-3">
-                <label class="form-label">Upload Gambar</label>
-                <div id="image-list">
-                    <div class="input-group mb-2">
-                        <input type="file" class="form-control" id="images" name="images[]" multiple accept="image/jpeg,image/png,image/jpg,image/gif">
-                        <button type="button" class="btn btn-danger remove-image">
-                            <span class="material-icons-outlined">delete</span>
-                        </button>
+                <div class="form-group mt-3">
+                    <label for="address">Alamat Lengkap</label>
+                    <textarea id="address" name="address" class="form-control @error('address') is-invalid @enderror" rows="2" required>{{ old('address') }}</textarea>
+                    @error('address')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <div class="row mt-3">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="latitude">Latitude</label>
+                            <input type="text" id="latitude" name="latitude" class="form-control @error('latitude') is-invalid @enderror" value="{{ old('latitude', $defaultLatitude) }}" required>
+                            @error('latitude')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="longitude">Longitude</label>
+                            <input type="text" id="longitude" name="longitude" class="form-control @error('longitude') is-invalid @enderror" value="{{ old('longitude', $defaultLongitude) }}" required>
+                            @error('longitude')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
                     </div>
                 </div>
-                <button type="button" class="btn btn-secondary mt-2" id="add-image">Tambah Gambar</button>
-            </div>
 
-            <!-- Tombol Submit -->
-            <button type="submit" class="btn btn-primary">Tambah Properti</button>
-        </form>
-    </div>
+                <div id="map" class="mt-3" style="height: 300px; width: 100%;"></div>
+                <small class="text-muted">Klik pada peta atau geser marker untuk menentukan lokasi</small>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Detail Properti</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="price">Harga per Bulan (Rp)</label>
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text">Rp</span>
+                                </div>
+                                <input type="number" id="price" name="price" class="form-control @error('price') is-invalid @enderror" value="{{ old('price') }}" min="1" required>
+                            </div>
+                            @error('price')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="capacity">Kapasitas Kamar</label>
+                            <input type="number" id="capacity" name="capacity" class="form-control @error('capacity') is-invalid @enderror" value="{{ old('capacity') }}" min="1" required>
+                            @error('capacity')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="available_rooms">Kamar Tersedia</label>
+                            <input type="number" id="available_rooms" name="available_rooms" class="form-control @error('available_rooms') is-invalid @enderror" value="{{ old('available_rooms') }}" min="0" required>
+                            @error('available_rooms')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group mt-3">
+                    <label for="rules">Aturan Properti (Opsional)</label>
+                    <textarea id="rules" name="rules" class="form-control @error('rules') is-invalid @enderror" rows="3">{{ old('rules') }}</textarea>
+                    @error('rules')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Fasilitas</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    @foreach(['Kamar Mandi Dalam', 'AC', 'WiFi', 'Dapur', 'Laundry', 'Parkir', 'TV', 'Kipas Angin', 'Lemari', 'Meja Belajar'] as $facility)
+                        <div class="col-md-3 mb-2">
+                            <div class="custom-control custom-checkbox">
+                                <input type="checkbox" class="custom-control-input" name="facilities[]" value="{{ $facility }}" id="facility_{{ $loop->index }}" {{ is_array(old('facilities')) && in_array($facility, old('facilities')) ? 'checked' : '' }}>
+                                <label class="custom-control-label" for="facility_{{ $loop->index }}">{{ $facility }}</label>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+                @error('facilities')
+                    <div class="text-danger small">{{ $message }}</div>
+                @enderror
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Gambar Tambahan</h5>
+            </div>
+            <div class="card-body">
+                <div class="form-group">
+                    <label>Upload Gambar (Maksimal 5 gambar)</label>
+                    <div class="custom-file">
+                        <input type="file" id="images" name="images[]" class="custom-file-input @error('images') is-invalid @enderror" multiple onchange="previewAdditionalImages(this)">
+                        <label class="custom-file-label" for="images">Pilih gambar...</label>
+                    </div>
+                    @error('images')
+                        <div class="invalid-feedback d-block">{{ $message }}</div>
+                    @enderror
+                    <small class="text-muted">Format: JPEG, PNG, JPG, GIF (Max 2MB per gambar)</small>
+                </div>
+
+                <div class="row mt-3" id="additional-images-preview">
+                    <div class="col-12">
+                        <p class="text-muted">Preview gambar akan muncul di sini</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group text-center">
+            <button type="submit" class="btn btn-primary btn-lg mr-2">
+                <i class="fas fa-save"></i> Simpan Properti
+            </button>
+            <a href="{{ route('owner.property') }}" class="btn btn-secondary btn-lg">
+                <i class="fas fa-arrow-left"></i> Kembali
+            </a>
+        </div>
+    </form>
 </div>
 
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        const imageList = document.getElementById("image-list");
-        const addImageBtn = document.getElementById("add-image");
+    function initMap() {
+        const defaultLat = parseFloat(document.getElementById('latitude').value) || {{ $defaultLatitude }};
+        const defaultLng = parseFloat(document.getElementById('longitude').value) || {{ $defaultLongitude }};
 
-        // Tambah input gambar baru
-        addImageBtn.addEventListener("click", function() {
-            const newImageField = document.createElement("div");
-            newImageField.classList.add("input-group", "mb-2");
-            newImageField.innerHTML = `
-                <input type="file" name="images[]" class="form-control" accept="image/*" required>
-                <button type="button" class="btn btn-danger remove-image">
-                    <span class="material-icons-outlined">delete</span>
-                </button>
-            `;
-            imageList.appendChild(newImageField);
+        const map = new google.maps.Map(document.getElementById('map'), {
+            center: { lat: defaultLat, lng: defaultLng },
+            zoom: 15,
+            streetViewControl: false,
+            mapTypeControl: false
         });
 
-        // Hapus input gambar
-        imageList.addEventListener("click", function(e) {
-            if (e.target.closest(".remove-image")) {
-                e.target.closest(".input-group").remove();
-            }
-        });
-    });
-
-    // JavaScript untuk Tambah/Hapus Fasilitas
-    document.addEventListener("DOMContentLoaded", function() {
-        const facilitiesList = document.getElementById("facilities-list");
-        const addFacilityBtn = document.getElementById("add-facility");
-
-        // Tambah fasilitas baru
-        addFacilityBtn.addEventListener("click", function() {
-            const newFacility = document.createElement("div");
-            newFacility.classList.add("input-group", "mb-2");
-            newFacility.innerHTML = `
-                <input type="text" name="facilities[]" class="form-control" placeholder="Masukkan fasilitas" required>
-                <button type="button" class="btn btn-danger remove-facility">
-                    <span class="material-icons-outlined">delete</span>
-                </button>
-            `;
-            facilitiesList.appendChild(newFacility);
+        const marker = new google.maps.Marker({
+            position: { lat: defaultLat, lng: defaultLng },
+            map: map,
+            draggable: true,
+            title: "Lokasi Properti"
         });
 
-        // Hapus fasilitas
-        facilitiesList.addEventListener("click", function(e) {
-            if (e.target.closest(".remove-facility")) {
-                e.target.closest(".input-group").remove();
-            }
+        google.maps.event.addListener(marker, 'dragend', function() {
+            document.getElementById('latitude').value = marker.getPosition().lat();
+            document.getElementById('longitude').value = marker.getPosition().lng();
         });
-    });
 
-    function formatRupiah(input) {
-        let value = input.value.replace(/\D/g, ""); // Hapus semua karakter non-digit
-        value = new Intl.NumberFormat("id-ID").format(value); // Format angka ke Rupiah
-        input.value = value;
+        map.addListener('click', function(e) {
+            marker.setPosition(e.latLng);
+            document.getElementById('latitude').value = e.latLng.lat();
+            document.getElementById('longitude').value = e.latLng.lng();
+        });
     }
-</script>
 
-<script>
-    $(document).ready(function() {
-        // Provinsi → Kota
-        $('#province').on('change', function() {
-            var province_id = $(this).val();
-            $('#city').html('<option value="" disabled selected>Loading...</option>').prop('disabled', true);
-            $('#district').html('<option value="" disabled selected>Pilih Kecamatan</option>').prop('disabled', true);
-            $('#subdistrict').html('<option value="" disabled selected>Pilih Kelurahan</option>').prop('disabled', true);
-
-            if (province_id) {
-                $.get('/location/cities/' + province_id, function(data) {
-                    $('#city').html('<option value="" disabled selected>Pilih Kota</option>');
-                    $.each(data, function(index, item) {
-                        $('#city').append(`<option value="${item.id}">${item.city_name}</option>`);
-                    });
-                    $('#city').prop('disabled', false);
-                });
+    function previewFeaturedImage(input) {
+        const preview = document.getElementById('featured-image-preview');
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                preview.src = e.target.result;
+                preview.classList.remove('d-none');
             }
-        });
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
 
-        // Kota → Kecamatan
-        $('#city').on('change', function() {
-            var city_id = $(this).val();
-            $('#district').html('<option value="" disabled selected>Loading...</option>').prop('disabled', true);
-            $('#subdistrict').html('<option value="" disabled selected>Pilih Kelurahan</option>').prop('disabled', true);
+    function previewAdditionalImages(input) {
+        const previewContainer = document.getElementById('additional-images-preview');
+        previewContainer.innerHTML = '';
 
-            if (city_id) {
-                $.get('/location/districts/' + city_id, function(data) {
-                    $('#district').html('<option value="" disabled selected>Pilih Kecamatan</option>');
-                    $.each(data, function(index, item) {
-                        $('#district').append(`<option value="${item.id}">${item.dis_name}</option>`);
+        if (input.files && input.files.length > 0) {
+            const label = input.nextElementSibling;
+            label.textContent = input.files.length + ' gambar dipilih';
+
+            const files = Array.from(input.files).slice(0, 5);
+
+            files.forEach((file, index) => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const col = document.createElement('div');
+                    col.className = 'col-md-3 mb-3';
+
+                    const card = document.createElement('div');
+                    card.className = 'card';
+
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.className = 'card-img-top';
+                    img.style.height = '120px';
+                    img.style.objectFit = 'cover';
+
+                    card.appendChild(img);
+                    col.appendChild(card);
+                    previewContainer.appendChild(col);
+                }
+                reader.readAsDataURL(file);
+            });
+        } else {
+            const label = input.nextElementSibling;
+            label.textContent = 'Pilih gambar...';
+
+            const message = document.createElement('div');
+            message.className = 'col-12';
+            message.innerHTML = '<p class="text-muted">Preview gambar akan muncul di sini</p>';
+            previewContainer.appendChild(message);
+        }
+    }
+
+    document.getElementById('province_id').addEventListener('change', function() {
+        const provinceId = this.value;
+        const citySelect = document.getElementById('city_id');
+        const districtSelect = document.getElementById('district_id');
+        const subdistrictSelect = document.getElementById('subdistrict_id');
+
+        citySelect.innerHTML = '<option value="">Memuat...</option>';
+        citySelect.disabled = true;
+        districtSelect.innerHTML = '<option value="">Pilih Kecamatan</option>';
+        subdistrictSelect.innerHTML = '<option value="">Pilih Kelurahan</option>';
+
+        if (provinceId) {
+            fetch(`/owner/get-cities/${provinceId}`)
+                .then(response => response.json())
+                .then(data => {
+                    citySelect.innerHTML = '<option value="">Pilih Kabupaten/Kota</option>';
+                    data.forEach(city => {
+                        citySelect.innerHTML += `<option value="${city.id}">${city.name}</option>`;
                     });
-                    $('#district').prop('disabled', false);
+                    citySelect.disabled = false;
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    citySelect.innerHTML = '<option value="">Gagal memuat data</option>';
+                    citySelect.disabled = false;
                 });
-            }
-        });
+        } else {
+            citySelect.innerHTML = '<option value="">Pilih Kabupaten/Kota</option>';
+            citySelect.disabled = false;
+        }
+    });
 
-        // Kecamatan → Kelurahan
-        $('#district').on('change', function() {
-            var district_id = $(this).val();
-            $('#subdistrict').html('<option value="" disabled selected>Loading...</option>').prop('disabled', true);
+    document.getElementById('city_id').addEventListener('change', function() {
+        const cityId = this.value;
+        const districtSelect = document.getElementById('district_id');
+        const subdistrictSelect = document.getElementById('subdistrict_id');
 
-            if (district_id) {
-                $.get('/location/subdistricts/' + district_id, function(data) {
-                    $('#subdistrict').html('<option value="" disabled selected>Pilih Kelurahan</option>');
-                    $.each(data, function(index, item) {
-                        $('#subdistrict').append(`<option value="${item.id}">${item.subdis_name}</option>`);
+        districtSelect.innerHTML = '<option value="">Memuat...</option>';
+        districtSelect.disabled = true;
+        subdistrictSelect.innerHTML = '<option value="">Pilih Kelurahan</option>';
+
+        if (cityId) {
+            fetch(`/owner/get-districts/${cityId}`)
+                .then(response => response.json())
+                .then(data => {
+                    districtSelect.innerHTML = '<option value="">Pilih Kecamatan</option>';
+                    data.forEach(district => {
+                        districtSelect.innerHTML += `<option value="${district.id}">${district.name}</option>`;
                     });
-                    $('#subdistrict').prop('disabled', false);
+                    districtSelect.disabled = false;
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    districtSelect.innerHTML = '<option value="">Gagal memuat data</option>';
+                    districtSelect.disabled = false;
                 });
-            }
-        });
+        } else {
+            districtSelect.innerHTML = '<option value="">Pilih Kecamatan</option>';
+            districtSelect.disabled = false;
+        }
+    });
+
+    document.getElementById('district_id').addEventListener('change', function() {
+        const districtId = this.value;
+        const subdistrictSelect = document.getElementById('subdistrict_id');
+
+        subdistrictSelect.innerHTML = '<option value="">Memuat...</option>';
+        subdistrictSelect.disabled = true;
+
+        if (districtId) {
+            fetch(`/owner/get-subdistricts/${districtId}`)
+                .then(response => response.json())
+                .then(data => {
+                    subdistrictSelect.innerHTML = '<option value="">Pilih Kelurahan</option>';
+                    data.forEach(subdistrict => {
+                        subdistrictSelect.innerHTML += `<option value="${subdistrict.id}">${subdistrict.name}</option>`;
+                    });
+                    subdistrictSelect.disabled = false;
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    subdistrictSelect.innerHTML = '<option value="">Gagal memuat data</option>';
+                    subdistrictSelect.disabled = false;
+                });
+        } else {
+            subdistrictSelect.innerHTML = '<option value="">Pilih Kelurahan</option>';
+            subdistrictSelect.disabled = false;
+        }
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const oldProvinceId = "{{ old('province_id') }}";
+        const oldCityId = "{{ old('city_id') }}";
+        const oldDistrictId = "{{ old('district_id') }}";
+        const oldSubdistrictId = "{{ old('subdistrict_id') }}";
+
+        if (oldProvinceId) {
+            const provinceSelect = document.getElementById('province_id');
+            provinceSelect.value = oldProvinceId;
+
+            const event = new Event('change');
+            provinceSelect.dispatchEvent(event);
+            setTimeout(() => {
+                if (oldCityId) {
+                    const citySelect = document.getElementById('city_id');
+                    citySelect.value = oldCityId;
+
+                    citySelect.dispatchEvent(new Event('change'));
+
+                    setTimeout(() => {
+                        if (oldDistrictId) {
+                            const districtSelect = document.getElementById('district_id');
+                            districtSelect.value = oldDistrictId;
+
+                            districtSelect.dispatchEvent(new Event('change'));
+
+                            setTimeout(() => {
+                                if (oldSubdistrictId) {
+                                    document.getElementById('subdistrict_id').value = oldSubdistrictId;
+                                }
+                            }, 300);
+                        }
+                    }, 300);
+                }
+            }, 300);
+        }
     });
 </script>
+<script src="https://maps.googleapis.com/maps/api/js?key={{ config('services.google_maps.key') }}&callback=initMap" async defer></script>
 @endsection
