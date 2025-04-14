@@ -8,8 +8,25 @@ class FillProfileScreen extends StatefulWidget {
 }
 
 class _FillProfileScreenState extends State<FillProfileScreen> {
+  late RegisterController controller;
 
-  // DateTime selectedDate = DateTime.now();
+  @override
+  void initState() {
+    super.initState();
+    controller = Get.find<RegisterController>();
+  }
+
+  File? localSelectedImage;
+
+  Future<void> selectImageFromGallery() async {
+    XFile? pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      setState(() {
+        localSelectedImage = File(pickedFile.path);
+      });
+    }
+  }
+
   Future<void> _selectDate(BuildContext context) async {
     DateTime? pickedDate = await showDatePicker(
       context: context,
@@ -17,90 +34,12 @@ class _FillProfileScreenState extends State<FillProfileScreen> {
       firstDate: DateTime(2000),
       lastDate: DateTime(2050),
     );
-    if (pickedDate != null && pickedDate != controller.selectedDate) {
+    if (pickedDate != null) {
       setState(() {
         controller.selectedDate = pickedDate;
-        controller.dateController.text = "${controller.selectedDate.toLocal()}".split(" ")[0];
+        controller.dateController.text = "${pickedDate.toLocal()}".split(" ")[0];
       });
     }
-  }
-
-  late RegisterController controller = RegisterController();
-  bool isMobileNumberEmpty  = false;
-  @override
-  void initState() {
-    super.initState();
-    controller = Get.put(RegisterController());
-  }
-
-  File? selectedImage;
-  Future<void> selectImageFromGallery() async {
-    XFile? pickedFile = (await ImagePicker().pickImage(source: ImageSource.gallery));
-    if(pickedFile != null) {
-      setState(() {
-        selectedImage = File(pickedFile.path);
-      });
-    }
-  }
-
-  Future<void> selectImageFroCamera() async {
-    XFile? pickedFile = (await ImagePicker().pickImage(source: ImageSource.camera));
-    if(pickedFile != null) {
-      setState(() {
-        selectedImage = File(pickedFile.path);
-      });
-    }
-  }
-
-  Future showOptions() async {
-    // final ThemeData theme = Theme.of(context);
-    showModalBottomSheet(
-      context: context,
-      builder: (context) {
-        return BottomSheet(
-          onClosing: () {},
-          builder: (context) {
-            return Wrap(
-              children: [
-                Column(
-                  children: [
-                    const SizedBox(height: 20),
-                    InkWell(
-                      onTap: () {
-                        Navigator.of(context).pop();
-                        selectImageFromGallery();
-                      },
-                      child: Container(
-                        alignment: Alignment.center,
-                        height: 40,
-                        width: MediaQuery.of(context).size.width,
-                        // color: Colors.red,
-                        child: const Text("Open Gallery",style: TextStyle(fontSize: 14,)),
-                      ),
-                    ),
-                    Divider(color: Colors.grey.shade300),
-                    InkWell(
-                      onTap: () {
-                        Navigator.of(context).pop();
-                        selectImageFroCamera();
-                      },
-                      child: Container(
-                        alignment: Alignment.center,
-                        height: 40,
-                        width: MediaQuery.of(context).size.width,
-                        // color: Colors.blue,
-                        child: const Text("Open Camera",style: TextStyle(fontSize: 14,)),
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                  ],
-                ),
-              ],
-            );
-          },
-        );
-      },
-    );
   }
 
   @override
@@ -110,128 +49,99 @@ class _FillProfileScreenState extends State<FillProfileScreen> {
       bottomNavigationBar: Container(
         height: 90,
         padding: const EdgeInsets.all(15),
-        child:
-        Button(
-          onpressed: () {
-            return controller.fillProfileSubmit(status: 'fill');
-          },
-          text: MyString.continueButton,
-        ),
+        child: Obx(() => Button(
+              onPressed: () {
+                    if (!controller.isLoading.value) {
+    controller.fillProfileSubmit(status: 'fill');
+  }
+},
+              text: controller.isLoading.value ? 'Loading...' : MyString.continueButton,
+              shadowColor: controller.themeController.isDarkMode.value ? Colors.transparent : MyColors.buttonShadowColor,
+            )),
       ),
       body: GetBuilder<RegisterController>(
         builder: (controller) {
           return SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(15, 50, 15, 20),
-              child: Form(
-                key: controller.fillFormKey,
-                child: Column(
-                  children: [
-                    InkWell(
-                      onTap: () {
-                        showOptions();
-                      },
-                      child: Stack(
-                        children: [
-                          selectedImage != null
-                          ? CircleAvatar(
-                            radius: 70,
-                            backgroundImage: FileImage(selectedImage!),
-                          )
-                          : CircleAvatar(
-                            radius: 70,
-                            backgroundColor: controller.themeController.isDarkMode.value ? MyColors.profilePersonDark : MyColors.profilePerson,
-                            child: Image.asset(MyImages.profilePerson,),
-                          ),
-                          Positioned(
-                            bottom: 2,
-                            right: 2,
-                            child: SvgPicture.asset(MyImages.editProfile, colorFilter: ColorFilter.mode(controller.themeController.isDarkMode.value ? MyColors.white : MyColors.black, BlendMode.srcIn),),
-                            // child: Icon(Icons.edit),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 29),
-                    CustomTextFormField(
-                      controller: controller.nameController,
-                      obscureText: false,
-                      hintText: MyString.fullName,
-                      fillColor: controller.themeController.isDarkMode.value ? MyColors.darkTextFieldColor : MyColors.disabledTextFieldColor,
-                      validator: Validations().nameValidation,
-                      textInputAction: TextInputAction.next,
-                    ),
-                    const SizedBox(height: 20),
-                    CustomTextFormField(
-                      controller: controller.nickNameController,
-                      obscureText: false,
-                      hintText: MyString.nickName,
-                      fillColor: controller.themeController.isDarkMode.value ? MyColors.darkTextFieldColor : MyColors.disabledTextFieldColor,
-                      validator: Validations().nameValidation,
-                      textInputAction: TextInputAction.next,
-                    ),
-                    const SizedBox(height: 20),
-                    Obx(() => InkWell(
-                      onTap: () {
-                        _selectDate(context);
-                      },
-                      child: AbsorbPointer(
-                        child: CustomTextFormField(
-                          controller: controller.dateController,
-                          obscureText: false,
-                          validator: Validations().dateValidation,
-                          textInputAction: TextInputAction.next,
-                          hintText:  MyString.dateBirth,
-                          fillColor: controller.themeController.isDarkMode.value ? MyColors.darkTextFieldColor : MyColors.disabledTextFieldColor,
-                          suffixIcon: Padding(
-                            padding: const EdgeInsets.all(15),
-                            child: SvgPicture.asset(MyImages.datePicker),
-                          ),
-                        ),
-                      ),
-                    ),),
-                    const SizedBox(height: 20),
-                    CustomTextFormField(
-                      controller: controller.emailController,
-                      obscureText: false,
-                      validator: Validations().emailValidation,
-                      keyboardType: TextInputType.emailAddress,
-                      textInputAction: TextInputAction.next,
-                      hintText: MyString.email,
-                      fillColor: MyColors.disabledTextFieldColor,
-                      suffixIcon: Padding(
-                        padding: const EdgeInsets.all(15),
-                        child: SvgPicture.asset(MyImages.fillEmailBoxDark),
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.start,
+            padding: const EdgeInsets.fromLTRB(15, 50, 15, 20),
+            child: Form(
+              key: controller.fillFormKey,
+              child: Column(
+                children: [
+                  InkWell(
+                    onTap: selectImageFromGallery,
+                    child: Stack(
                       children: [
-                        SizedBox(
-                          width: MediaQuery.of(context).size.width * 25 /100,
-                          child: countryPickerDropdown(controller.countryCode, controller.countryCodes)
+                        CircleAvatar(
+                          radius: 70,
+                          backgroundImage: localSelectedImage != null ? FileImage(localSelectedImage!) : null,
+                          child: localSelectedImage == null ? Image.asset(MyImages.profilePerson) : null,
                         ),
-                        SizedBox(
-                          width: MediaQuery.of(context).size.width * 62 /100,
-                          child: CustomTextFormField(
-                            controller: controller.mobileNumberController,
-                            obscureText: false,
-                            validator: Validations().mobileNumberValidation,
-                            keyboardType: TextInputType.phone,
-                            textInputAction: TextInputAction.next,
-                            hintText: MyString.phoneNumber,
-                            fillColor: MyColors.disabledTextFieldColor,
-                          ),
+                        const Positioned(
+                          bottom: 2,
+                          right: 2,
+                          child: Icon(Icons.edit),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 20),
-                    commonDropdownButton(controller.selectedGender, MyString.genderSelect, controller.themeController.isDarkMode.value),
-                  ],
-                ),
-              ),
+                  ),
+                  const SizedBox(height: 29),
+                  CustomTextFormField(
+                    controller: controller.nameController,
+                    hintText: MyString.fullName,
+                    validator: Validations().nameValidation,
+                    fillColor: controller.themeController.isDarkMode.value ? MyColors.darkTextFieldColor : MyColors.disabledTextFieldColor,
+                  ),
+                  const SizedBox(height: 20),
+                  CustomTextFormField(
+                    controller: controller.nickNameController,
+                    hintText: MyString.nickName,
+                    validator: Validations().nameValidation,
+                    fillColor: controller.themeController.isDarkMode.value ? MyColors.darkTextFieldColor : MyColors.disabledTextFieldColor,
+                  ),
+                  const SizedBox(height: 20),
+                  InkWell(
+                    onTap: () => _selectDate(context),
+                    child: AbsorbPointer(
+                      child: CustomTextFormField(
+                        controller: controller.dateController,
+                        hintText: MyString.dateBirth,
+                        validator: Validations().dateValidation,
+                        fillColor: controller.themeController.isDarkMode.value ? MyColors.darkTextFieldColor : MyColors.disabledTextFieldColor,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  CustomTextFormField(
+                    controller: controller.emailController,
+                    hintText: MyString.email,
+                    validator: Validations().emailValidation,
+                    keyboardType: TextInputType.emailAddress,
+                    fillColor: controller.themeController.isDarkMode.value ? MyColors.darkTextFieldColor : MyColors.disabledTextFieldColor,
+                  ),
+                  const SizedBox(height: 20),
+                  Row(
+                    children: [
+                      Expanded(
+                        flex: 2,
+                        child: countryPickerDropdown(controller.countryCode.value, controller.countryCodes)
+,
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        flex: 5,
+                        child: CustomTextFormField(
+                          controller: controller.mobileNumberController,
+                          hintText: MyString.phoneNumber,
+                          validator: Validations().mobileNumberValidation,
+                          keyboardType: TextInputType.phone,
+                          fillColor: controller.themeController.isDarkMode.value ? MyColors.darkTextFieldColor : MyColors.disabledTextFieldColor,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  commonDropdownButton(controller.selectedGender.value), // sekarang ini String, bukan RxStringMyString.genderSelect,controller.themeController.isDarkMode.value)
+              )
             ),
           );
         },

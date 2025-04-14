@@ -1,9 +1,12 @@
 <?php
 
-use App\Http\Controllers\LocationController;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\AuthController;
 
-// Route::post('/provinces', [LocationController::class, 'storeProvinces']);
-// Route::post('/cities', [LocationController::class, 'storeCities']);
-// Route::post('/districts', [LocationController::class, 'storeDistricts']);
-// Route::post('/subdistricts', [LocationController::class, 'storeSubdistricts']);
+Route::post('/register', [AuthController::class, 'register']);
+Route::post('/login', [AuthController::class, 'login']);
+Route::get('/user', function (Request $request) {
+    return $request->user();
+})->middleware('auth:sanctum');
+

@@ -13,7 +13,7 @@ class LoginController extends GetxController {
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
 
-  static const String baseUrl = "http://192.168.32.6:8000"; // sesuaikan IP
+  static const String baseUrl = "http://10.0.2.2:8000"; // sesuaikan IP
 
   void submit() async {
     final isValid = formKey.currentState!.validate();
