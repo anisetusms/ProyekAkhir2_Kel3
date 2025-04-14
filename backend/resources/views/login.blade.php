@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en" data-bs-theme="">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hommie | Login</title>
+  <!--favicon-->
+  <!-- <link rel="icon" href="assets/images/favicon-32x32.png" type="image/png"> -->
+  <!-- loader-->
+  <link href="assets/css/pace.min.css" rel="stylesheet">
+  <script src="assets/js/pace.min.js"></script>
+
+  <!--plugins-->
+  <link href="assets/plugins/perfect-scrollbar/css/perfect-scrollbar.css" rel="stylesheet">
+  <link rel="stylesheet" type="text/css" href="assets/plugins/metismenu/metisMenu.min.css">
+  <link rel="stylesheet" type="text/css" href="assets/plugins/metismenu/mm-vertical.css">
+  <!--bootstrap css-->
+  <link href="assets/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Material+Icons+Outlined" rel="stylesheet">
+  <!--main css-->
+  <link href="assets/css/bootstrap-extended.css" rel="stylesheet">
+  <link href="sass/main.css" rel="stylesheet">
+  <link href="sass/dark-theme.css" rel="stylesheet">
+  <link href="sass/blue-theme.css" rel="stylesheet">
+  <link href="sass/responsive.css" rel="stylesheet">
+</head>
+
+<body>
+  <div class="section-authentication-cover">
+    <div class="">
+      <div class="row g-0">
+        <div class="col-12 col-xl-7 col-xxl-8 auth-cover-left align-items-center justify-content-center d-none d-xl-flex border-end bg-transparent">
+          <div class="card rounded-0 mb-0 border-0 shadow-none bg-transparent bg-none">
+            <div class="card-body">
+              <img src="assets/images/auth/login1.png" class="img-fluid auth-img-cover-login" width="650" alt="">
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12 col-xl-5 col-xxl-4 auth-cover-right align-items-center justify-content-center border-top border-4 border-primary border-gradient-1">
+          <div class="card rounded-0 m-3 mb-0 border-0 shadow-none bg-none">
+            <div class="card-body p-sm-5">
+              <h4 class="fw-bold">Selamat Datang</h4>
+              <p class="mb-0">Masukkan kredensial Anda untuk login ke akun Anda</p>
+
+              <div class="form-body mt-4">
+                <form class="row g-3" id="loginForm" action="{{ route('login1') }}" method="POST">
+                  @csrf
+
+                  <div class="col-12">
+                    <label for="inputEmailAddress" class="form-label">Email</label>
+                    <input type="email" class="form-control" id="inputEmailAddress" name="email" placeholder="jhon@example.com" required>
+                  </div>
+
+                  <div class="col-12">
+                    <label for="inputChoosePassword" class="form-label">Password</label>
+                    <div class="input-group">
+                      <input type="password" class="form-control" id="inputChoosePassword" name="password" placeholder="Masukkan Password" required>
+                      <button type="button" class="input-group-text bg-transparent" onclick="togglePassword()">
+                        <i class="bi bi-eye-slash-fill" id="toggleIcon"></i>
+                      </button>
+                    </div>
+                  </div>
+
+                  <div class="col-md-6">
+                    <div class="form-check form-switch">
+                      <input class="form-check-input" type="checkbox" id="flexSwitchCheckChecked" name="remember">
+                      <label class="form-check-label" for="flexSwitchCheckChecked">Ingat Saya</label>
+                    </div>
+                  </div>
+
+                  <div class="col-md-6 text-end">
+                    <a href="">Lupa Password?</a>
+                  </div>
+
+                  <div class="col-12">
+                    <div class="d-grid">
+                      <button type="submit" class="btn btn-grd-primary">Login</button>
+                    </div>
+                  </div>
+
+                  <div class="col-12">
+                    <div class="text-start">
+                      <p class="mb-0">Belum punya akun? <a href="{{ route('register') }}">Daftar di sini</a></p>
+                    </div>
+                  </div>
+
+                  @if(session('error'))
+                  <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    {{ session('error') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                  </div>
+                  @endif
+
+                </form>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!--plugins-->
+  <script src="assets/js/jquery.min.js"></script>
+
+  <script>
+    function togglePassword() {
+      let passwordInput = document.getElementById("inputChoosePassword");
+      let toggleIcon = document.getElementById("toggleIcon");
+
+      if (passwordInput.type === "password") {
+        passwordInput.type = "text";
+        toggleIcon.classList.remove("bi-eye-slash-fill");
+        toggleIcon.classList.add("bi-eye-fill");
+      } else {
+        passwordInput.type = "password";
+        toggleIcon.classList.remove("bi-eye-fill");
+        toggleIcon.classList.add("bi-eye-slash-fill");
+      }
+    }
+  </script>
+
+</body>
+
+</html>
