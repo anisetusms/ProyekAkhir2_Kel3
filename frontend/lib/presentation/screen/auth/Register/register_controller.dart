@@ -1,65 +1,83 @@
 part of 'register_import.dart';
 
 class RegisterController extends GetxController {
-  final ThemeController themeController = Get.put(ThemeController());
-
+   final ThemeController themeController = Get.put(ThemeController());
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
-
+  
   RxBool showPassword = true.obs;
 
-  Rx<FocusNode> emailFocusNode = FocusNode().obs;
-  Rx<FocusNode> passwordFocusNode = FocusNode().obs;
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController usernameController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+  final TextEditingController phoneController = TextEditingController();
+  final TextEditingController addressController = TextEditingController();
 
-  TextEditingController nameController =TextEditingController();
-  TextEditingController emailController =TextEditingController();
-  TextEditingController passwordController =TextEditingController();
+  RxString selectedGender = ''.obs;
+  Rx<File?> selectedImage = Rx<File?>(null);
 
-  void submit() {
+  final  dio = dio_lib.Dio();
+
+  Future<void> pickImage() async {
+    final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      selectedImage.value = File(pickedFile.path);
+    }
+  }
+
+  Future<void> register() async {
     final isValid = formKey.currentState!.validate();
-    Get.focusScope!.unfocus();
-    if (!isValid) {
-      return;
+    Get.focusScope?.unfocus();
+    if (!isValid) return;
+
+    final formData = dio_lib.FormData.fromMap({
+      "name": nameController.text,
+      "username": usernameController.text,
+      "email": emailController.text,
+      "password": passwordController.text,
+      "phone": phoneController.text,
+      "address": addressController.text,
+      "gender": selectedGender.value,
+      if (selectedImage.value != null)
+        "profile_picture": await dio_lib.MultipartFile.fromFile(
+          selectedImage.value!.path,
+          filename: selectedImage.value!.path.split("/").last,
+        ),
+    });
+
+    try {
+      final response = await dio.post(
+        "http://10.0.2.2:8000/api/register",
+        data: formData,
+        options: dio_lib.Options(
+          headers: {
+            "Accept": "application/json",
+          },
+        ),
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        Get.snackbar("Sukses", "Registrasi berhasil!");
+        Get.offAllNamed("/bottomBar");
+      } else {
+        Get.snackbar("Gagal", "Terjadi kesalahan saat registrasi.");
+      }
+    } on dio_lib.DioException catch (e) {
+  String errorMsg = 'Terjadi kesalahan.';
+
+  if (e.response != null) {
+    final data = e.response?.data;
+
+    if (data is Map && data.containsKey('message')) {
+      errorMsg = data['message'];
     } else {
-      Get.toNamed("/fillProfileScreen");
+      errorMsg = 'Status: ${e.response?.statusCode}\nError: ${data.toString()}';
     }
-    formKey.currentState!.save();
+  } else {
+    errorMsg = 'Tidak ada respon dari server.\nError: ${e.message}';
   }
 
-//------------------------ fill profile -----------------------------
-
-  final GlobalKey<FormState> fillFormKey = GlobalKey<FormState>();
-
-  final TextEditingController nickNameController = TextEditingController();
-  final TextEditingController dateController = TextEditingController();
-  TextEditingController mobileNumberController = TextEditingController();
-
-  String? selectedGender;
-  String countryCode = "+93";
-  RxList<Map<String, dynamic>> countryCodes = <Map<String, dynamic>>[].obs;
-
-  @override
-  void onInit() {
-    _loadCountryCodes();
-    super.onInit();
-  }
-
-  Future<void> _loadCountryCodes() async {
-    String data = await rootBundle.loadString('assets/data/countryPicker.json');
-    countryCodes.value = List<Map<String, dynamic>>.from(json.decode(data));
-    countryCodes.value = countryCodes.toSet().toList();
-  }
-
-  DateTime selectedDate = DateTime.now();
-
-  void fillProfileSubmit({required status}) {
-    final isValid = fillFormKey.currentState!.validate();
-
-    Get.focusScope!.unfocus();
-    if (!isValid) {
-    } else {
-      status == 'update' ? Get.back() : Get.offNamedUntil("/bottomBar", (route) => false);
-    }
-    fillFormKey.currentState!.save();
+  Get.snackbar("Gagal", errorMsg);
+}
   }
 }
-

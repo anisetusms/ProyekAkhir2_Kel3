@@ -16,7 +16,7 @@ import 'package:get/get.dart';
 import 'package:hotel_booking/presentation/screen/auth/login/login_import.dart';
 import 'package:hotel_booking/utils/validations.dart';
 import 'package:image_picker/image_picker.dart';
-
+import 'package:dio/dio.dart' as dio_lib;
 part 'register.dart';
-part 'fill_profile.dart';
+// part 'fill_profile.dart';
 part 'register_controller.dart';

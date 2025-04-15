@@ -32,12 +32,12 @@ class Routes {
       transition: Transition.leftToRight,
       transitionDuration: const Duration(milliseconds: 600),
     ),
-    GetPage(
-      name: "/fillProfileScreen",
-      page: () => const FillProfileScreen(),
-      transition: Transition.leftToRight,
-      transitionDuration: const Duration(milliseconds: 600),
-    ),
+    // GetPage(
+    //   name: "/fillProfileScreen",
+    //   page: () => const FillProfileScreen(),
+    //   transition: Transition.leftToRight,
+    //   transitionDuration: const Duration(milliseconds: 600),
+    // ),
     GetPage(name: "/choicePassword", page: () => const ChoicePasswordScreen()),
     GetPage(
       name: "/selectSmsEmail",
@@ -175,12 +175,12 @@ class Routes {
       transition: Transition.leftToRight,
       transitionDuration: const Duration(milliseconds: 600),
     ),
-    GetPage(
-      name: "/editProfile",
-      page: () => const EditProfile(),
-      transition: Transition.leftToRight,
-      transitionDuration: const Duration(milliseconds: 600),
-    ),
+    // GetPage(
+    //   name: "/editProfile",
+    //   page: () => const EditProfile(),
+    //   transition: Transition.leftToRight,
+    //   transitionDuration: const Duration(milliseconds: 600),
+    // ),
     GetPage(
       name: "/chooseLanguage",
       page: () => const ChooseLanguage(),

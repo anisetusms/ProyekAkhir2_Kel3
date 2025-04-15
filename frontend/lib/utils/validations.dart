@@ -46,6 +46,13 @@ class Validations {
     return null;
   }
 
+  String? addressValidation(String value) {
+    if(value.isEmpty) {
+      return "address is required.";
+    }
+    return null;
+  }
+
   String? emailValidation(value) {
     if(value.isEmpty)
     {

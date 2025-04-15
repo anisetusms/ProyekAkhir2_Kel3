@@ -20,7 +20,7 @@ import 'package:image_picker/image_picker.dart';
 import '../../common_widgets/bottomsheet.dart';
 
 part 'choose_language.dart';
-part 'edit_profile.dart';
+// part 'edit_profile.dart';
 part 'profile.dart';
 part 'profile_controller.dart';
 part 'profile_notification.dart';
