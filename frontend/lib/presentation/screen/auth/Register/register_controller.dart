@@ -47,7 +47,7 @@ class RegisterController extends GetxController {
 
     try {
       final response = await dio.post(
-        "http://10.0.2.2:8000/api/register",
+        "http://192.168.43.103:8000/api/register",
         data: formData,
         options: dio_lib.Options(
           headers: {
