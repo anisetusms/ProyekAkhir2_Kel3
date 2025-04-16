@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Requests\StoreRoomRequest;
 use App\Http\Requests\UpdateRoomRequest;
+use Illuminate\Support\Facades\DB;
 
 class RoomController extends Controller
 {
@@ -33,70 +34,38 @@ class RoomController extends Controller
      * @param  int  $propertyId
      * @return \Illuminate\View\View
      */
-    public function create($propertyId)
+    public function create(Property $property)
     {
-        $property = Property::where('isDeleted', false)->findOrFail($propertyId);
-        return view('admin.rooms.create', compact('property'));
+        return view('admin.properties.rooms.create', compact('property'));
     }
 
-    /**
-     * Store a newly created room in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $propertyId
-     * @return \Illuminate\Http\RedirectResponse
-     */
-    public function store(StoreRoomRequest $request, Property $property, $propertyId)
+    public function store(Request $request, Property $property)
     {
-        $property = Property::where('isDeleted', false)->findOrFail($propertyId);
-
-        $validator = Validator::make($request->all(), [
-            'room_type' => 'required|string|max:100',
-            'room_number' => 'required|string|max:50|unique:rooms,room_number,NULL,id,property_id,' . $propertyId,
-            'price' => 'required|numeric|min:0',
-            'size' => 'nullable|string|max:50',
-            'capacity' => 'required|integer|min:1',
-            'is_available' => 'sometimes|boolean',
-            'description' => 'nullable|string',
-            'facilities' => 'sometimes|array',
-            'facilities.*' => 'string|max:255',
+        $request->validate([
+            'rooms' => 'required|array|min:1',
+            'rooms.*.number' => 'required|string',
+            'rooms.*.size' => 'required|numeric|min:1',
+            'rooms.*.price' => 'required|numeric|min:0',
         ]);
 
-        if ($validator->fails()) {
-            return redirect()->back()
-                ->withErrors($validator)
-                ->withInput();
-        }
-
+        DB::beginTransaction();
         try {
-            // Buat kamar
-            $room = Room::create([
-                'property_id' => $propertyId,
-                'room_type' => $request->room_type,
-                'room_number' => $request->room_number,
-                'price' => $request->price,
-                'size' => $request->size,
-                'capacity' => $request->capacity,
-                'is_available' => $request->is_available ?? true,
-                'description' => $request->description,
-            ]);
-
-            // Tambahkan fasilitas jika ada
-            if ($request->has('facilities')) {
-                foreach ($request->facilities as $facility) {
-                    RoomFacility::create([
-                        'room_id' => $room->id,
-                        'facility_name' => $facility
-                    ]);
-                }
+            foreach ($request->rooms as $room) {
+                Room::create([
+                    'property_id' => $property->id,
+                    'room_number' => $room['number'],
+                    'size' => $room['size'],
+                    'price' => $room['price'],
+                    'status' => 'available'
+                ]);
             }
-
-            // Update jumlah kamar tersedia di properti
-            $this->updateAvailableRooms($property);
-
-            return redirect()->route('admin.properties.rooms.show', [$propertyId, $room->id])
+            
+            DB::commit();
+            
+            return redirect()->route('admin.properties.show', $property->id)
                 ->with('success', 'Kamar berhasil ditambahkan');
         } catch (\Exception $e) {
+            DB::rollBack();
             return redirect()->back()
                 ->with('error', 'Gagal menambahkan kamar: ' . $e->getMessage())
                 ->withInput();

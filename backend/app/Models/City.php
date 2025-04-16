@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class City extends Model
 {
     protected $table = 'cities';
-    protected $fillable = ['city_name', 'prov_id'];
+    protected $fillable = ['province_id', 'city_name'];
 
     public function province(): BelongsTo
     {

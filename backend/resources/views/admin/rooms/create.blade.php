@@ -1,5 +1,3 @@
-<!-- resources/views/admin/rooms/create.blade.php -->
-
 @extends('layouts.admin')
 
 @section('content')

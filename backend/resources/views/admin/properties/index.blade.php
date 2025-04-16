@@ -73,7 +73,7 @@
                                         <i class="fas fa-trash"></i>
                                     </button>
                                 </form>
-                                <a href="{{ route('admin.properties.rooms.index', $property->id) }}" class="btn btn-sm btn-secondary" title="Kelola Kamar">
+                                <a href="{{ route('admin.rooms.index', $property->id) }}" class="btn btn-sm btn-secondary" title="Kelola Kamar">
                                     <i class="fas fa-door-open"></i>
                                 </a>
                             </td>

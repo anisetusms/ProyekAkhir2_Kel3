@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\PropertyController;
 use App\Http\Controllers\Admin\RoomController;
+use App\Http\Controllers\Admin\UnitController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\OwnerController;
@@ -65,11 +66,11 @@ Route::prefix('owner')->name('owner.')->group(function () {
 
 
 // Location Routes
-Route::prefix('location')->group(function () {
-    Route::get('/cities/{provinceId}', [LocationController::class, 'getCities']);
-    Route::get('/districts/{cityId}', [LocationController::class, 'getDistricts']);
-    Route::get('/subdistricts/{districtId}', [LocationController::class, 'getSubdistricts']);
-});
+// Route::prefix('location')->group(function () {
+//     Route::get('/cities/{provinceId}', [LocationController::class, 'getCities']);
+//     Route::get('/districts/{cityId}', [LocationController::class, 'getDistricts']);
+//     Route::get('/subdistricts/{districtId}', [LocationController::class, 'getSubdistricts']);
+// });
 
 
 // Super Admin Routes
@@ -121,43 +122,50 @@ Route::prefix('platform-admin')->name('platform_admin.')->group(function () {
 Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [PropertyController::class, 'dashboard'])->name('dashboard');
     Route::get('/properties', [PropertyController::class, 'index'])->name('properties.index');
+    Route::get('/rooms', [PropertyController::class, 'index'])->name('rooms.index');
     Route::get('/properties/create', [PropertyController::class, 'create'])->name('properties.create');
     Route::post('/properties', [PropertyController::class, 'store'])->name('properties.store');
     Route::get('/properties/{id}', [PropertyController::class, 'show'])->name('properties.show');
     Route::get('/properties/{id}/edit', [PropertyController::class, 'edit'])->name('properties.edit');
     Route::put('/properties/{id}', [PropertyController::class, 'update'])->name('properties.update');
     Route::delete('/properties/{id}', [PropertyController::class, 'destroy'])->name('properties.destroy');
-    Route::post('/provinces', [OwnerController::class, 'storeProvinces']);
-    Route::post('/cities', [OwnerController::class, 'storeCities']);
-    Route::post('/districts', [OwnerController::class, 'storeDistricts']);
-    Route::post('/subdistricts', [OwnerController::class, 'storeSubdistricts']);
-
-    Route::get('/properties/cities/{province_id}', [PropertyController::class, 'getCities'])->name('admin.properties.cities');
-    Route::get('/properties/districts/{city_id}', [PropertyController::class, 'getDistricts'])->name('admin.properties.districts');
-    Route::get('/properties/subdistricts/{district_id}', [PropertyController::class, 'getSubdistricts'])->name('admin.properties.subdistricts');
+    // Route::post('/provinces', [OwnerController::class, 'storeProvinces']);
+    // Route::post('/cities', [OwnerController::class, 'storeCities']);
+    // Route::post('/districts', [OwnerController::class, 'storeDistricts']);
+    // Route::post('/subdistricts', [OwnerController::class, 'storeSubdistricts']);
+    Route::get('properties/{property}/rooms/create', [RoomController::class, 'create'])->name('properties.rooms.create');
+    Route::post('properties/{property}/rooms', [RoomController::class, 'store'])->name('properties.rooms.store');
+    Route::get('properties/{property}/units/create', [UnitController::class, 'create'])->name('properties.units.create');
+    Route::post('properties/{property}/units', [UnitController::class, 'store'])->name('properties.units.store');
 });
 
-Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(function () {
-    // Property routes
-    Route::get('/properties', [PropertyController::class, 'index'])->name('properties.index');
-    Route::get('/properties/create', [PropertyController::class, 'create'])->name('properties.create');
-    Route::post('/properties', [PropertyController::class, 'store'])->name('properties.store');
-    Route::get('/properties/{id}', [PropertyController::class, 'show'])->name('properties.show');
-    Route::get('/properties/{id}/edit', [PropertyController::class, 'edit'])->name('properties.edit');
-    Route::put('/properties/{id}', [PropertyController::class, 'update'])->name('properties.update');
-    Route::delete('/properties/{id}', [PropertyController::class, 'destroy'])->name('properties.destroy');
-
-    // AJAX routes for location
-    Route::get('/properties/cities/{province_id}', [PropertyController::class, 'getCities'])->name('properties.cities');
-    Route::get('/properties/districts/{city_id}', [PropertyController::class, 'getDistricts'])->name('properties.districts');
-    Route::get('/properties/subdistricts/{district_id}', [PropertyController::class, 'getSubdistricts'])->name('properties.subdistricts');
-
-    // Room routes
-    Route::get('/properties/{propertyId}/rooms', [RoomController::class, 'index'])->name('properties.rooms.index');
-    Route::get('/properties/{propertyId}/rooms/create', [RoomController::class, 'create'])->name('properties.rooms.create');
-    Route::post('/properties/{propertyId}/rooms', [RoomController::class, 'store'])->name('properties.rooms.store');
-    Route::get('/properties/{propertyId}/rooms/{roomId}', [RoomController::class, 'show'])->name('properties.rooms.show');
-    Route::get('/properties/{propertyId}/rooms/{roomId}/edit', [RoomController::class, 'edit'])->name('properties.rooms.edit');
-    Route::put('/properties/{propertyId}/rooms/{roomId}', [RoomController::class, 'update'])->name('properties.rooms.update');
-    Route::delete('/properties/{propertyId}/rooms/{roomId}', [RoomController::class, 'destroy'])->name('properties.rooms.destroy');
+Route::prefix('admin/properties')->name('admin.properties.')->group(function () {
+    Route::get('cities/{province_id}', [PropertyController::class, 'getCities'])->name('cities');
+    Route::get('districts/{city_id}', [PropertyController::class, 'getDistricts'])->name('districts');
+    Route::get('subdistricts/{district_id}', [PropertyController::class, 'getSubdistricts'])->name('subdistricts');
 });
+
+// Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(function () {
+//     // Property routes
+//     Route::get('/properties', [PropertyController::class, 'index'])->name('properties.index');
+//     Route::get('/properties/create', [PropertyController::class, 'create'])->name('properties.create');
+//     Route::post('/properties', [PropertyController::class, 'store'])->name('properties.store');
+//     Route::get('/properties/{id}', [PropertyController::class, 'show'])->name('properties.show');
+//     Route::get('/properties/{id}/edit', [PropertyController::class, 'edit'])->name('properties.edit');
+//     Route::put('/properties/{id}', [PropertyController::class, 'update'])->name('properties.update');
+//     Route::delete('/properties/{id}', [PropertyController::class, 'destroy'])->name('properties.destroy');
+
+//     // AJAX routes for location
+//     Route::get('/properties/cities/{province_id}', [PropertyController::class, 'getCities'])->name('properties.cities');
+//     Route::get('/properties/districts/{city_id}', [PropertyController::class, 'getDistricts'])->name('properties.districts');
+//     Route::get('/properties/subdistricts/{district_id}', [PropertyController::class, 'getSubdistricts'])->name('properties.subdistricts');
+
+//     // Room routes
+//     Route::get('/properties/{propertyId}/rooms', [RoomController::class, 'index'])->name('properties.rooms.index');
+//     Route::get('/properties/{propertyId}/rooms/create', [RoomController::class, 'create'])->name('properties.rooms.create');
+//     Route::post('/properties/{propertyId}/rooms', [RoomController::class, 'store'])->name('properties.rooms.store');
+//     Route::get('/properties/{propertyId}/rooms/{roomId}', [RoomController::class, 'show'])->name('properties.rooms.show');
+//     Route::get('/properties/{propertyId}/rooms/{roomId}/edit', [RoomController::class, 'edit'])->name('properties.rooms.edit');
+//     Route::put('/properties/{propertyId}/rooms/{roomId}', [RoomController::class, 'update'])->name('properties.rooms.update');
+//     Route::delete('/properties/{propertyId}/rooms/{roomId}', [RoomController::class, 'destroy'])->name('properties.rooms.destroy');
+// });

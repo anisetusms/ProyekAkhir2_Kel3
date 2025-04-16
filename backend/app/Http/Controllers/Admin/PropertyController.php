@@ -13,6 +13,9 @@ use App\Models\Subdistrict;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\DB;
+
 
 class PropertyController extends Controller
 {
@@ -38,10 +41,9 @@ class PropertyController extends Controller
      */
     public function create()
     {
-        $provinces = Province::where('status', 1)->get();
+        $provinces = Province::all();
         return view('admin.properties.create', compact('provinces'));
     }
-
 
     /**
      * Store a newly created property in storage.
@@ -278,32 +280,42 @@ class PropertyController extends Controller
         }
     }
 
-    public function getCities($provinceId)
+    public function getCities($provinceId): JsonResponse
     {
-        $cities = City::where('prov_id', $provinceId)
-            ->orderBy('city_name', 'asc')
-            ->get(['id', 'city_name as text']);
-
-        return response()->json($cities);
+        try {
+            $cities = DB::select('CALL getCities(?)', [$provinceId]);
+            return response()->json($cities);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Failed to load cities',
+                'details' => $e->getMessage()
+            ], 500);
+        }
     }
 
-    // Untuk mendapatkan kecamatan berdasarkan kabupaten/kota
-    public function getDistricts($cityId)
+    public function getDistricts($cityId): JsonResponse
     {
-        $districts = District::where('city_id', $cityId)
-            ->orderBy('dis_name', 'asc')
-            ->get(['id', 'dis_name as text']);
-
-        return response()->json($districts);
+        try {
+            $districts = DB::select('CALL getDistricts(?)', [$cityId]);
+            return response()->json($districts);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Failed to load districts',
+                'details' => $e->getMessage()
+            ], 500);
+        }
     }
 
-    // Untuk mendapatkan kelurahan berdasarkan kecamatan
-    public function getSubdistricts($districtId)
+    public function getSubdistricts($districtId): JsonResponse
     {
-        $subdistricts = Subdistrict::where('dis_id', $districtId)
-            ->orderBy('subdis_name', 'asc')
-            ->get(['id', 'subdis_name as text']);
-
-        return response()->json($subdistricts);
+        try {
+            $subdistricts = DB::select('CALL getSubdistricts(?)', [$districtId]);
+            return response()->json($subdistricts);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Failed to load subdistricts',
+                'details' => $e->getMessage()
+            ], 500);
+        }
     }
 }

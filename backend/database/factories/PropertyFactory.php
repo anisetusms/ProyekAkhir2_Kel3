@@ -5,6 +5,14 @@ namespace Database\Factories;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use App\Models\User;
+use App\Models\Province;
+use App\Models\City;
+use App\Models\District;
+use App\Models\Subdistrict;
+use App\Models\KostDetail;
+use App\Models\HomestayDetail;
+use App\Models\Property;
 
 
 // database/factories/PropertyFactory.php
