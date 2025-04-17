@@ -10,9 +10,9 @@
     </div>
 
     @if(session('success'))
-        <div class="alert alert-success">
-            {{ session('success') }}
-        </div>
+    <div class="alert alert-success">
+        {{ session('success') }}
+    </div>
     @endif
 
     <div class="card shadow mb-4">
@@ -39,11 +39,21 @@
                             <td>{{ $loop->iteration }}</td>
                             <td>{{ $property->name }}</td>
                             <td>
-                                <span class="badge badge-{{ $property->property_type === 'kost' ? 'info' : 'success' }}">
-                                    {{ ucfirst($property->property_type) }}
+                                @php
+                                $propertyTypes = [
+                                1 => 'Kost',
+                                2 => 'Homestay',
+                                // Tambahkan tipe properti lainnya sesuai kebutuhan
+                                ];
+                                $propertyType = $propertyTypes[$property->property_type_id] ?? 'Lainnya';
+                                @endphp
+                                <span class="badge badge-{{ $property->property_type_id == 1 ? 'info' : 'success' }}">
+                                    {{ $propertyType }}
                                 </span>
-                                @if($property->property_type === 'kost')
-                                <small class="d-block">{{ $property->detail->kost_type_name }}</small>
+                                @if($property->property_type_id == 1)
+                                <small class="d-block">
+                                    {{ $property->detail->kost_type_name ?? 'Tipe Tidak Diketahui' }}
+                                </small>
                                 @endif
                             </td>
                             <td>
@@ -71,7 +81,7 @@
                                         <i class="fas fa-trash"></i>
                                     </button>
                                 </form>
-                                <a href="{{ route('admin.rooms.index', $property->id) }}" class="btn btn-sm btn-secondary" title="Kelola Kamar">
+                                <a href="{{ route('admin.properties.rooms.index', $property->id) }}" class="btn btn-sm btn-secondary" title="Kelola Kamar">
                                     <i class="fas fa-door-open"></i>
                                 </a>
                             </td>

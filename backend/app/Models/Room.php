@@ -38,10 +38,11 @@ class Room extends Model
     /**
      * Get the facilities for the room.
      */
-    public function facilities(): HasMany
+    public function facilities()
     {
-        return $this->hasMany(RoomFacility::class);
+        return $this->hasMany(RoomFacility::class, 'room_id', 'id');
     }
+
 
     /**
      * Scope a query to only include available rooms.
@@ -65,5 +66,10 @@ class Room extends Model
     public function getFacilitiesListAttribute()
     {
         return $this->facilities->pluck('facility_name')->join(', ');
+    }
+
+    public function roomFacilities()
+    {
+        return $this->hasMany(RoomFacility::class);
     }
 }

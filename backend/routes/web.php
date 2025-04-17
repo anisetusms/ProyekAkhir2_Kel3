@@ -134,10 +134,19 @@ Route::prefix('admin')->name('admin.')->group(function () {
     // Route::post('/cities', [OwnerController::class, 'storeCities']);
     // Route::post('/districts', [OwnerController::class, 'storeDistricts']);
     // Route::post('/subdistricts', [OwnerController::class, 'storeSubdistricts']);
-    Route::get('properties/{property}/rooms/create', [RoomController::class, 'create'])->name('properties.rooms.create');
-    Route::post('properties/{property}/rooms', [RoomController::class, 'store'])->name('properties.rooms.store');
-    Route::get('properties/{property}/units/create', [UnitController::class, 'create'])->name('properties.units.create');
-    Route::post('properties/{property}/units', [UnitController::class, 'store'])->name('properties.units.store');
+    // Route::get('properties/{property}/rooms/create', [RoomController::class, 'create'])->name('properties.rooms.create');
+    // Route::post('properties/{property}/rooms', [RoomController::class, 'store'])->name('properties.rooms.store');
+    // Route::get('properties/{property}/units/create', [UnitController::class, 'create'])->name('properties.units.create');
+    // Route::post('properties/{property}/units', [UnitController::class, 'store'])->name('properties.units.store');
+    Route::prefix('properties/{property}/rooms')->name('properties.rooms.')->group(function () {
+        Route::get('/', [RoomController::class, 'index'])->name('index');
+        Route::get('/create', [RoomController::class, 'create'])->name('create');
+        Route::post('/', [RoomController::class, 'store'])->name('store');
+        Route::get('/{room}/edit', [RoomController::class, 'edit'])->name('edit');
+        Route::put('/{room}', [RoomController::class, 'update'])->name('update');
+        Route::delete('/{room}', [RoomController::class, 'destroy'])->name('destroy');
+
+    });
 });
 
 Route::prefix('admin/properties')->name('admin.properties.')->group(function () {

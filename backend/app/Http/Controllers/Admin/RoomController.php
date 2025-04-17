@@ -22,10 +22,10 @@ class RoomController extends Controller
      */
     public function index($propertyId)
     {
-        $property = Property::where('isDeleted', false)->findOrFail($propertyId);
-        $rooms = $property->rooms()->with('facilities')->latest()->paginate(10);
+        $property = Property::findOrFail($propertyId);
+        $rooms = $property->rooms()->with('roomFacilities')->paginate(10);
 
-        return view('admin.rooms.index', compact('property', 'rooms'));
+        return view('admin.properties.rooms.index', compact('rooms', 'property'));
     }
 
     /**
@@ -34,41 +34,56 @@ class RoomController extends Controller
      * @param  int  $propertyId
      * @return \Illuminate\View\View
      */
-    public function create(Property $property)
+    public function create($propertyId)
     {
-        return view('admin.properties.rooms.create', compact('property'));
+        $property = Property::findOrFail($propertyId);
+        // Ambil daftar fasilitas unik dari tabel room_facilities
+        $roomFacilities = RoomFacility::select('facility_name')->distinct()->get();
+
+        return view('admin.properties.rooms.create', compact('property', 'roomFacilities'));
     }
 
-    public function store(Request $request, Property $property)
+
+    public function store(Request $request, $propertyId)
     {
-        $request->validate([
-            'rooms' => 'required|array|min:1',
-            'rooms.*.number' => 'required|string',
-            'rooms.*.size' => 'required|numeric|min:1',
-            'rooms.*.price' => 'required|numeric|min:0',
+        // Validasi data ruangan
+        $validatedRoomData = $request->validate([
+            'room_type' => 'required|string|max:100',
+            'room_number' => 'required|string|max:50',
+            'price' => 'required|numeric|min:0',
+            'size' => 'nullable|string|max:50',
+            'capacity' => 'required|integer|min:1',
+            'is_available' => 'nullable|boolean',
+            'description' => 'nullable|string',
+            'facilities' => 'nullable|array', // Validasi bahwa 'facilities' adalah array
+            'facilities.*' => 'required|string|max:255', // Validasi setiap item dalam array
         ]);
 
+        // Tambahkan property_id
+        $validatedRoomData['property_id'] = $propertyId;
+        $validatedRoomData['is_available'] = $request->input('is_available', true); // Default tersedia
+
+        // Gunakan transaksi untuk memastikan integritas data
         DB::beginTransaction();
         try {
-            foreach ($request->rooms as $room) {
-                Room::create([
-                    'property_id' => $property->id,
-                    'room_number' => $room['number'],
-                    'size' => $room['size'],
-                    'price' => $room['price'],
-                    'status' => 'available'
-                ]);
+            // Buat ruangan
+            $room = Room::create($validatedRoomData);
+
+            // Simpan fasilitas (jika ada)
+            if ($request->has('facilities')) {
+                foreach ($request->input('facilities') as $facilityName) {
+                    RoomFacility::create([
+                        'room_id' => $room->id,
+                        'facility_name' => $facilityName,
+                    ]);
+                }
             }
-            
+
             DB::commit();
-            
-            return redirect()->route('admin.properties.show', $property->id)
-                ->with('success', 'Kamar berhasil ditambahkan');
+            return redirect()->route('admin.properties.rooms.index', $propertyId)->with('success', 'Ruangan berhasil ditambahkan.');
         } catch (\Exception $e) {
-            DB::rollBack();
-            return redirect()->back()
-                ->with('error', 'Gagal menambahkan kamar: ' . $e->getMessage())
-                ->withInput();
+            DB::rollback();
+            return back()->withInput()->withErrors(['error' => 'Gagal menambahkan ruangan: ' . $e->getMessage()]); // Tambahkan pesan error
         }
     }
 
@@ -82,7 +97,7 @@ class RoomController extends Controller
     public function show($propertyId, $roomId)
     {
         $property = Property::where('isDeleted', false)->findOrFail($propertyId);
-        $room = $property->rooms()->with('facilities')->findOrFail($roomId);
+        $room = $property->rooms()->with('roomFacilities')->findOrFail($roomId);
 
         return view('admin.rooms.show', compact('property', 'room'));
     }
@@ -96,10 +111,11 @@ class RoomController extends Controller
      */
     public function edit($propertyId, $roomId)
     {
-        $property = Property::where('isDeleted', false)->findOrFail($propertyId);
-        $room = $property->rooms()->with('facilities')->findOrFail($roomId);
+        $property = Property::findOrFail($propertyId);
+        $room = Room::findOrFail($roomId);
+        $roomFacilities = RoomFacility::select('facility_name')->distinct()->get(); // Ambil semua data fasilitas dari tabel room_facilities
 
-        return view('admin.rooms.edit', compact('property', 'room'));
+        return view('admin.properties.rooms.edit', compact('room', 'roomFacilities', 'property')); // Teruskan $property ke view
     }
 
     /**
@@ -110,62 +126,31 @@ class RoomController extends Controller
      * @param  int  $roomId
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function update(Request $request, Property $property, Room $room,$propertyId, $roomId)
+    public function update(Request $request, $propertyId, $roomId)
     {
-        $property = Property::where('isDeleted', false)->findOrFail($propertyId);
-        $room = $property->rooms()->findOrFail($roomId);
-
-        $validator = Validator::make($request->all(), [
-            'room_type' => 'sometimes|string|max:100',
-            'room_number' => 'sometimes|string|max:50|unique:rooms,room_number,' . $roomId . ',id,property_id,' . $propertyId,
-            'price' => 'sometimes|numeric|min:0',
-            'size' => 'nullable|string|max:50',
-            'capacity' => 'sometimes|integer|min:1',
-            'is_available' => 'sometimes|boolean',
-            'description' => 'nullable|string',
-            'facilities' => 'sometimes|array',
-            'facilities.*' => 'string|max:255',
+        // Validasi data ruangan
+        $validatedRoomData = $request->validate([
+            'room_type' => 'required|string|max:100',
+            'room_number' => 'required|string|max:50',
+            'price' => 'required|numeric|min:0',
+            'is_available' => 'nullable|boolean',
         ]);
 
-        if ($validator->fails()) {
-            return redirect()->back()
-                ->withErrors($validator)
-                ->withInput();
-        }
+        $room = Room::findOrFail($roomId);
+        $room->update($validatedRoomData);
 
-        try {
-            // Update kamar
-            $room->update([
-                'room_type' => $request->room_type ?? $room->room_type,
-                'room_number' => $request->room_number ?? $room->room_number,
-                'price' => $request->price ?? $room->price,
-                'size' => $request->size ?? $room->size,
-                'capacity' => $request->capacity ?? $room->capacity,
-                'is_available' => $request->has('is_available') ? $request->is_available : $room->is_available,
-                'description' => $request->description ?? $room->description,
-            ]);
+        // Update Fasilitas
+        $room->roomFacilities()->delete(); // Hapus semua fasilitas terkait sebelumnya
 
-            // Update fasilitas jika ada
-            if ($request->has('facilities')) {
-                $room->facilities()->delete();
-                foreach ($request->facilities as $facility) {
-                    RoomFacility::create([
-                        'room_id' => $room->id,
-                        'facility_name' => $facility
-                    ]);
-                }
+        if ($request->has('facilities')) {
+             $facilities = [];
+            foreach ($request->input('facilities') as $facilityName) {
+                $facilities[] = ['facility_name' => $facilityName];
             }
-
-            // Update jumlah kamar tersedia di properti
-            $this->updateAvailableRooms($property);
-
-            return redirect()->route('admin.properties.rooms.show', [$propertyId, $room->id])
-                ->with('success', 'Kamar berhasil diperbarui');
-        } catch (\Exception $e) {
-            return redirect()->back()
-                ->with('error', 'Gagal memperbarui kamar: ' . $e->getMessage())
-                ->withInput();
+             $room->roomFacilities()->createMany($facilities);
         }
+
+        return redirect()->route('admin.properties.rooms.index', $propertyId)->with('success', 'Ruangan berhasil diupdate');
     }
 
     /**

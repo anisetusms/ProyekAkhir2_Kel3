@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\HasMany; // Tambahkan ini
 
 class Property extends Model
 {
@@ -78,7 +79,7 @@ class Property extends Model
         return $this->hasOne(HomestayDetail::class);
     }
 
-    public function rooms()
+    public function rooms(): HasMany // Ganti HasOne menjadi HasMany
     {
         return $this->hasMany(Room::class);
     }

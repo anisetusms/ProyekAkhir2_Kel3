@@ -1,6 +1,4 @@
-@extends('admin.layouts.app')
-
-@section('title', 'Property Details: ' . $property->name)
+@extends('layouts.admin')
 
 @section('content')
 <div class="container-fluid">
@@ -28,42 +26,30 @@
                 </div>
                 <div class="card-body">
                     <div class="row">
-                        <div class="col-md-4">
-                            @if($property->image)
-                            <img src="{{ asset('storage/' . $property->image) }}" alt="{{ $property->name }}" class="img-fluid rounded">
-                            @else
-                            <div class="text-center py-4 bg-light rounded">
-                                <i class="fas fa-image fa-3x text-muted"></i>
-                                <p class="mt-2">No image available</p>
-                            </div>
-                            @endif
+                        <div class="col-md-6">
+                            <h5>Pricing</h5>
+                            <p><strong>Price:</strong> Rp {{ number_format($property->price, 0, ',', '.') }}</p>
+                            <p><strong>Capacity:</strong> {{ $property->capacity }} orang</p>
+                            <p><strong>Available Rooms:</strong> {{ $property->available_rooms }}</p>
                         </div>
-                        <div class="col-md-8">
-                            <h4>{{ $property->name }}</h4>
-                            <p class="text-muted">{{ $property->propertyType->name ?? 'N/A' }}</p>
-                            
-                            <div class="mb-3">
-                                <h5>Description</h5>
-                                <p>{{ $property->description }}</p>
-                            </div>
-                            
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <h5>Pricing</h5>
-                                    <p><strong>Price:</strong> {{ format_currency($property->price) }}</p>
-                                </div>
-                                <div class="col-md-6">
-                                    <h5>Status</h5>
-                                    <span class="badge {{ $property->isActive ? 'badge-success' : 'badge-secondary' }}">
-                                        {{ $property->isActive ? 'Active' : 'Inactive' }}
-                                    </span>
-                                </div>
-                            </div>
+                        <div class="col-md-6">
+                            <h5>Status</h5>
+                            <span class="badge {{ $property->isDeleted ? 'badge-secondary' : 'badge-success' }}">
+                                {{ $property->isDeleted ? 'Inactive' : 'Active' }}
+                            </span>
+
+                            <h5 class="mt-3">Location</h5>
+                            <p>{{ $property->address }}</p>
+                            <p>
+                                {{ $property->subdistrict->name ?? '' }},
+                                {{ $property->district->name ?? '' }},
+                                {{ $property->city->name ?? '' }}
+                            </p>
                         </div>
                     </div>
                 </div>
             </div>
-            
+
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
                     <h6 class="m-0 font-weight-bold text-primary">Location Information</h6>
@@ -74,9 +60,9 @@
                             <h5>Address</h5>
                             <p>{{ $property->address }}</p>
                             <p>
-                                {{ $property->subdistrict->name ?? 'N/A' }}, 
+                                {{ $property->subdistrict->name ?? 'N/A' }},
                                 {{ $property->district->name ?? 'N/A' }}<br>
-                                {{ $property->city->name ?? 'N/A' }}, 
+                                {{ $property->city->name ?? 'N/A' }},
                                 {{ $property->province->name ?? 'N/A' }}
                             </p>
                         </div>
@@ -94,7 +80,7 @@
                 </div>
             </div>
         </div>
-        
+
         <div class="col-md-4">
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
@@ -117,14 +103,14 @@
                     <p><strong>Check-in Time:</strong> {{ $property->homestayDetail->checkin_time }}</p>
                     <p><strong>Check-out Time:</strong> {{ $property->homestayDetail->checkout_time }}</p>
                     @endif
-                    
+
                     @if($property->rules)
                     <h5 class="mt-4">House Rules</h5>
                     <p>{{ $property->rules }}</p>
                     @endif
                 </div>
             </div>
-            
+
             <div class="card shadow">
                 <div class="card-header py-3">
                     <h6 class="m-0 font-weight-bold text-primary">Rooms Availability</h6>
@@ -136,14 +122,12 @@
                                 <path class="progress-circle-bg"
                                     d="M18 2.0845
                                     a 15.9155 15.9155 0 0 1 0 31.831
-                                    a 15.9155 15.9155 0 0 1 0 -31.831"
-                                />
+                                    a 15.9155 15.9155 0 0 1 0 -31.831" />
                                 <path class="progress-circle-fill"
                                     stroke-dasharray="{{ $availablePercentage }}, 100"
                                     d="M18 2.0845
                                     a 15.9155 15.9155 0 0 1 0 31.831
-                                    a 15.9155 15.9155 0 0 1 0 -31.831"
-                                />
+                                    a 15.9155 15.9155 0 0 1 0 -31.831" />
                                 <text class="progress-circle-text" x="18" y="20.35">{{ round($availablePercentage) }}%</text>
                             </svg>
                         </div>
@@ -151,7 +135,7 @@
                     </div>
                     <div class="text-center">
                         <p>
-                            <span class="badge badge-success">{{ $availableRooms }} Available</span> / 
+                            <span class="badge badge-success">{{ $availableRooms }} Available</span> /
                             <span class="badge badge-secondary">{{ $totalRooms }} Total</span>
                         </p>
                     </div>
@@ -170,17 +154,17 @@
         width: 100px;
         height: 100px;
     }
-    
+
     .progress-circle-svg {
         transform: rotate(-90deg);
     }
-    
+
     .progress-circle-bg {
         fill: none;
         stroke: #eee;
         stroke-width: 3;
     }
-    
+
     .progress-circle-fill {
         fill: none;
         stroke: #4CAF50;
@@ -188,7 +172,7 @@
         stroke-linecap: round;
         transition: stroke-dasharray 0.5s ease;
     }
-    
+
     .progress-circle-text {
         font-size: 0.4em;
         text-anchor: middle;
@@ -202,12 +186,23 @@
 @if($property->latitude && $property->longitude)
 <script>
     function initMap() {
-        const propertyLocation = { lat: {{ $property->latitude }}, lng: {{ $property->longitude }} };
+        const propertyLocation = {
+            lat: {
+                {
+                    $property - > latitude
+                }
+            },
+            lng: {
+                {
+                    $property - > longitude
+                }
+            }
+        };
         const map = new google.maps.Map(document.getElementById("property-map"), {
             zoom: 15,
             center: propertyLocation,
         });
-        
+
         new google.maps.Marker({
             position: propertyLocation,
             map: map,
