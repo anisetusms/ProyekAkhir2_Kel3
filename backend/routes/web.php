@@ -122,6 +122,7 @@ Route::prefix('platform-admin')->name('platform_admin.')->group(function () {
 Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [PropertyController::class, 'dashboard'])->name('dashboard');
     Route::get('/properties', [PropertyController::class, 'index'])->name('properties.index');
+    Route::get('/properties/rooms', [PropertyController::class, 'index'])->name('properties.rooms.index');
     Route::get('/rooms', [PropertyController::class, 'index'])->name('rooms.index');
     Route::get('/properties/create', [PropertyController::class, 'create'])->name('properties.create');
     Route::post('/properties', [PropertyController::class, 'store'])->name('properties.store');

@@ -63,7 +63,7 @@
             </div>
         </div>
 
-        <div class="form-group">
+        <!-- <div class="form-group">
             <label for="homestay_rules">Peraturan Tambahan</label>
             <textarea class="form-control @error('homestay_rules') is-invalid @enderror" 
                       id="homestay_rules" name="homestay_rules" 
@@ -71,6 +71,6 @@
             @error('homestay_rules')
                 <div class="invalid-feedback">{{ $message }}</div>
             @enderror
-        </div>
+        </div> -->
     </div>
 </div>

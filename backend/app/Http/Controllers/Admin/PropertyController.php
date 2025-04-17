@@ -15,6 +15,8 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
+use App\Http\Requests\StorePropertyRequest;
 
 
 class PropertyController extends Controller
@@ -26,10 +28,11 @@ class PropertyController extends Controller
      */
     public function index()
     {
-        $properties = Property::with(['detail', 'province', 'city', 'district', 'subdistrict'])
+        $properties = Property::with(['kostDetail', 'homestayDetail', 'province', 'city', 'district', 'subdistrict'])
             ->where('isDeleted', false)
             ->latest()
             ->paginate(10);
+
 
         return view('admin.properties.index', compact('properties'));
     }
@@ -45,58 +48,21 @@ class PropertyController extends Controller
         return view('admin.properties.create', compact('provinces'));
     }
 
-    /**
-     * Store a newly created property in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\RedirectResponse
-     */
-    public function store(Request $request)
+    public function store(StorePropertyRequest $request)
     {
-        $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
-            'description' => 'required|string',
-            'property_type' => 'required|in:kost,homestay',
-            'province_id' => 'required|exists:provinces,id',
-            'city_id' => 'required|exists:cities,id',
-            'district_id' => 'required|exists:districts,id',
-            'subdistrict_id' => 'required|exists:subdistricts,id',
-            'price' => 'required|numeric|min:0',
-            'address' => 'required|string',
-            'latitude' => 'nullable|numeric',
-            'longitude' => 'nullable|numeric',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'kost_type' => 'required_if:property_type,kost|in:putra,putri,campur',
-            'total_rooms' => 'required_if:property_type,kost|integer|min:1',
-            'rules' => 'nullable|string',
-            'meal_included' => 'nullable|boolean',
-            'laundry_included' => 'nullable|boolean',
-            'total_units' => 'required_if:property_type,homestay|integer|min:1',
-            'minimum_stay' => 'required_if:property_type,homestay|integer|min:1',
-            'maximum_guest' => 'required_if:property_type,homestay|integer|min:1',
-            'checkin_time' => 'required_if:property_type,homestay|date_format:H:i',
-            'checkout_time' => 'required_if:property_type,homestay|date_format:H:i',
-        ]);
-
-        if ($validator->fails()) {
-            return redirect()->back()
-                ->withErrors($validator)
-                ->withInput();
-        }
-
+        DB::beginTransaction();
         try {
-            // Upload gambar jika ada
-            $imagePath = null;
-            if ($request->hasFile('image')) {
-                $imagePath = $request->file('image')->store('properties', 'public');
-            }
+            // Upload image
+            $imagePath = $request->hasFile('image')
+                ? $request->file('image')->store('properties', 'public')
+                : null;
 
-            // Buat properti
+            // Create property
             $property = Property::create([
                 'name' => $request->name,
                 'description' => $request->description,
-                'property_type' => $request->property_type,
-                'user_id' => $request->user_id,
+                'property_type_id' => $request->property_type_id,
+                'user_id' => Auth::id(),
                 'province_id' => $request->province_id,
                 'city_id' => $request->city_id,
                 'district_id' => $request->district_id,
@@ -106,35 +72,43 @@ class PropertyController extends Controller
                 'latitude' => $request->latitude,
                 'longitude' => $request->longitude,
                 'image' => $imagePath,
+                'capacity' => $request->capacity,
+                'available_rooms' => $request->available_rooms,
+                'rules' => $request->rules,
+                'isDeleted' => false
             ]);
 
-            // Buat detail sesuai jenis properti
-            if ($request->property_type === 'kost') {
+            // Create property type specific details
+            if ($request->property_type_id == 1) { // Kost
                 KostDetail::create([
                     'property_id' => $property->id,
                     'kost_type' => $request->kost_type,
                     'total_rooms' => $request->total_rooms,
-                    'available_rooms' => $request->total_rooms,
-                    'rules' => $request->rules,
+                    'available_rooms' => $request->available_rooms,
                     'meal_included' => $request->meal_included ?? false,
                     'laundry_included' => $request->laundry_included ?? false,
+                    'rules' => $request->rules ?? ''
                 ]);
-            } else {
+            } else { // Homestay
                 HomestayDetail::create([
                     'property_id' => $property->id,
                     'total_units' => $request->total_units,
-                    'available_units' => $request->total_units,
+                    'available_units' => $request->total_units, // Default sama dengan total
                     'minimum_stay' => $request->minimum_stay,
                     'maximum_guest' => $request->maximum_guest,
                     'checkin_time' => $request->checkin_time,
-                    'checkout_time' => $request->checkout_time,
+                    'checkout_time' => $request->checkout_time
                 ]);
             }
 
-            return redirect()->route('admin.properties.show', $property->id)
+            DB::commit();
+
+            return redirect()->route('admin.properties.index')
                 ->with('success', 'Properti berhasil dibuat');
         } catch (\Exception $e) {
-            // Hapus gambar jika upload gagal
+            DB::rollBack();
+
+            // Delete image if upload failed
             if (isset($imagePath)) {
                 Storage::disk('public')->delete($imagePath);
             }
@@ -153,12 +127,28 @@ class PropertyController extends Controller
      */
     public function show($id)
     {
-        $property = Property::with(['detail', 'rooms.facilities', 'province', 'city', 'district', 'subdistrict'])
+        $property = Property::with([
+            'kostDetail',
+            'homestayDetail',
+            'rooms.facilities',
+            'province',
+            'city',
+            'district',
+            'subdistrict'
+        ])
             ->where('isDeleted', false)
             ->findOrFail($id);
 
-        return view('admin.properties.show', compact('property'));
+        $totalRooms = $property->rooms->count();
+        $availableRooms = $property->rooms->where('is_available', true)->count();
+
+        $availablePercentage = $totalRooms > 0
+            ? ($availableRooms / $totalRooms) * 100
+            : 0;
+
+        return view('admin.properties.show', compact('property', 'availablePercentage'));
     }
+
 
     /**
      * Show the form for editing the specified property.

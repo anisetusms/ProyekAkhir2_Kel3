@@ -23,9 +23,6 @@
 
     <!-- Custom styles for this page -->
     @stack('styles')
-
-    <!-- Livewire Styles -->
-    @livewireStyles
 </head>
 
 <body id="page-top">
@@ -41,7 +38,7 @@
             <div class="sidebar-brand-icon">
                 <i class="fas fa-home"></i>
             </div>
-            <div class="sidebar-brand-text mx-3">Admin Panel</div>
+            <div class="sidebar-brand-text mx-3"> HOMMIE </div>
         </a>
 
         <!-- Divider -->
@@ -331,7 +328,7 @@
 @stack('scripts')
 
 <!-- Livewire Scripts -->
-@livewireScripts
+@Hommie
 
 </body>
 </html>

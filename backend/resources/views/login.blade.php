@@ -85,16 +85,13 @@
       <div class="text-center text-muted">
         Belum punya akun? <a href="{{ route('register') }}">Daftar di sini</a>
       </div>
-
       @if(session('error'))
       <div class="alert alert-danger mt-3">
         {{ session('error') }}
       </div>
       @endif
-
     </form>
   </div>
-
   <script src="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.js"></script>
   <script>
     function togglePassword() {

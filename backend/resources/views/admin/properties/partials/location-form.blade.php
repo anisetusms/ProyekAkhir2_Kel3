@@ -59,20 +59,3 @@
     </div>
 </div>
 
-<div class="form-group mt-3">
-    <label for="address">Alamat Lengkap <span class="text-danger">*</span></label>
-    <textarea class="form-control @error('address') is-invalid @enderror" 
-              id="address" name="address" rows="3" required>{{ old('address') }}</textarea>
-    @error('address')
-        <div class="invalid-feedback">{{ $message }}</div>
-    @enderror
-</div>
-
-<div class="form-group">
-    <label for="postal_code">Kode Pos</label>
-    <input type="text" class="form-control @error('postal_code') is-invalid @enderror" 
-           id="postal_code" name="postal_code" value="{{ old('postal_code') }}">
-    @error('postal_code')
-        <div class="invalid-feedback">{{ $message }}</div>
-    @enderror
-</div>
