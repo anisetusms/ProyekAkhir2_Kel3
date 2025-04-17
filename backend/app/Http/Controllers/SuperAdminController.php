@@ -29,7 +29,7 @@ class SuperAdminController extends Controller
     public function managePlatformAdmins()
     {
         // Ambil data admin platform dari database
-        $platformAdmins = DB::table('users')->where('user_role_id', 4)->get();
+        $platformAdmins = DB::table('users')->where('user_role_id', 3)->get();
 
         // Tampilkan view dengan data admin platform
         return view('super_admin.platform_admins.index', compact('platformAdmins'));
@@ -134,7 +134,7 @@ class SuperAdminController extends Controller
             'email' => $request->email,
             'username' => $request->username,
             'password' => bcrypt($request->password),
-            'user_role_id' => 4, 
+            'user_role_id' => 3, 
             'created_at' => now(),
             'updated_at' => now(),
         ]);
@@ -147,7 +147,7 @@ class SuperAdminController extends Controller
     public function editPlatformAdmin($id)
     {
         // Ambil data admin platform berdasarkan ID
-        $admin = DB::table('users')->where('id', $id)->where('user_role_id', 4)->first();
+        $admin = DB::table('users')->where('id', $id)->where('user_role_id', 3)->first();
 
         // Jika admin tidak ditemukan, redirect dengan pesan error
         if (!$admin) {

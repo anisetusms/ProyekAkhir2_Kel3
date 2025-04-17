@@ -24,7 +24,7 @@
     <table class="table">
         <thead>
             <tr>
-                <th>ID</th>
+            
                 <th>Nama</th>
                 <th>Email</th>
                 <th>Username</th>
@@ -33,7 +33,7 @@
         </thead>
         <tbody>
             <tr>
-                <td>{{ $admin->id }}</td>
+                    
                 <td>{{ $admin->name }}</td>
                 <td>{{ $admin->email }}</td>
                 <td>{{ $admin->username }}</td>
