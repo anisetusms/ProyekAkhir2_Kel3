@@ -38,7 +38,6 @@
                 <tbody>
                     @foreach($rooms as $index => $room)
                     <tr>
-                        <td>{{ $index + 1 }}</td>
                         <td>{{ $room->room_number }}</td>
                         <td>{{ $room->room_type }}</td>
                         <td>Rp {{ number_format($room->price, 0, ',', '.') }}</td>
@@ -48,7 +47,6 @@
                                 <li>{{ $facility->facility_name }}</li> @endforeach
                             </ul>
                         </td>
-
                         <td>
                             <span class="badge badge-{{ $room->is_available ? 'success' : 'danger' }}">
                                 {{ $room->is_available ? 'Tersedia' : 'Tidak Tersedia' }}

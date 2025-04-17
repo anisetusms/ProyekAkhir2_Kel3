@@ -27,6 +27,7 @@
                             <th>No</th>
                             <th>Nama</th>
                             <th>Tipe</th>
+                            <th>Tipe Kost</th>
                             <th>Lokasi</th>
                             <th>Harga</th>
                             <th>Status</th>
@@ -43,22 +44,31 @@
                                 $propertyTypes = [
                                 1 => 'Kost',
                                 2 => 'Homestay',
-                                // Tambahkan tipe properti lainnya sesuai kebutuhan
                                 ];
                                 $propertyType = $propertyTypes[$property->property_type_id] ?? 'Lainnya';
                                 @endphp
                                 <span class="badge badge-{{ $property->property_type_id == 1 ? 'info' : 'success' }}">
                                     {{ $propertyType }}
                                 </span>
-                                @if($property->property_type_id == 1)
-                                <small class="d-block">
-                                    {{ $property->detail->kost_type_name ?? 'Tipe Tidak Diketahui' }}
-                                </small>
+                            </td>
+                            <td>
+                                {{-- Menampilkan Tipe Kost jika Properti adalah Kost --}}
+                                @if($property->property_type_id == 1 && $property->kostDetail)
+                                {{ $property->kostDetail->kost_type }}
+                                @else
+                                -
                                 @endif
                             </td>
                             <td>
-                                {{ $property->subdistrict->name }}, {{ $property->city->name }}
+                                @if($property->subdistrict && $property->district && $property->city && $property->province)
+                                {{ $property->subdistrict->subdis_name }},
+                                {{ $property->district->dis_name }},
+                                {{ $property->city->city_name }},
+                                {{ $property->province->prov_name }}
                                 <small class="d-block text-muted">{{ $property->address }}</small>
+                                @else
+                                -
+                                @endif
                             </td>
                             <td>Rp {{ number_format($property->price, 0, ',', '.') }}</td>
                             <td>
@@ -99,11 +109,9 @@
 @endsection
 
 @section('scripts')
-<!-- Page level plugins -->
 <script src="{{ asset('vendor/datatables/jquery.dataTables.min.js') }}"></script>
 <script src="{{ asset('vendor/datatables/dataTables.bootstrap4.min.js') }}"></script>
 
-<!-- Page level custom scripts -->
 <script>
     // Call the dataTables jQuery plugin
     $(document).ready(function() {

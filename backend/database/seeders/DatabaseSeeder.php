@@ -58,9 +58,8 @@ class DatabaseSeeder extends Seeder
             'is_banned' => false,
             'created_at' => now(),
         ]);
-
         $hashedPassword = Hash::make('superadmin123');
-
+        
         User::create([
             'name' => 'superadmin',
             'username' => 'superadmin',

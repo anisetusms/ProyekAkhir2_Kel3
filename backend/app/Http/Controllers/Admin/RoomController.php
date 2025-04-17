@@ -55,8 +55,8 @@ class RoomController extends Controller
             'capacity' => 'required|integer|min:1',
             'is_available' => 'nullable|boolean',
             'description' => 'nullable|string',
-            'facilities' => 'nullable|array', // Validasi bahwa 'facilities' adalah array
-            'facilities.*' => 'required|string|max:255', // Validasi setiap item dalam array
+            'facilities' => 'required|array',
+            'facilities.*.facility_name' => 'required|string|max:255',
         ]);
 
         // Tambahkan property_id
@@ -71,16 +71,16 @@ class RoomController extends Controller
 
             // Simpan fasilitas (jika ada)
             if ($request->has('facilities')) {
-                foreach ($request->input('facilities') as $facilityName) {
+                foreach ($request->input('facilities') as $facility) {
                     RoomFacility::create([
                         'room_id' => $room->id,
-                        'facility_name' => $facilityName,
+                        'facility_name' => $facility['facility_name'],
                     ]);
                 }
             }
 
             DB::commit();
-            return redirect()->route('admin.properties.rooms.index', $propertyId)->with('success', 'Ruangan berhasil ditambahkan.');
+            return redirect()->route('admin.properties.rooms.index', $propertyId)->with('success', 'Ruangan berhasil ditambah');
         } catch (\Exception $e) {
             DB::rollback();
             return back()->withInput()->withErrors(['error' => 'Gagal menambahkan ruangan: ' . $e->getMessage()]); // Tambahkan pesan error
@@ -143,11 +143,14 @@ class RoomController extends Controller
         $room->roomFacilities()->delete(); // Hapus semua fasilitas terkait sebelumnya
 
         if ($request->has('facilities')) {
-             $facilities = [];
-            foreach ($request->input('facilities') as $facilityName) {
-                $facilities[] = ['facility_name' => $facilityName];
+            $facilities = [];
+            foreach ($request->input('facilities') as $facility) {
+                $facilities[] = [
+                    'room_id' => $roomId, // Tambahkan room_id di sini
+                    'facility_name' => $facility['facility_name'],
+                ];
             }
-             $room->roomFacilities()->createMany($facilities);
+            $room->roomFacilities()->createMany($facilities);
         }
 
         return redirect()->route('admin.properties.rooms.index', $propertyId)->with('success', 'Ruangan berhasil diupdate');

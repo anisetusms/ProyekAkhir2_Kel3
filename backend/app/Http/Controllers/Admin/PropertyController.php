@@ -153,16 +153,22 @@ class PropertyController extends Controller
      */
     public function edit($id)
     {
-        $property = Property::with(['detail'])
-            ->where('isDeleted', false)
-            ->findOrFail($id);
+        $property = Property::where('isDeleted', false)->findOrFail($id);
 
         $provinces = Province::all();
-        $cities = City::where('province_id', $property->province_id)->get();
+        $cities = City::where('prov_id', $property->province_id)->get();
         $districts = District::where('city_id', $property->city_id)->get();
-        $subdistricts = Subdistrict::where('district_id', $property->district_id)->get();
+        $subdistricts = Subdistrict::where('dis_id', $property->district_id)->get();
 
-        return view('admin.properties.edit', compact('property', 'provinces', 'cities', 'districts', 'subdistricts'));
+        // Mengambil detail sesuai jenis properti
+        $detail = null;
+        if ($property->property_type_id == 1) { // Kost
+            $detail = KostDetail::where('property_id', $id)->first();
+        } elseif ($property->property_type_id == 2) { // Homestay
+            $detail = HomestayDetail::where('property_id', $id)->first();
+        }
+
+        return view('admin.properties.edit', compact('property', 'provinces', 'cities', 'districts', 'subdistricts', 'detail'));
     }
 
     /**
