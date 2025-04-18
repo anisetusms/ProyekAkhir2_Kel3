@@ -28,14 +28,19 @@ class PropertyController extends Controller
      */
     public function index()
     {
-        $properties = Property::with(['kostDetail', 'homestayDetail', 'province', 'city', 'district', 'subdistrict'])
-            ->where('isDeleted', false)
+        $activeProperties = Property::with(['kostDetail', 'homestayDetail', 'province', 'city', 'district', 'subdistrict'])
             ->latest()
+            ->where('isDeleted', false)
             ->paginate(10);
 
+        $inactiveProperties = Property::with(['kostDetail', 'homestayDetail', 'province', 'city', 'district', 'subdistrict'])
+             ->latest()
+            ->where('isDeleted', true)
+            ->paginate(10);
 
-        return view('admin.properties.index', compact('properties'));
+        return view('admin.properties.index', compact('activeProperties', 'inactiveProperties'));
     }
+
 
     /**
      * Show the form for creating a new property.
@@ -46,6 +51,20 @@ class PropertyController extends Controller
     {
         $provinces = Province::all();
         return view('admin.properties.create', compact('provinces'));
+    }
+
+    public function dashboard()
+    {
+        $user_id = Auth::id();
+
+        $totalProperties = Property::where('user_id', $user_id)->count();
+        $activeProperties = Property::where('user_id', $user_id)->count(); // Ganti ini
+        $pendingProperties = Property::where('user_id', $user_id)->count(); // Ganti ini
+        $latestProperties = Property::where('user_id', $user_id)->latest()->take(5)->get();
+        $totalViews = 120; // contoh angka
+        $totalMessages = 50; // contoh angka
+
+        return view('admin.properties.dashboard', compact('totalProperties', 'activeProperties', 'pendingProperties', 'latestProperties', 'totalViews', 'totalMessages'));
     }
 
     public function store(StorePropertyRequest $request)

@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>HomMie | Dashboard Admin Platform</title>
     <!--favicon-->
+    <link rel="icon" href="assets/images/logoHommie.jpg" type="image/png">
     <link rel="icon" href="{{ asset('owner/assets/images/favicon-32x32.png') }}" type="image/png">
     <!-- Loader -->
     <link href="{{ asset('owner/assets/css/pace.min.css') }}" rel="stylesheet">

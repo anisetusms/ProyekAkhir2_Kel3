@@ -14,6 +14,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Route;
 use App\Models\User;
+use App\Http\Controllers\Admin\SettingController;
 
 
 // Landing Page
@@ -120,7 +121,10 @@ Route::prefix('platform-admin')->name('platform_admin.')->group(function () {
 });
 
 Route::prefix('admin')->name('admin.')->group(function () {
-    Route::get('/dashboard', [PropertyController::class, 'dashboard'])->name('dashboard');
+    Route::get('/settings', [SettingController::class, 'index'])->name('settings');
+    Route::put('/settings/profile', [SettingController::class, 'updateProfile'])->name('settings.profile.update');
+    Route::put('/settings/password', [SettingController::class, 'updatePassword'])->name('settings.password.update');
+    Route::get('/properties/dashboard', [PropertyController::class, 'dashboard'])->name('properties.dashboard');
     Route::get('/properties', [PropertyController::class, 'index'])->name('properties.index');
     Route::get('/properties/rooms', [PropertyController::class, 'index'])->name('properties.rooms.index');
     Route::get('/rooms', [PropertyController::class, 'index'])->name('rooms.index');
