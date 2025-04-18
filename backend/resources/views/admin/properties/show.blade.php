@@ -34,7 +34,7 @@
                             </div>
                             <div class="col-md-6">
                                 <h5>Status</h5>
-                                <span class="badge {{ $property->isDeleted ? 'badge-secondary' : 'badge-success' }}">
+                                 <span class="badge {{ $property->isDeleted ? 'badge-secondary' : 'badge-success' }}">
                                     {{ $property->isDeleted ? 'Tidak Aktif' : 'Aktif' }}
                                 </span>
                                 <h5 class="mt-3">Lokasi</h5>
@@ -77,7 +77,7 @@
                                     <strong>Longitude:</strong> {{ $property->longitude ?? 'N/A' }}
                                 </p>
                                 @if($property->latitude && $property->longitude)
-                                    <div id="property-map" style="height: 200px; width: 100%;"></div>
+                                     <div id="property-map" style="height: 200px; width: 100%;"></div>
                                 @endif
                             </div>
                         </div>
@@ -125,13 +125,13 @@
                                 <svg class="progress-circle-svg" viewBox="0 0 36 36">
                                     <path class="progress-circle-bg"
                                           d="M18 2.0845
-                                             a 15.9155 15.9155 0 0 1 0 31.831
-                                             a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                            a 15.9155 15.9155 0 0 1 0 31.831
+                                            a 15.9155 15.9155 0 0 1 0 -31.831" />
                                     <path class="progress-circle-fill"
                                           stroke-dasharray="{{ $availablePercentage }}, 100"
                                           d="M18 2.0845
-                                             a 15.9155 15.9155 0 0 1 0 31.831
-                                             a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                            a 15.9155 15.9155 0 0 1 0 31.831
+                                            a 15.9155 15.9155 0 0 1 0 -31.831" />
                                     <text class="progress-circle-text" x="18" y="20.35">{{ round($availablePercentage) }}%</text>
                                 </svg>
                             </div>
@@ -183,28 +183,43 @@
             fill: #333;
             font-weight: bold;
         }
+        #property-map {
+            height: 200px;
+            width: 100%;
+            margin-top: 20px;
+        }
     </style>
 @endpush
 
 @push('scripts')
     @if($property->latitude && $property->longitude)
         <script>
+            let map;
+
             function initMap() {
                 const propertyLocation = {
-                    lat: {{ $property->latitude }}, // Pass directly as number
-                    lng: {{ $property->longitude }}  // Pass directly as number
+                    lat: {{ $property->latitude }},
+                    lng: {{ $property->longitude }}
                 };
-                const map = new google.maps.Map(document.getElementById("property-map"), {
-                    zoom: 15,
+
+                map = new google.maps.Map(document.getElementById("property-map"), {
                     center: propertyLocation,
+                    zoom: 15,
                 });
 
-                new google.maps.Marker({
+                const marker = new google.maps.Marker({
                     position: propertyLocation,
                     map: map,
-                    title: "{{ $property->name }}"
+                    title: "{{ $property->name }}",
                 });
             }
+
+            window.onload = function() {
+                // Check if the map element exists
+                if (document.getElementById("property-map")) {
+                    initMap();
+                }
+            };
         </script>
         <script src="https://maps.googleapis.com/maps/api/js?key={{ config('services.google.maps_api_key') }}&callback=initMap" async defer></script>
     @endif

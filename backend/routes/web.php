@@ -15,6 +15,8 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Route;
 use App\Models\User;
 use App\Http\Controllers\Admin\SettingController;
+use App\Http\Controllers\SettingControllerS;
+use App\Http\Controllers\SettingControllerP;
 
 
 // Landing Page
@@ -77,7 +79,9 @@ Route::prefix('owner')->name('owner.')->group(function () {
 // Super Admin Routes
 Route::prefix('super-admin')->name('super_admin.')->group(function () {
     Route::get('/dashboard', [SuperAdminController::class, 'dashboard'])->name('dashboard');
-
+    Route::get('/settings', [SettingControllerS::class, 'index'])->name('settings');
+    Route::put('/settings/profile', [SettingControllerS::class, 'updateProfile'])->name('settings.profile.update');
+    Route::put('/settings/password', [SettingControllerS::class, 'updatePassword'])->name('settings.password.update');
 
     // Route untuk melihat profil Super Admin
     Route::get('/profiles', [SuperAdminController::class, 'showProfile'])->name('profiles.index');
@@ -110,6 +114,9 @@ Route::prefix('super-admin')->name('super_admin.')->group(function () {
 
 // Platform Admin Routes
 Route::prefix('platform-admin')->name('platform_admin.')->group(function () {
+    Route::get('/settings', [SettingControllerP::class, 'index'])->name('settings');
+    Route::put('/settings/profile', [SettingControllerP::class, 'updateProfile'])->name('settings.profile.update');
+    Route::put('/settings/password', [SettingControllerP::class, 'updatePassword'])->name('settings.password.update');
     Route::get('/dashboard', [PlatformAdminController::class, 'dashboard'])->name('dashboard');
     Route::get('/pengusaha', [PlatformAdminController::class, 'pengusaha'])->name('pengusaha');
     Route::get('/penyewa', [PlatformAdminController::class, 'penyewa'])->name('penyewa');
@@ -149,7 +156,6 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/{room}/edit', [RoomController::class, 'edit'])->name('edit');
         Route::put('/{room}', [RoomController::class, 'update'])->name('update');
         Route::delete('/{room}', [RoomController::class, 'destroy'])->name('destroy');
-
     });
 });
 

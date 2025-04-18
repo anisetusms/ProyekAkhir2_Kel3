@@ -49,7 +49,7 @@
             <hr class="sidebar-divider my-0">
 
             <!-- Nav Item - Dashboard -->
-            <li class="nav-item {{ request()->routeIs('admin.properties.dashboard') ? 'active' : '' }}">
+            <li class="nav-item {{ request()->routeIs('admin.properties.*                                                                                                                                                                                                                                           ') ? 'active' : '' }}">
                 <a class="nav-link" href="{{ route('admin.properties.dashboard') }}">
                     <i class="fas fa-fw fa-tachometer-alt"></i>
                     <span>Dashboard</span>
@@ -96,10 +96,10 @@
                 </a>
             </li>
 
-            <!-- Nav Item - Settings -->
-            <li class="nav-item">
-                <a class="nav-link {{ request()->is('admin/settings*') ? 'active' : '' }}" href="{{ route('admin.settings') }}">
-                    <i class="fas fa-cog me-2"></i>Pengaturan
+            <li class="nav-item {{ request()->is('admin/settings*') ? 'active' : '' }}">
+                <a class="nav-link" href="{{ route('admin.settings') }}">
+                    <i class="fas fa-cog me-2"></i>
+                    <span>Pengaturan</span>
                 </a>
             </li>
 

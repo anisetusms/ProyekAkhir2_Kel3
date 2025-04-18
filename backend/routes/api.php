@@ -3,20 +3,22 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 // routes/api.php
-use App\Http\Controllers\API\PropertyController;
+use App\Http\Controllers\API\PropertyApiController;
 use App\Http\Controllers\API\RoomController;
 
 Route::middleware('auth:sanctum')->group(function () {
-    // Property routes
-    Route::get('/properties', [PropertyController::class, 'index']);
-    Route::post('/properties', [PropertyController::class, 'store']);
-    Route::get('/properties/{id}', [PropertyController::class, 'show']);
-    Route::put('/properties/{id}', [PropertyController::class, 'update']);
-    Route::delete('/properties/{id}', [PropertyController::class, 'destroy']);
-
-    // Room routes
-    Route::get('/properties/{propertyId}/rooms', [RoomController::class, 'index']);
-    Route::post('/properties/{propertyId}/rooms', [RoomController::class, 'store']);
-    Route::put('/properties/{propertyId}/rooms/{roomId}', [RoomController::class, 'update']);
-    Route::delete('/properties/{propertyId}/rooms/{roomId}', [RoomController::class, 'destroy']);
+    // Property endpoints
+    Route::get('/properties', [PropertyApiController::class, 'index']);
+    Route::get('/properties/{id}', [PropertyApiController::class, 'show']);
+    Route::post('/properties', [PropertyApiController::class, 'store']);
+    Route::put('/properties/{id}', [PropertyApiController::class, 'update']);
+    Route::delete('/properties/{id}', [PropertyApiController::class, 'destroy']);
+    
+    // Location endpoints
+    Route::get('/locations/cities/{provinceId}', [PropertyApiController::class, 'getCities']);
+    Route::get('/locations/districts/{cityId}', [PropertyApiController::class, 'getDistricts']);
+    Route::get('/locations/subdistricts/{districtId}', [PropertyApiController::class, 'getSubdistricts']);
+    
+    // Dashboard data
+    Route::get('/dashboard', [PropertyApiController::class, 'dashboard']);
 });
