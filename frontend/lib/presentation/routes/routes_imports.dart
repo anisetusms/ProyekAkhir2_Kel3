@@ -1,6 +1,7 @@
 import 'package:get/get_navigation/src/routes/get_route.dart';
 import 'package:get/get_navigation/src/routes/transitions_type.dart';
 import 'package:hotel_booking/presentation/common_widgets/bottom_navigation_bar.dart';
+import 'package:hotel_booking/presentation/common_widgets/bottom_navigation_bar owner.dart';
 import 'package:hotel_booking/presentation/screen/auth/Register/register_import.dart';
 import 'package:hotel_booking/presentation/screen/auth/forgetpassword/password_import.dart';
 import 'package:hotel_booking/presentation/screen/booking/booking_import.dart';

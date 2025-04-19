@@ -199,5 +199,11 @@ class Routes {
       transition: Transition.leftToRight,
       transitionDuration: const Duration(milliseconds: 600),
     ),
+    GetPage(
+      name: "/bottomBarOwner",
+      page: () => const BottomBarOwner(),
+      transition: Transition.leftToRight,
+      transitionDuration: const Duration(milliseconds: 600),
+    ),
   ];
 }
