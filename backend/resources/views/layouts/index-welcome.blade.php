@@ -59,45 +59,47 @@
             <i class="material-icons-outlined">close</i>
           </a>
         </div>
-        
+
       </div>
       <div class="">
         @guest
         <!-- Tombol Login -->
-          <a href="{{ route('showLoginForm') }}" class="btn btn-grd btn-grd-success raised d-flex align-items-center rounded-5 gap-2 px-4">
-            <i class="material-icons-outlined">account_circle</i> Login
-          </a>
+        <a href="{{ route('showLoginForm') }}" class="btn btn-grd btn-grd-success raised d-flex align-items-center rounded-5 gap-2 px-4">
+          <i class="material-icons-outlined">account_circle</i> Login
+        </a>
         @endguest
         <!-- Jika user sudah login, tampilkan nama user & tombol Logout -->
         @auth
-          <li class="nav-item dropdown">
-            <a href="javascript:;" class="dropdown-toggle dropdown-toggle-nocaret" data-bs-toggle="dropdown">
-                <img src="{{ Auth::user()->profile_picture ? asset('storage/' . Auth::user()->profile_picture) : asset('assets/images/avatars/default.png') }}" 
-                    class="rounded-circle p-1 border" width="45" height="45" alt="">
+        <li class="nav-item dropdown">
+          <a href="javascript:;" class="dropdown-toggle dropdown-toggle-nocaret" data-bs-toggle="dropdown">
+            <img class="img-profile rounded-circle"
+              src="{{ Auth::user()->profile_picture ? asset('storage/profile_pictures/' . Auth::user()->profile_picture) : asset('img/undraw_profile.svg') }}"
+              alt="Profile Picture"
+              class="rounded-circle p-1 border" width="45" height="45" alt="">
+          </a>
+          <div class="dropdown-menu dropdown-user dropdown-menu-end shadow">
+            <a class="dropdown-item gap-2 py-2" href="javascript:;">
+              <div class="text-center">
+                <img src="{{ Auth::user()->profile_picture ? asset('storage/profile_pictures/' . Auth::user()->profile_picture) : asset('img/undraw_profile.svg') }}"
+                  class="rounded-circle p-1 shadow mb-3" width="90" height="90" alt="">
+                <h5 class="user-name mb-0 fw-bold">Hello, {{ Auth::user()->name }}</h5>
+              </div>
             </a>
-            <div class="dropdown-menu dropdown-user dropdown-menu-end shadow">
-                <a class="dropdown-item gap-2 py-2" href="javascript:;">
-                    <div class="text-center">
-                        <img src="{{ Auth::user()->profile_picture ? asset('storage/' . Auth::user()->profile_picture) : asset('assets/images/avatars/default.png') }}" 
-                            class="rounded-circle p-1 shadow mb-3" width="90" height="90" alt="">
-                        <h5 class="user-name mb-0 fw-bold">Hello, {{ Auth::user()->name }}</h5>
-                    </div>
-                </a>
-                <hr class="dropdown-divider">
-                <a class="dropdown-item d-flex align-items-center gap-2 py-2" href="">
-                    <i class="material-icons-outlined">person_outline</i>Profile
-                </a>
-                <hr class="dropdown-divider">
-                <form action="{{ route('logout') }}" method="POST">
-                    @csrf
-                    <button type="submit" class="dropdown-item d-flex align-items-center gap-2 py-2">
-                        <i class="material-icons-outlined">power_settings_new</i>Logout
-                    </button>
-                </form>
-            </div>
-          </li>
+            <hr class="dropdown-divider">
+            <a class="dropdown-item d-flex align-items-center gap-2 py-2" href="">
+              <i class="material-icons-outlined">person_outline</i>Profile
+            </a>
+            <hr class="dropdown-divider">
+            <form action="{{ route('logout') }}" method="POST">
+              @csrf
+              <button type="submit" class="dropdown-item d-flex align-items-center gap-2 py-2">
+                <i class="material-icons-outlined">power_settings_new</i>Logout
+              </button>
+            </form>
+          </div>
+        </li>
         @endauth
-      
+
       </div>
     </nav>
   </header>
@@ -116,33 +118,34 @@
           <p class="mb-3">Saya ingin masuk sebagai:</p>
           <a href="" class="btn btn-light w-100 d-flex align-items-center gap-3 py-3 mb-2 rounded-4 border">
             <img src="{{ asset('icons/pencari-icon.png') }}" alt="Pencari Kos" width="30">
-            <span class="flex-grow-1">Customer</span>
-          </a>
-          <a href="" class="btn btn-light w-100 d-flex align-items-center gap-3 py-3 rounded-4 border">
-            <img src="{{ asset('icons/pemilik-icon.png') }}" alt="Pemilik Kos" width="30">
-            <span class="flex-grow-1">Owner</span>
-          </a>
-        </div>
-      </div>
-    </div>
+  <span class="flex-grow-1">Customer</span>
+  </a>
+  <a href="" class="btn btn-light w-100 d-flex align-items-center gap-3 py-3 rounded-4 border">
+    <img src="{{ asset('icons/pemilik-icon.png') }}" alt="Pemilik Kos" width="30">
+    <span class="flex-grow-1">Owner</span>
+  </a>
+  </div>
+  </div>
+  </div>
   </div> --}}
 
   <!-- CSS untuk Animasi -->
   <style>
     .animate-modal {
-        transform: scale(0.7);
-        opacity: 0;
-        transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+      transform: scale(0.7);
+      opacity: 0;
+      transition: transform 0.3s ease-out, opacity 0.3s ease-out;
     }
-    
+
     .modal.show .animate-modal {
-        transform: scale(1);
-        opacity: 1;
+      transform: scale(1);
+      opacity: 1;
     }
 
     .card-img-top {
       width: 100%;
-      height: 200px; /* Sesuaikan tinggi */
+      height: 200px;
+      /* Sesuaikan tinggi */
       object-fit: cover;
     }
   </style>
@@ -244,20 +247,20 @@
         </div>
   
       </div><!--end row-->
-    </div>
-  </section> -->
+  </div>
+  </section>
   <!--end footer section-->
 
 
   <!--start footer strip-->
-   <footer class="footer-strip py-3 px-4 px-lg-0 text-center border-top">
-     <p class="mb-0">© 2024. www.codervent.com. | All rights reserved.</p>
-   </footer>
+  <footer class="footer-strip py-3 px-4 px-lg-0 text-center border-top">
+    <p class="mb-0">© 2025. PAII-Group3 | All rights reserved.</p>
+  </footer>
   <!--end footer strip-->
 
 
   <!--Start Back To Top Button-->
-     <a href="javaScript:;" class="back-to-top"><i class="material-icons-outlined">arrow_upward</i></a>
+  <a href="javaScript:;" class="back-to-top"><i class="material-icons-outlined">arrow_upward</i></a>
   <!--End Back To Top Button-->
 
 
@@ -352,7 +355,7 @@
   <script src="assets/js/main.js"></script>
 
   <script src="assets/plugins/lightbox/dist/js/glightbox.min.js"></script>
-  
+
   <script>
     var lightbox = GLightbox();
     lightbox.on('open', (target) => {
@@ -364,11 +367,19 @@
     var lightboxVideo = GLightbox({
       selector: '.glightbox3'
     });
-    lightboxVideo.on('slide_changed', ({ prev, current }) => {
+    lightboxVideo.on('slide_changed', ({
+      prev,
+      current
+    }) => {
       console.log('Prev slide', prev);
       console.log('Current slide', current);
 
-      const { slideIndex, slideNode, slideConfig, player } = current;
+      const {
+        slideIndex,
+        slideNode,
+        slideConfig,
+        player
+      } = current;
 
       if (player) {
         if (!player.ready) {
@@ -395,11 +406,9 @@
     var lightboxInlineIframe = GLightbox({
       selector: '.glightbox4'
     });
-
   </script>
 
   <script>
-
     $('.clients-shops').owlCarousel({
       loop: true,
       margin: 24,
@@ -437,7 +446,6 @@
         }
       },
     })
-
   </script>
 
 </body>

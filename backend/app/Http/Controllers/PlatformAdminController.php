@@ -19,8 +19,8 @@ class PlatformAdminController extends Controller
         $bannedOwnersCount = User::where('user_role_id', 2)->where('is_banned', true)->count();
 
         // Hitung jumlah penyewa
-        $activeTenantsCount = User::where('user_role_id', 3)->where('is_banned', false)->count();
-        $bannedTenantsCount = User::where('user_role_id', 3)->where('is_banned', true)->count();
+        $activeTenantsCount = User::where('user_role_id', 4)->where('is_banned', false)->count();
+        $bannedTenantsCount = User::where('user_role_id', 4)->where('is_banned', true)->count();
 
         // Kirim data ke view
         return view('platform_admin.dashboard', compact(
@@ -52,10 +52,10 @@ class PlatformAdminController extends Controller
     public function penyewa()
     {
         // Ambil data penyewa aktif
-        $activeTenant = User::where('user_role_id', 3)->where('is_banned', false)->get();
+        $activeTenant = User::where('user_role_id', 4)->where('is_banned', false)->get();
 
         // Ambil data penyewa yang dibanned
-        $bannedTenant = User::where('user_role_id', 3)->where('is_banned', true)->get();
+        $bannedTenant = User::where('user_role_id', 4)->where('is_banned', true)->get();
 
         // Kirim data ke view
         return view('platform_admin.penyewa', compact('activeTenant', 'bannedTenant'));
@@ -122,7 +122,7 @@ class PlatformAdminController extends Controller
         // Redirect berdasarkan role pengguna
         if ($user->user_role_id == 2) { // Role ID 2 untuk Owner
             return redirect()->route('platform_admin.pengusaha')->with('success', 'Owner berhasil dibanned.');
-        } elseif ($user->user_role_id == 3) { // Role ID 3 untuk Penyewa
+        } elseif ($user->user_role_id == 4) { // Role ID 4 untuk Penyewa
             return redirect()->route('platform_admin.penyewa')->with('success', 'Penyewa berhasil dibanned.');
         }
 
@@ -141,7 +141,7 @@ class PlatformAdminController extends Controller
         // Redirect berdasarkan role pengguna
         if ($user->user_role_id == 2) { // Role ID 2 untuk Owner
             return redirect()->route('platform_admin.pengusaha')->with('success', 'Banned Owner berhasil dibatalkan.');
-        } elseif ($user->user_role_id == 3) { // Role ID 3 untuk Penyewa
+        } elseif ($user->user_role_id == 4) { // Role ID 4 untuk Penyewa
             return redirect()->route('platform_admin.penyewa')->with('success', 'Banned Penyewa berhasil dibatalkan.');
         }
 

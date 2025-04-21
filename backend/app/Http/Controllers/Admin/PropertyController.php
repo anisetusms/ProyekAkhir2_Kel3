@@ -28,19 +28,31 @@ class PropertyController extends Controller
      */
     public function index()
     {
+        $user_id = Auth::id();
+
+        // Stats hanya untuk owner yang login
+        $stats = DB::select('CALL get_owner_property_stats(?)', [$user_id]);
+
+        // Properti aktif milik owner yang login
         $activeProperties = Property::with(['kostDetail', 'homestayDetail', 'province', 'city', 'district', 'subdistrict'])
-            ->latest()
+            ->where('user_id', $user_id)
             ->where('isDeleted', false)
+            ->latest()
             ->paginate(10);
 
+        // Properti nonaktif milik owner yang login
         $inactiveProperties = Property::with(['kostDetail', 'homestayDetail', 'province', 'city', 'district', 'subdistrict'])
-             ->latest()
+            ->where('user_id', $user_id)
             ->where('isDeleted', true)
+            ->latest()
             ->paginate(10);
 
-        return view('admin.properties.index', compact('activeProperties', 'inactiveProperties'));
+        return view('admin.properties.index', [
+            'stats' => $stats[0] ?? null,
+            'activeProperties' => $activeProperties,
+            'inactiveProperties' => $inactiveProperties,
+        ]);
     }
-
 
     /**
      * Show the form for creating a new property.

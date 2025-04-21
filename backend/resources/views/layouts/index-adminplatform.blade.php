@@ -47,7 +47,7 @@
       <hr class="sidebar-divider my-0">
 
       <!-- Nav Item - Dashboard -->
-      <li class="nav-item {{ request()->routeIs('platform_admin.*') ? 'active' : '' }}">
+      <li class="nav-item {{ request()->routeIs('platform_admin.dashboard') ? 'active' : '' }}">
         <a class="nav-link" href="{{ route('platform_admin.dashboard') }}">
           <i class="fas fa-fw fa-tachometer-alt"></i>
           <span>Dashboard</span>
@@ -63,7 +63,7 @@
       </div>
 
       <!-- Nav Item - Properties -->
-      <li class="nav-item {{ request()->routeIs('platform_admin.*') ? 'active' : '' }}">
+      <li class="nav-item {{ request()->routeIs('platform_admin.pengusaha') ? 'active' : '' }}">
         <a class="nav-link" href="{{ route('platform_admin.pengusaha') }}">
           <i class="fas fa-fw fa-users"></i>
           <span>Pengusaha</span>
@@ -71,7 +71,7 @@
       </li>
 
       <!-- Nav Item - Bookings -->
-      <li class="nav-item {{ request()->routeIs('platform_admin.*') ? 'active' : '' }}">
+      <li class="nav-item {{ request()->routeIs('platform_admin.penyewa') ? 'active' : '' }}">
         <a class="nav-link" href="{{ route('platform_admin.penyewa') }}">
           <i class="fas fa-fw fa-users"></i>
           <span>Penyewa</span>
@@ -87,7 +87,7 @@
       </div>
 
       <!-- Nav Item - Users -->
-      <li class="nav-item {{ request()->routeIs('platform_admin.*') ? 'active' : '' }}">
+      <li class="nav-item {{ request()->routeIs('platform_admin.profil') ? 'active' : '' }}">
         <a class="nav-link" href="{{ route('platform_admin.profil') }}">
           <i class="fas fa-fw fa-users"></i>
           <span>Profil</span>
@@ -95,7 +95,7 @@
       </li>
 
       <!-- Nav Item - Settings -->
-      <li class="nav-item {{ request()->is('platform_admin/settings*') ? 'active' : '' }}">
+      <li class="nav-item {{ request()->is('platform_admin.settings*') ? 'active' : '' }}">
         <a class="nav-link" href="{{ route('platform_admin.settings') }}">
           <i class="fas fa-cog me-2"></i>
           <span>Pengaturan</span>

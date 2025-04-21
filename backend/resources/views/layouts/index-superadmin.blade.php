@@ -47,7 +47,7 @@
             <hr class="sidebar-divider my-0">
 
             <!-- Nav Item - Dashboard -->
-            <li class="nav-item {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
+            <li class="nav-item {{ request()->routeIs('super_admin.dashboard') ? 'active' : '' }}">
                 <a class="nav-link" href="{{ route('super_admin.dashboard') }}">
                     <i class="fas fa-fw fa-tachometer-alt"></i>
                     <span>Dashboard</span>
@@ -63,7 +63,7 @@
             </div>
 
             <!-- Nav Item - Properties -->
-            <li class="nav-item {{ request()->routeIs('admin.properties.*') ? 'active' : '' }}">
+            <li class="nav-item {{ request()->routeIs('super_admin.entrepreneurs.index') ? 'active' : '' }}">
                 <a class="nav-link" href="{{ route('super_admin.entrepreneurs.index') }}">
                     <i class="fas fa-fw fa-building"></i>
                     <span>Owner</span>
@@ -71,7 +71,7 @@
             </li>
 
             <!-- Nav Item - Bookings -->
-            <li class="nav-item {{ request()->routeIs('admin.bookings.*') ? 'active' : '' }}">
+            <li class="nav-item {{ request()->routeIs('super_admin.platform_admins.index*') ? 'active' : '' }}">
                 <a class="nav-link" href="{{ route('super_admin.platform_admins.index') }}">
                     <i class="fas fa-fw fa-calendar-check"></i>
                     <span>Admin Platform</span>
@@ -87,7 +87,7 @@
             </div>
 
             <!-- Nav Item - Users -->
-            <li class="nav-item {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
+            <li class="nav-item {{ request()->routeIs('super_admin.profiles.index') ? 'active' : '' }}">
                 <a class="nav-link" href="{{ route('super_admin.profiles.index') }}">
                     <i class="fas fa-fw fa-users"></i>
                     <span>Profil</span>
@@ -95,7 +95,7 @@
             </li>
 
             <!-- Nav Item - Settings -->
-            <li class="nav-item {{ request()->is('super_admin/settings*') ? 'active' : '' }}">
+            <li class="nav-item {{ request()->routeIs('super_admin.settings') ? 'active' : '' }}">
                 <a class="nav-link" href="{{ route('super_admin.settings') }}">
                     <i class="fas fa-cog me-2"></i>
                     <span>Pengaturan</span>
@@ -181,7 +181,7 @@
                                         </div>
                                     </div>
                                     <div>
-                                        <div class="small text-gray-500">December 12, 2023</div>
+                                        <div class="small text-gray-500">April 12, 2025</div>
                                         <span class="font-weight-bold">Pemesanan baru telah dibuat!</span>
                                     </div>
                                 </a>

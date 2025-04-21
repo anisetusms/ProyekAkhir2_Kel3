@@ -49,7 +49,7 @@
             <hr class="sidebar-divider my-0">
 
             <!-- Nav Item - Dashboard -->
-            <li class="nav-item {{ request()->routeIs('admin.properties.*                                                                                                                                                                                                                                           ') ? 'active' : '' }}">
+            <li class="nav-item {{ request()->routeIs('admin.properties.dashboard') ? 'active' : '' }}">                                                                                                                                                                                                                                          ') ? 'active' : '' }}">
                 <a class="nav-link" href="{{ route('admin.properties.dashboard') }}">
                     <i class="fas fa-fw fa-tachometer-alt"></i>
                     <span>Dashboard</span>
@@ -65,7 +65,7 @@
             </div>
 
             <!-- Nav Item - Properties -->
-            <li class="nav-item {{ request()->routeIs('admin.properties.*') ? 'active' : '' }}">
+            <li class="nav-item {{ request()->routeIs('admin.properties.index') ? 'active' : '' }}">
                 <a class="nav-link" href="{{ route('admin.properties.index') }}">
                     <i class="fas fa-fw fa-building"></i>
                     <span>Properti</span>
@@ -96,7 +96,7 @@
                 </a>
             </li>
 
-            <li class="nav-item {{ request()->is('admin/settings*') ? 'active' : '' }}">
+            <li class="nav-item {{ request()->routeIs('admin.settings') ? 'active' : '' }}">
                 <a class="nav-link" href="{{ route('admin.settings') }}">
                     <i class="fas fa-cog me-2"></i>
                     <span>Pengaturan</span>
@@ -116,10 +116,8 @@
 
         <!-- Content Wrapper -->
         <div id="content-wrapper" class="d-flex flex-column">
-
             <!-- Main Content -->
             <div id="content">
-
                 <!-- Topbar -->
                 <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
 
@@ -182,7 +180,7 @@
                                         </div>
                                     </div>
                                     <div>
-                                        <div class="small text-gray-500">December 12, 2023</div>
+                                        <div class="small text-gray-500">April 12, 2025</div>
                                         <span class="font-weight-bold">Pemesanan baru telah dibuat!</span>
                                     </div>
                                 </a>

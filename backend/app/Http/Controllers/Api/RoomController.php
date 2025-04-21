@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\API;
 
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\Controller; 
 use App\Models\Property;
 use App\Models\Room;
 use App\Models\RoomFacility;
@@ -301,3 +301,4 @@ class RoomController extends Controller
         }
     }
 }
+
