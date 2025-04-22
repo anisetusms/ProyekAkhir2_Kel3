@@ -117,7 +117,6 @@ class RoomController extends Controller
 
         return view('admin.properties.rooms.edit', compact('room', 'roomFacilities', 'property')); // Teruskan $property ke view
     }
-
     /**
      * Update the specified room in storage.
      *

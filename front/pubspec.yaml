@@ -1,0 +1,24 @@
+name: front
+description: "A new Flutter project."
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.7.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+  dio: ^5.4.0
+  shared_preferences: ^2.2.2 # Contoh versi terbaru saat ini, bisa disesuaikan
+  intl: ^0.19.0 # Contoh versi terbaru saat ini, bisa disesuaikan
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true

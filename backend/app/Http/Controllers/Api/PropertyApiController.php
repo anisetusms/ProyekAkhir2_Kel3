@@ -1,115 +1,88 @@
 <?php
 
-namespace App\Http\Controllers\API;
+namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Property;
 use App\Models\KostDetail;
 use App\Models\HomestayDetail;
+use App\Models\Province;
+use App\Models\City;
+use App\Models\District;
+use App\Models\Subdistrict;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class PropertyApiController extends Controller
 {
     /**
-     * Get list of properties
+     * Display a listing of the properties for the authenticated user.
+     *
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function index(Request $request)
+    public function index()
     {
-        $user = Auth::user();
-        
-        $query = Property::with(['kostDetail', 'homestayDetail', 'province', 'city', 'district', 'subdistrict'])
-            ->where('user_id', $user->id);
-            
-        if ($request->has('isDeleted')) {
-            $query->where('isDeleted', $request->isDeleted);
-        }
-        
-        $properties = $query->latest()->paginate($request->perPage ?? 10);
-        
-        return response()->json([
-            'success' => true,
-            'data' => $properties
-        ]);
+        $user_id = Auth::id();
+
+        $properties = Property::with(['kostDetail', 'homestayDetail', 'province', 'city', 'district', 'subdistrict'])
+            ->where('user_id', $user_id)
+            ->where('isDeleted', false)
+            ->latest()
+            ->paginate(10);
+
+        return response()->json($properties);
     }
 
     /**
-     * Get property details
-     */
-    public function show($id)
-    {
-        $property = Property::with(['kostDetail', 'homestayDetail', 'rooms', 'province', 'city', 'district', 'subdistrict'])
-            ->where('user_id', Auth::id())
-            ->findOrFail($id);
-            
-        $totalRooms = $property->rooms->count();
-        $availableRooms = $property->rooms->where('is_available', true)->count();
-        $availablePercentage = $totalRooms > 0 ? ($availableRooms / $totalRooms) * 100 : 0;
-        
-        return response()->json([
-            'success' => true,
-            'data' => [
-                'property' => $property,
-                'stats' => [
-                    'total_rooms' => $totalRooms,
-                    'available_rooms' => $availableRooms,
-                    'available_percentage' => $availablePercentage
-                ]
-            ]
-        ]);
-    }
-
-    /**
-     * Create new property
+     * Store a newly created property in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\JsonResponse
      */
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
-            'description' => 'required|string',
-            'property_type_id' => 'required|in:1,2',
-            'province_id' => 'required|exists:provinces,id',
-            'city_id' => 'required|exists:cities,id',
-            'district_id' => 'required|exists:districts,id',
-            'subdistrict_id' => 'required|exists:subdistricts,id',
+            'description' => 'nullable|string',
+            'property_type_id' => 'required|integer|exists:property_types,id',
+            'province_id' => 'required|integer|exists:provinces,id',
+            'city_id' => 'required|integer|exists:cities,id',
+            'district_id' => 'required|integer|exists:districts,id',
+            'subdistrict_id' => 'required|integer|exists:subdistricts,id',
             'price' => 'required|numeric|min:0',
             'address' => 'required|string',
             'latitude' => 'nullable|numeric',
             'longitude' => 'nullable|numeric',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'capacity' => 'required|integer|min:1',
-            'available_rooms' => 'required_if:property_type_id,1|integer|min:0',
+            'capacity' => 'nullable|integer|min:1',
+            'available_rooms' => 'nullable|integer|min:0',
             'rules' => 'nullable|string',
-            // Kost specific
-            'kost_type' => 'required_if:property_type_id,1|in:putra,putri,campur',
-            'total_rooms' => 'required_if:property_type_id,1|integer|min:1',
+            'kost_type' => 'nullable|in:putra,putri,campur',
+            'total_rooms' => 'nullable|integer|min:1',
             'meal_included' => 'nullable|boolean',
             'laundry_included' => 'nullable|boolean',
-            // Homestay specific
-            'total_units' => 'required_if:property_type_id,2|integer|min:1',
-            'available_units' => 'required_if:property_type_id,2|integer|min:0',
-            'minimum_stay' => 'required_if:property_type_id,2|integer|min:1',
-            'maximum_guest' => 'required_if:property_type_id,2|integer|min:1',
-            'checkin_time' => 'required_if:property_type_id,2|date_format:H:i',
-            'checkout_time' => 'required_if:property_type_id,2|date_format:H:i',
+            'total_units' => 'nullable|integer|min:1',
+            'available_units' => 'nullable|integer|min:0',
+            'minimum_stay' => 'nullable|integer|min:1',
+            'maximum_guest' => 'nullable|integer|min:1',
+            'checkin_time' => 'nullable|date_format:H:i',
+            'checkout_time' => 'nullable|date_format:H:i',
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'errors' => $validator->errors()
-            ], 422);
+            return response()->json(['errors' => $validator->errors()], 422);
         }
 
+        DB::beginTransaction();
         try {
-            // Handle image upload
-            $imagePath = null;
-            if ($request->hasFile('image')) {
-                $imagePath = $request->file('image')->store('properties', 'public');
-            }
+            // Upload image
+            $imagePath = $request->hasFile('image')
+                ? $request->file('image')->store('properties', 'public')
+                : null;
 
             // Create property
             $property = Property::create([
@@ -127,13 +100,13 @@ class PropertyApiController extends Controller
                 'longitude' => $request->longitude,
                 'image' => $imagePath,
                 'capacity' => $request->capacity,
-                'available_rooms' => $request->property_type_id == 1 ? $request->available_rooms : 0,
+                'available_rooms' => $request->property_type_id == 1 ? $request->available_rooms : 0, // Tambahkan nilai untuk available_rooms
                 'rules' => $request->rules,
-                'isDeleted' => false
+                'isDeleted' => false,
             ]);
 
             // Create property type specific details
-            if ($request->property_type_id == 1) {
+            if ($request->property_type_id == 1) { // Kost
                 KostDetail::create([
                     'property_id' => $property->id,
                     'kost_type' => $request->kost_type,
@@ -141,9 +114,9 @@ class PropertyApiController extends Controller
                     'available_rooms' => $request->available_rooms,
                     'meal_included' => $request->meal_included ?? false,
                     'laundry_included' => $request->laundry_included ?? false,
-                    'rules' => $request->rules ?? ''
+                    'rules' => $request->rules ?? '',
                 ]);
-            } else {
+            } elseif ($request->property_type_id == 2) { // Homestay
                 HomestayDetail::create([
                     'property_id' => $property->id,
                     'total_units' => $request->total_units,
@@ -151,30 +124,47 @@ class PropertyApiController extends Controller
                     'minimum_stay' => $request->minimum_stay,
                     'maximum_guest' => $request->maximum_guest,
                     'checkin_time' => $request->checkin_time,
-                    'checkout_time' => $request->checkout_time
+                    'checkout_time' => $request->checkout_time,
                 ]);
             }
 
-            return response()->json([
-                'success' => true,
-                'data' => $property->load(['kostDetail', 'homestayDetail'])
-            ], 201);
+            DB::commit();
 
+            return response()->json($property, 201);
         } catch (\Exception $e) {
+            DB::rollBack();
+
             // Delete image if upload failed
             if (isset($imagePath)) {
                 Storage::disk('public')->delete($imagePath);
             }
 
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to create property: ' . $e->getMessage()
-            ], 500);
+            return response()->json(['message' => 'Gagal membuat properti: ' . $e->getMessage()], 500);
         }
     }
 
     /**
-     * Update property
+     * Display the specified property.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function show($id)
+    {
+        $property = Property::with(['kostDetail', 'homestayDetail', 'province', 'city', 'district', 'subdistrict', 'rooms'])
+            ->where('user_id', Auth::id())
+            ->where('isDeleted', false)
+            ->findOrFail($id);
+
+        return response()->json($property);
+    }
+
+    /**
+     * Update the specified property in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\JsonResponse
      */
     public function update(Request $request, $id)
     {
@@ -184,45 +174,48 @@ class PropertyApiController extends Controller
 
         $validator = Validator::make($request->all(), [
             'name' => 'sometimes|string|max:255',
-            'description' => 'sometimes|string',
-            'province_id' => 'sometimes|exists:provinces,id',
-            'city_id' => 'sometimes|exists:cities,id',
-            'district_id' => 'sometimes|exists:districts,id',
-            'subdistrict_id' => 'sometimes|exists:subdistricts,id',
+            'description' => 'nullable|string',
+            'province_id' => 'sometimes|integer|exists:provinces,id',
+            'city_id' => 'sometimes|integer|exists:cities,id',
+            'district_id' => 'sometimes|integer|exists:districts,id',
+            'subdistrict_id' => 'sometimes|integer|exists:subdistricts,id',
             'price' => 'sometimes|numeric|min:0',
             'address' => 'sometimes|string',
             'latitude' => 'nullable|numeric',
             'longitude' => 'nullable|numeric',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'kost_type' => 'sometimes|in:putra,putri,campur',
+            'capacity' => 'nullable|integer|min:1',
+            'available_rooms' => 'nullable|integer|min:0',
             'rules' => 'nullable|string',
+            'kost_type' => 'nullable|in:putra,putri,campur',
+            'total_rooms' => 'nullable|integer|min:1',
             'meal_included' => 'nullable|boolean',
             'laundry_included' => 'nullable|boolean',
-            'minimum_stay' => 'sometimes|integer|min:1',
-            'maximum_guest' => 'sometimes|integer|min:1',
-            'checkin_time' => 'sometimes|date_format:H:i',
-            'checkout_time' => 'sometimes|date_format:H:i',
+            'total_units' => 'nullable|integer|min:1',
+            'available_units' => 'nullable|integer|min:0',
+            'minimum_stay' => 'nullable|integer|min:1',
+            'maximum_guest' => 'nullable|integer|min:1',
+            'checkin_time' => 'nullable|date_format:H:i',
+            'checkout_time' => 'nullable|date_format:H:i',
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'errors' => $validator->errors()
-            ], 422);
+            return response()->json(['errors' => $validator->errors()], 422);
         }
 
+        DB::beginTransaction();
         try {
-            // Update image if provided
+            // Update gambar jika ada
             $imagePath = $property->image;
             if ($request->hasFile('image')) {
-                // Delete old image if exists
+                // Hapus gambar lama jika ada
                 if ($imagePath) {
                     Storage::disk('public')->delete($imagePath);
                 }
                 $imagePath = $request->file('image')->store('properties', 'public');
             }
 
-            // Update property
+            // Update properti
             $property->update([
                 'name' => $request->name ?? $property->name,
                 'description' => $request->description ?? $property->description,
@@ -235,36 +228,50 @@ class PropertyApiController extends Controller
                 'latitude' => $request->latitude ?? $property->latitude,
                 'longitude' => $request->longitude ?? $property->longitude,
                 'image' => $imagePath,
+                'capacity' => $request->capacity ?? $property->capacity,
+                'available_rooms' => $request->property_type_id == 1 ? ($request->available_rooms ?? $property->available_rooms) : $property->available_rooms,
+                'rules' => $request->rules ?? $property->rules,
             ]);
 
-            // Update detail if exists
-            if ($property->kostDetail) {
-                $property->kostDetail->update($request->only([
-                    'kost_type', 'total_rooms', 'available_rooms', 
-                    'meal_included', 'laundry_included', 'rules'
-                ]));
-            } elseif ($property->homestayDetail) {
-                $property->homestayDetail->update($request->only([
-                    'total_units', 'available_units', 'minimum_stay',
-                    'maximum_guest', 'checkin_time', 'checkout_time'
-                ]));
+            // Update detail sesuai jenis properti
+            if ($property->property_type_id == 1) { // Kost
+                if ($property->kostDetail) {
+                    $property->kostDetail->update([
+                        'kost_type' => $request->kost_type ?? $property->kostDetail->kost_type,
+                        'total_rooms' => $request->total_rooms ?? $property->kostDetail->total_rooms,
+                        'available_rooms' => $request->available_rooms ?? $property->kostDetail->available_rooms,
+                        'meal_included' => $request->meal_included ?? $property->kostDetail->meal_included,
+                        'laundry_included' => $request->laundry_included ?? $property->kostDetail->laundry_included,
+                        'rules' => $request->rules ?? $property->kostDetail->rules,
+                    ]);
+                }
+            } elseif ($property->property_type_id == 2) { // Homestay
+                if ($property->homestayDetail) {
+                    $property->homestayDetail->update([
+                        'total_units' => $request->total_units ?? $property->homestayDetail->total_units,
+                        'available_units' => $request->available_units ?? $property->homestayDetail->available_units,
+                        'minimum_stay' => $request->minimum_stay ?? $property->homestayDetail->minimum_stay,
+                        'maximum_guest' => $request->maximum_guest ?? $property->homestayDetail->maximum_guest,
+                        'checkin_time' => $request->checkin_time ?? $property->homestayDetail->checkin_time,
+                        'checkout_time' => $request->checkout_time ?? $property->homestayDetail->checkout_time,
+                    ]);
+                }
             }
 
-            return response()->json([
-                'success' => true,
-                'data' => $property->fresh(['kostDetail', 'homestayDetail'])
-            ]);
+            DB::commit();
 
+            return response()->json($property, 200);
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to update property: ' . $e->getMessage()
-            ], 500);
+            DB::rollBack();
+            return response()->json(['message' => 'Gagal memperbarui properti: ' . $e->getMessage()], 500);
         }
     }
 
     /**
-     * Delete (soft delete) property
+     * Remove the specified property from storage (soft delete).
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\JsonResponse
      */
     public function destroy($id)
     {
@@ -274,94 +281,33 @@ class PropertyApiController extends Controller
 
         try {
             $property->update(['isDeleted' => true]);
-            
-            return response()->json([
-                'success' => true,
-                'message' => 'Property deleted successfully'
-            ]);
-            
+            return response()->json(['message' => 'Properti berhasil dinonaktifkan']);
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to delete property: ' . $e->getMessage()
-            ], 500);
+            return response()->json(['message' => 'Gagal menonaktifkan properti: ' . $e->getMessage()], 500);
         }
     }
 
-    /**
-     * Get dashboard data
-     */
-    public function dashboard()
+    public function getProvinces()
     {
-        $user = Auth::user();
-        
-        $data = [
-            'total_properties' => Property::where('user_id', $user->id)->count(),
-            'active_properties' => Property::where('user_id', $user->id)
-                ->where('isDeleted', false)
-                ->count(),
-            'latest_properties' => Property::where('user_id', $user->id)
-                ->latest()
-                ->take(5)
-                ->get(),
-            // Add more stats as needed
-        ];
-        
-        return response()->json([
-            'success' => true,
-            'data' => $data
-        ]);
+        $provinces = Province::all();
+        return response()->json($provinces);
     }
 
-    // Location methods (reuse from PropertyController)
     public function getCities($provinceId)
     {
-        try {
-            $cities = DB::select('CALL getCities(?)', [$provinceId]);
-            return response()->json([
-                'success' => true,
-                'data' => $cities
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to load cities',
-                'error' => $e->getMessage()
-            ], 500);
-        }
+        $cities = City::where('prov_id', $provinceId)->get();
+        return response()->json($cities);
     }
 
     public function getDistricts($cityId)
     {
-        try {
-            $districts = DB::select('CALL getDistricts(?)', [$cityId]);
-            return response()->json([
-                'success' => true,
-                'data' => $districts
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to load districts',
-                'error' => $e->getMessage()
-            ], 500);
-        }
+        $districts = District::where('city_id', $cityId)->get();
+        return response()->json($districts);
     }
 
     public function getSubdistricts($districtId)
     {
-        try {
-            $subdistricts = DB::select('CALL getSubdistricts(?)', [$districtId]);
-            return response()->json([
-                'success' => true,
-                'data' => $subdistricts
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to load subdistricts',
-                'error' => $e->getMessage()
-            ], 500);
-        }
+        $subdistricts = Subdistrict::where('dis_id', $districtId)->get();
+        return response()->json($subdistricts);
     }
 }
