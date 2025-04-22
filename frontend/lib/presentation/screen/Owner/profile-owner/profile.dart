@@ -103,7 +103,7 @@ class _ProfileOwnerState extends State<ProfileOwner> {
                   Divider(color: Colors.grey.shade300),
                   InkWell(
                     onTap: () {
-                      Get.toNamed("/editProfile");
+                      Get.toNamed("/editProfileo");
                     },
                     child: commonListTile(
                       MyImages.editProfileScreen,
@@ -197,6 +197,7 @@ class _ProfileOwnerState extends State<ProfileOwner> {
             bool success = await AuthService.logout();
             if (!mounted) return;
             if (success) {
+              controller.imageUrl.refresh();
   Get.offNamedUntil("/loginOptionScreen", (route) => false);
 } else {
   Get.snackbar(

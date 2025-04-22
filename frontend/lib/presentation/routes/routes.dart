@@ -182,6 +182,12 @@ class Routes {
     //   transitionDuration: const Duration(milliseconds: 600),
     // ),
     GetPage(
+      name: "/editProfileo",
+      page: () => const EditProfilePage(),
+      transition: Transition.leftToRight,
+      transitionDuration: const Duration(milliseconds: 600),
+    ),
+    GetPage(
       name: "/chooseLanguage",
       page: () => const ChooseLanguage(),
       transition: Transition.leftToRight,

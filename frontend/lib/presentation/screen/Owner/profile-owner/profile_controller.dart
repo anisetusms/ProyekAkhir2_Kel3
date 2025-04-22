@@ -42,14 +42,24 @@ Future<void> fetchProfile() async {
       imageUrl.value = fullUrl;
       name.value = data['user']['name'];
       email.value = data['user']['email'];
-    } else {
+    } 
+    else if (response.statusCode == 401) {
+      // ❗ Token expired atau tidak valid
+      print('❌ Token expired atau tidak valid. Redirect ke login.');
+
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove('token'); // hapus token biar aman
+
+      // Arahkan user ke login (pakai GetX)
+      Get.offAllNamed('/login'); // atau Get.toNamed('/login') kalau mau stack baru
+    }
+    else {
       print('Gagal ambil profil. Status: ${response.statusCode}');
     }
   } catch (e) {
     print('❌ Error saat ambil data user: $e');
   }
 }
-
 
   Future<String> getToken() async {
     final prefs = await SharedPreferences.getInstance();

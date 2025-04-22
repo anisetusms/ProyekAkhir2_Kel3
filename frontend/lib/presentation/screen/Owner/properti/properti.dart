@@ -9,7 +9,6 @@ class Properti extends StatefulWidget {
 }
 
 class _PropertiState extends State<Properti> {
-
   late PropertiControllers controller;
 
   @override
@@ -21,182 +20,145 @@ class _PropertiState extends State<Properti> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        scrolledUnderElevation: 0,
-        leadingWidth: widget.status == 'home' ? 43 : 0,
-        leading: widget.status == 'home'
-        ? Row(
-          children: [
-          const SizedBox(width: 15),
-          InkWell(
-            onTap: () {
-              return Get.back();
-            },
-            child: SvgPicture.asset(
-              MyImages.backArrow,
-              colorFilter: ColorFilter.mode(
-                  controller.themeController.isDarkMode.value
-                      ? MyColors.white
-                      : MyColors.black,
-                  BlendMode.srcIn),
-            ),
-          ),
-        ],
-      ) : const SizedBox(),
-        title: TextField(
-          controller: controller.searchController.value,
-          focusNode: controller.searchFocus.value,
-          autofocus: false,
-          onSubmitted: (value) {
-            if(value.isNotEmpty) {
-              controller.selectItem.value = true;
-              controller.addSearchData(value);
-            }
-          },
-          onTap: () {
-            controller.selectItem.value = false;
-          },
-          decoration: InputDecoration(
-            focusColor: Colors.green,
-            contentPadding: const EdgeInsets.symmetric(vertical: 10),
-            filled: true,
-            fillColor: controller.themeController.isDarkMode.value ? MyColors.darkSearchTextFieldColor : MyColors.searchTextFieldColor,
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(15),
-              borderSide: const BorderSide(color: MyColors.black),
-            ),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(15),
-              borderSide: BorderSide.none,
-            ),
-            prefixIcon: Padding(
-              padding: const EdgeInsets.all(15.0),
-              child: SvgPicture.asset(MyImages.unSelectedSearch,
-                colorFilter: ColorFilter.mode(controller.themeController.isDarkMode.value ? MyColors.white : Colors.black, BlendMode.srcIn),
-                width: 15,
+      backgroundColor: Colors.white,
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Logo dan ikon notifikasi
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Hommie',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w600,
+                      fontFamily: 'Poppins',
+                      color: Colors.brown,
+                    ),
+                  ),
+                  Icon(Icons.notifications_none_outlined, color: Colors.black),
+                ],
               ),
-            ),
-            hintText: "Search",
-            hintStyle: const TextStyle(color: Colors.grey),
-            // suffixIcon: Padding(
-            //   padding: const EdgeInsets.all(15.0),
-            //   child: SvgPicture.asset(MyImages.filter, color: controller.themeController.isDarkMode.value ? MyColors.white : Colors.black),
-            // ),
-          ),
-        ),
-        actions: [
-          InkWell(
-            onTap: () {
-              controller.searchController.value.clear();
-              controller.selectItem.value = false;
-            },
-            child: const Icon(Icons.close),
-          ),
-          const SizedBox(width: 20),
-        ],
-      ),
-      body: Obx(() => Padding(
-        padding: const EdgeInsets.all(20),
-        child: controller.selectItem.value == false
-        ? Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text("Terakhir", style: TextStyle(fontWeight: FontWeight.w700, fontSize: 18),),
-            const SizedBox(height: 15),
-            Expanded(
-              child: ListView.builder(
-                itemCount: PropertiControllers.searchText.length,
-                itemBuilder: (context, index) {
-                  return Column(
-                    children: [
-                      InkWell(
-                        onTap: () {
-                          controller.selectItem.value = true;
-                          controller.searchFocus.value.unfocus();
-                        },
-                        child: Row(
-                          children: [
-                            Text(PropertiControllers.searchText[index], style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 18),),
-                            const Spacer(),
-                            InkWell(
-                              onTap: () {
-                                controller.removeSearchData(index);
-                              },
-                              child: SvgPicture.asset(MyImages.closeSearch, width: 20,),
-                            ),
+              const SizedBox(height: 20),
+
+              // Search Field
+              TextField(
+                decoration: InputDecoration(
+                  hintText: "ingin cari apa?",
+                  prefixIcon: Icon(Icons.search),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
+                  filled: true,
+                  fillColor: Colors.grey[200],
+                  contentPadding: const EdgeInsets.symmetric(vertical: 0),
+                ),
+              ),
+              const SizedBox(height: 24),
+
+              // Judul section
+              const Text(
+                "Properti Milik Anda",
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 12),
+
+              // Tombol tambah properti
+              ElevatedButton.icon(
+                onPressed: () {
+                  controller.tambahProperti();
+                },
+                icon: const Icon(Icons.add, color: Colors.green),
+                label: const Text(
+                  'Tambah Properti',
+                  style: TextStyle(color: Colors.green),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.white,
+                  side: const BorderSide(color: Colors.green),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  elevation: 0,
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              // Menampilkan daftar properti
+              Obx(() {
+                if (controller.isLoading.value) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+
+                if (controller.propertiList.isEmpty) {
+                  return const Text("Belum ada properti.");
+                }
+
+                return Expanded(
+                  child: ListView.builder(
+                    itemCount: controller.propertiList.length,
+                    itemBuilder: (context, index) {
+                      final properti = controller.propertiList[index];
+                      return Container(
+                        margin: const EdgeInsets.only(bottom: 12),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF1FAF9),
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.05),
+                              blurRadius: 8,
+                              offset: const Offset(0, 4),
+                            )
                           ],
                         ),
-                      ),
-                      const SizedBox(height: 10),
-                    ],
-                  );
-                },
-              ),
-            )
-          ],
-        )
-        : Column(
-          children: [
-            Row(
-              children: [
-                const Text("Search Result (2,379)", style: TextStyle(fontWeight: FontWeight.w700, fontSize: 18),),
-                const Spacer(),
-                InkWell(
-                  onTap: () {
-                    controller.selectedButton.value = 0;
-                  },
-                  child: SvgPicture.asset(
-                  controller.selectedButton.value == 0
-                    ? MyImages.selectedDocument
-                    : MyImages.unselectedDocument,
-                    width: 20,
-                  colorFilter: ColorFilter.mode(controller.themeController.isDarkMode.value ? Colors.white : Colors.black, BlendMode.srcIn),
-                  )
-                ),
-                const SizedBox(width: 20),
-                InkWell(
-                  onTap: () {
-                    controller.selectedButton.value = 1;
-                  },
-                  child: SvgPicture.asset(controller.selectedButton.value == 0
-                    ? MyImages.unselectedCategory
-                    : MyImages.selectedCategory,
-                    width: 20,
-                  colorFilter: ColorFilter.mode(controller.themeController.isDarkMode.value ? Colors.white : Colors.black, BlendMode.srcIn),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 15),
-            Expanded(
-              child: controller.selectedButton.value == 0
-              ? ListView.builder(
-                itemCount: 8,
-                itemBuilder: (context, index) {
-                  return InkWell(
-                    onTap: () {
-                      // Get.toNamed("/hotelDetail", arguments: {'data' : controller.homeDetails[index]});
+                        child: ListTile(
+                          contentPadding: const EdgeInsets.all(12),
+                          leading: ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: Image.network(
+                              properti.imageUrl,
+                              width: 90,
+                              height: 90,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) {
+                                return Image.asset('assets/images/kost_anthony.jpg');
+                              },
+                            ),
+                          ),
+                          title: Text(
+                            properti.name,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          subtitle: InkWell(
+                            onTap: () => controller.lihatDetailProperti(properti),
+                            child: const Text(
+                              'Lihat Selengkapnya',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.blue,
+                                decoration: TextDecoration.underline,
+                              ),
+                            ),
+                          ),
+                        ),
+                      );
                     },
-                      child: VerticalView(index: index),
-                  );
-                },
-              )
-              : GridView.builder(
-                itemCount: 8,
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 25,
-                  mainAxisSpacing: 20,
-                  mainAxisExtent: 215,
-                ),
-                itemBuilder: (context, index) {
-                  return HorizontalView(index: index);
-                },
-              ),
-            ),
-          ],
+                  ),
+                );
+              }),
+            ],
+          ),
         ),
-      ),)
+      ),
     );
   }
 }
