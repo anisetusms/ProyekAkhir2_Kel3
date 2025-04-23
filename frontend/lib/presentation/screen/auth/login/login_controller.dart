@@ -11,7 +11,7 @@ class LoginController extends GetxController {
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
 
-  static const String baseUrl = "http://10.0.2.2:8000"; // Gunakan 10.0.2.2 untuk emulator
+  static const String baseUrl = "http://192.168.233.135:8000"; // Gunakan 10.0.2.2 untuk emulator
 
   void submit() async {
     final isValid = formKey.currentState!.validate();
