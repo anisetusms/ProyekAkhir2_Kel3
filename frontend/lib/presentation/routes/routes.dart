@@ -14,12 +14,12 @@ class Routes {
       transition: Transition.leftToRight,
       transitionDuration: const Duration(milliseconds: 600),
     ),
-    GetPage(
-      name: "/loginOptionScreen",
-      page: () => const LoginOptionScreen(),
-      transition: Transition.leftToRight,
-      transitionDuration: const Duration(milliseconds: 600),
-    ),
+    // GetPage(
+    //   name: "/loginOptionScreen",
+    //   page: () => const LoginOptionScreen(),
+    //   transition: Transition.leftToRight,
+    //   transitionDuration: const Duration(milliseconds: 600),
+    // ),
     GetPage(
       name: "/loginScreen",
       page: () => const LoginScreen(),
