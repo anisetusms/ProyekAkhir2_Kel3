@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:front/core/network/api_client.dart';
 import 'package:front/core/utils/constants.dart';
-import 'package:dio/dio.dart';  
+import 'package:dio/dio.dart';
+import 'package:front/core/utils/format_utils.dart';
+import 'package:front/core/widgets/dashboard_card.dart';
+import 'package:front/core/widgets/loading_indicator.dart';
+import 'package:front/core/widgets/error_state.dart';
 
 class DashboardScreen extends StatefulWidget {
   static const routeName = '/dashboard';
@@ -13,127 +17,337 @@ class DashboardScreen extends StatefulWidget {
 class _DashboardScreenState extends State<DashboardScreen> {
   Future<Map<String, dynamic>>? _dashboardDataFuture;
   String? _errorMessage;
+  bool _isRefreshing = false;
 
   @override
   void initState() {
     super.initState();
-    _dashboardDataFuture = _fetchDashboardData();
+    _loadDashboardData();
   }
 
-  Future<Map<String, dynamic>> _fetchDashboardData() async {
+  Future<void> _loadDashboardData() async {
+    setState(() {
+      _isRefreshing = true;
+      _errorMessage = null;
+    });
+
     try {
       final response = await ApiClient().get('${Constants.baseUrl}/dashboard');
-      print('Response Data (dari _fetchDashboardData): ${response}');
       if (response is Map<String, dynamic>) {
-        return response;
+        setState(() {
+          _dashboardDataFuture = Future.value(response);
+        });
       } else {
-        throw Exception('Format data dashboard tidak sesuai.');
+        throw Exception('Format data dashboard tidak sesuai');
       }
-    } catch (e) {
-      print('Error fetching dashboard data (dari catch): $e');
-      if (e is DioException) {
-        print('DioError Type: ${e.type}');
-        print('DioError Message: ${e.message}');
-        print('DioError Response: ${e.response?.data}');
-        print('DioError StackTrace: ${e.stackTrace}');
-      }
-      setState(() { 
-        _errorMessage = e.toString();
+    } on DioException catch (e) {
+      setState(() {
+        _errorMessage = 'Gagal memuat data: ${e.response?.data['message'] ?? e.message}';
       });
-      throw e;
+    } catch (e) {
+      setState(() {
+        _errorMessage = 'Terjadi kesalahan: ${e.toString()}';
+      });
+    } finally {
+      setState(() {
+        _isRefreshing = false;
+      });
     }
+  }
+
+  Widget _buildDashboardCard({
+    required IconData icon,
+    required String title,
+    required dynamic value,
+    Color? color,
+  }) {
+    return DashboardCard(
+      icon: icon,
+      title: title,
+      value: value.toString(),
+      color: color ?? Theme.of(context).primaryColor,
+    );
+  }
+
+  Widget _buildActionButton({
+    required IconData icon,
+    required String label,
+    required VoidCallback onPressed,
+  }) {
+    return ElevatedButton.icon(
+      icon: Icon(icon, size: 20),
+      label: Text(label),
+      onPressed: onPressed,
+      style: ElevatedButton.styleFrom(
+        minimumSize: const Size(double.infinity, 50),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Dashboard')),
-      body:
-          _errorMessage != null
-              ? Center(child: Text(_errorMessage!))
-              : FutureBuilder<Map<String, dynamic>>(
-                future: _dashboardDataFuture,
-                builder: (context, snapshot) {
-                  print(
-                    'Snapshot Connection State: ${snapshot.connectionState}',
-                  ); // Tambahan print
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Center(child: CircularProgressIndicator());
-                  } else if (snapshot.hasError) {
-                    print(
-                      'Snapshot Error: ${snapshot.error}',
-                    ); // Tambahan print
-                    return Center(
-                      child: Text('Gagal memuat data: ${snapshot.error}'),
-                    );
-                  } else if (snapshot.hasData) {
-                    final dashboardData = snapshot.data!;
-                    print('Snapshot Data: $dashboardData'); // Tambahan print
-                    return Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Text(
-                            'Selamat Datang di Dashboard!',
-                            style: TextStyle(
-                              fontSize: 24.0,
-                              fontWeight: FontWeight.bold,
+      appBar: AppBar(
+        title: const Text('Dashboard Admin'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: _loadDashboardData,
+            tooltip: 'Refresh',
+          ),
+        ],
+      ),
+      body: _isRefreshing
+          ? const LoadingIndicator()
+          : _errorMessage != null
+              ? ErrorState(
+                  message: _errorMessage!,
+                  onRetry: _loadDashboardData,
+                )
+              : RefreshIndicator(
+                  onRefresh: _loadDashboardData,
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      children: [
+                        // Header
+                        const SizedBox(height: 8),
+                        Text(
+                          'Selamat Datang di Dashboard Owner!',
+                          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                                fontWeight: FontWeight.bold,
+                              ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Ringkasan Aktivitas Properti',
+                          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                color: Colors.grey[600],
+                              ),
+                        ),
+                        const SizedBox(height: 24),
+
+                        // Stats Cards Grid
+                        GridView.count(
+                          crossAxisCount: 2,
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          mainAxisSpacing: 16,
+                          crossAxisSpacing: 16,
+                          childAspectRatio: 1.2,
+                          children: [
+                            FutureBuilder<Map<String, dynamic>>(
+                              future: _dashboardDataFuture,
+                              builder: (context, snapshot) {
+                                final totalProperties = snapshot.hasData
+                                    ? snapshot.data!['total_properties'] ?? 0
+                                    : 0;
+                                return _buildDashboardCard(
+                                  icon: Icons.home_work_outlined,
+                                  title: 'Total Properti',
+                                  value: FormatUtils.formatNumber(totalProperties),
+                                  color: Colors.blue[700],
+                                );
+                              },
+                            ),
+                            FutureBuilder<Map<String, dynamic>>(
+                              future: _dashboardDataFuture,
+                              builder: (context, snapshot) {
+                                final activeProperties = snapshot.hasData
+                                    ? snapshot.data!['active_properties'] ?? 0
+                                    : 0;
+                                return _buildDashboardCard(
+                                  icon: Icons.check_circle_outline,
+                                  title: 'Properti Aktif',
+                                  value: FormatUtils.formatNumber(activeProperties),
+                                  color: Colors.green[700],
+                                );
+                              },
+                            ),
+                            FutureBuilder<Map<String, dynamic>>(
+                              future: _dashboardDataFuture,
+                              builder: (context, snapshot) {
+                                final inactiveProperties = snapshot.hasData
+                                    ? snapshot.data!['inactive_properties'] ?? 0
+                                    : 0;
+                                return _buildDashboardCard(
+                                  icon: Icons.visibility_off_outlined,
+                                  title: 'Properti Nonaktif',
+                                  value: FormatUtils.formatNumber(inactiveProperties),
+                                  color: Colors.orange[700],
+                                );
+                              },
+                            ),
+                            FutureBuilder<Map<String, dynamic>>(
+                              future: _dashboardDataFuture,
+                              builder: (context, snapshot) {
+                                final totalBookings = snapshot.hasData
+                                    ? snapshot.data!['total_bookings'] ?? 0
+                                    : 0;
+                                return _buildDashboardCard(
+                                  icon: Icons.calendar_today_outlined,
+                                  title: 'Total Pemesanan',
+                                  value: FormatUtils.formatNumber(totalBookings),
+                                  color: Colors.purple[700],
+                                );
+                              },
+                            ),
+                          ],
+                        ),
+
+                        const SizedBox(height: 24),
+
+                        // Quick Actions
+                        Text(
+                          'Aksi Cepat',
+                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                fontWeight: FontWeight.bold,
+                              ),
+                        ),
+                        const SizedBox(height: 16),
+                        Column(
+                          children: [
+                            _buildActionButton(
+                              icon: Icons.add,
+                              label: 'Tambah Properti Baru',
+                              onPressed: () =>
+                                  Navigator.pushNamed(context, '/add_property'),
+                            ),
+                            const SizedBox(height: 12),
+                            _buildActionButton(
+                              icon: Icons.list,
+                              label: 'Lihat Semua Properti',
+                              onPressed: () =>
+                                  Navigator.pushNamed(context, '/properties'),
+                            ),
+                            const SizedBox(height: 12),
+                            _buildActionButton(
+                              icon: Icons.book,
+                              label: 'Kelola Pemesanan',
+                              onPressed: () =>
+                                  Navigator.pushNamed(context, '/bookings'),
+                            ),
+                          ],
+                        ),
+
+                        const SizedBox(height: 24),
+
+                        // Recent Activities
+                        Card(
+                          elevation: 2,
+                          child: Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    const Icon(Icons.history, size: 20),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      'Aktivitas Terkini',
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .titleMedium
+                                          ?.copyWith(
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 12),
+                                FutureBuilder<Map<String, dynamic>>(
+                                  future: _dashboardDataFuture,
+                                  builder: (context, snapshot) {
+                                    if (!snapshot.hasData ||
+                                        snapshot.data!['recent_activities'] == null) {
+                                      return const Padding(
+                                        padding: EdgeInsets.all(16),
+                                        child: Text('Tidak ada aktivitas terkini'),
+                                      );
+                                    }
+
+                                    final activities =
+                                        snapshot.data!['recent_activities'] as List;
+                                    if (activities.isEmpty) {
+                                      return const Padding(
+                                        padding: EdgeInsets.all(16),
+                                        child: Text('Tidak ada aktivitas terkini'),
+                                      );
+                                    }
+
+                                    return ListView.separated(
+                                      shrinkWrap: true,
+                                      physics: const NeverScrollableScrollPhysics(),
+                                      itemCount: activities.length > 3 ? 3 : activities.length,
+                                      separatorBuilder: (_, __) =>
+                                          const SizedBox(height: 12),
+                                      itemBuilder: (context, index) {
+                                        final activity = activities[index];
+                                        return ListTile(
+                                          contentPadding: EdgeInsets.zero,
+                                          leading: Container(
+                                            padding: const EdgeInsets.all(8),
+                                            decoration: BoxDecoration(
+                                              color: Colors.grey[200],
+                                              shape: BoxShape.circle,
+                                            ),
+                                            child: Icon(
+                                              _getActivityIcon(activity['type']),
+                                              size: 20,
+                                              color: Colors.grey[700],
+                                            ),
+                                          ),
+                                          title: Text(
+                                            activity['description'] ?? 'Aktivitas',
+                                            style: const TextStyle(fontSize: 14),
+                                          ),
+                                          subtitle: Text(
+                                            FormatUtils.formatDateTime(
+                                                activity['created_at']),
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              color: Colors.grey[600],
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                    );
+                                  },
+                                ),
+                                const SizedBox(height: 8),
+                                Align(
+                                  alignment: Alignment.centerRight,
+                                  child: TextButton(
+                                    onPressed: () =>
+                                        Navigator.pushNamed(context, '/activities'),
+                                    child: const Text('Lihat Semua'),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                          SizedBox(height: 20.0),
-                          Text(
-                            'Informasi Properti Anda:',
-                            style: TextStyle(
-                              fontSize: 18.0,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          SizedBox(height: 10.0),
-                          if (dashboardData.containsKey('total_properties') &&
-                              dashboardData['total_properties'] is int)
-                            Text(
-                              'Total Properti: ${dashboardData['total_properties']}',
-                            ),
-                          if (dashboardData.containsKey('total_properties') &&
-                              dashboardData['total_properties'] is! int)
-                            Text(
-                              'Total Properti (tidak valid): ${dashboardData['total_properties']}',
-                            ),
-                          if (dashboardData.containsKey('total_bookings') &&
-                              dashboardData['total_bookings'] is int)
-                            Text(
-                              'Total Pemesanan: ${dashboardData['total_bookings']}',
-                            ),
-                          if (dashboardData.containsKey('total_bookings') &&
-                              dashboardData['total_bookings'] is! int)
-                            Text(
-                              'Total Pemesanan (tidak valid): ${dashboardData['total_bookings']}',
-                            ),
-                          // Tambahkan widget lain untuk menampilkan data dashboard sesuai kebutuhan Anda
-                          SizedBox(height: 20.0),
-                          ElevatedButton(
-                            onPressed: () {
-                              Navigator.pushNamed(context, '/properties');
-                            },
-                            child: Text('Lihat Daftar Properti'),
-                          ),
-                          SizedBox(height: 10.0),
-                          ElevatedButton(
-                            onPressed: () {
-                              Navigator.pushNamed(context, '/add_property');
-                            },
-                            child: Text('Tambah Properti Baru'),
-                          ),
-                          // Tambahkan tombol atau informasi lain sesuai kebutuhan dashboard Anda
-                        ],
-                      ),
-                    );
-                  } else {
-                    return Center(child: Text('Tidak ada data dashboard.'));
-                  }
-                },
-              ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
     );
+  }
+
+  IconData _getActivityIcon(String? type) {
+    switch (type) {
+      case 'property_added':
+        return Icons.add_circle_outline;
+      case 'property_updated':
+        return Icons.edit_outlined;
+      case 'booking_created':
+        return Icons.calendar_today_outlined;
+      default:
+        return Icons.notifications_none;
+    }
   }
 }
