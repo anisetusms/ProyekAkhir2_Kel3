@@ -8,7 +8,7 @@ use App\Http\Controllers\Api\RoomApiController; // Pastikan controller ini ada
 use App\Http\Controllers\Api\DashboardApiController;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\Response;
-
+use App\Http\Controllers\Api\RoleController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -19,6 +19,8 @@ use Symfony\Component\HttpFoundation\Response;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
+
+Route::get('/roles', [RoleController::class, 'index']);
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();

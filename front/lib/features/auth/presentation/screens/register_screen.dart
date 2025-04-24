@@ -20,6 +20,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController = TextEditingController();
 
+
   bool _isLoading = false;
   String? _errorMessage;
 
@@ -73,6 +74,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   Future<void> _register() async {
     if (_formKey.currentState!.validate()) {
+      if (_selectedRoleId == null) {
+        setState(() {
+          _errorMessage = 'Role harus dipilih';
+        });
+        return;
+      }
+
       if (_selectedRoleId == null) {
         setState(() {
           _errorMessage = 'Role harus dipilih';
@@ -137,7 +145,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 _buildTextField(_nameController, 'Nama Lengkap'),
                 SizedBox(height: 16.0),
                 _buildTextField(_usernameController, 'Username'),
+                _buildTextField(_nameController, 'Nama Lengkap'),
                 SizedBox(height: 16.0),
+                _buildTextField(_usernameController, 'Username'),
+                SizedBox(height: 16.0),
+                _buildTextField(_emailController, 'Email', keyboardType: TextInputType.emailAddress, validator: (value) {
+                  if (value == null || value.isEmpty) return 'Email tidak boleh kosong';
+                  if (!value.contains('@')) return 'Email tidak valid';
+                  return null;
+                }),
                 _buildTextField(_emailController, 'Email', keyboardType: TextInputType.emailAddress, validator: (value) {
                   if (value == null || value.isEmpty) return 'Email tidak boleh kosong';
                   if (!value.contains('@')) return 'Email tidak valid';
@@ -149,7 +165,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   if (value.length < 8) return 'Password minimal 8 karakter';
                   return null;
                 }),
+                _buildTextField(_passwordController, 'Password', obscureText: true, validator: (value) {
+                  if (value == null || value.isEmpty) return 'Password tidak boleh kosong';
+                  if (value.length < 8) return 'Password minimal 8 karakter';
+                  return null;
+                }),
                 SizedBox(height: 16.0),
+                _buildTextField(_confirmPasswordController, 'Konfirmasi Password', obscureText: true, validator: (value) {
+                  if (value == null || value.isEmpty) return 'Konfirmasi password tidak boleh kosong';
+                  if (value != _passwordController.text) return 'Konfirmasi password tidak sesuai';
+                  return null;
+                }),
                 _buildTextField(_confirmPasswordController, 'Konfirmasi Password', obscureText: true, validator: (value) {
                   if (value == null || value.isEmpty) return 'Konfirmasi password tidak boleh kosong';
                   if (value != _passwordController.text) return 'Konfirmasi password tidak sesuai';
@@ -252,3 +278,26 @@ if (_errorMessage != null && _roles.isEmpty)
     );
   }
 }
+
+
+  Widget _buildTextField(
+    TextEditingController controller,
+    String label, {
+    TextInputType keyboardType = TextInputType.text,
+    bool obscureText = false,
+    String? Function(String?)? validator,
+  }) {
+    return TextFormField(
+      controller: controller,
+      keyboardType: keyboardType,
+      obscureText: obscureText,
+      decoration: InputDecoration(
+        labelText: label,
+        border: OutlineInputBorder(),
+      ),
+      validator: validator ??
+          (value) =>
+              value == null || value.isEmpty ? '$label tidak boleh kosong' : null,
+    );
+  }
+

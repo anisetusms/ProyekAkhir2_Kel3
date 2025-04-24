@@ -19,6 +19,10 @@ class AuthController extends Controller
             // 'phone' => 'required|string|min:12',
             // 'address' => 'required|string|max:255',
             // 'profile_picture' => 'nullable|image|max:2048',
+            // 'gender' => 'required|in:Pria,Wanita',
+            // 'phone' => 'required|string|min:12',
+            // 'address' => 'required|string|max:255',
+            // 'profile_picture' => 'nullable|image|max:2048',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
             'user_role_id' => 'required|integer|exists:user_roles,id', // Tambahkan konfirmasi password
@@ -32,10 +36,18 @@ class AuthController extends Controller
         // if ($request->hasFile('profile_picture')) {
         //     $photoPath = $request->file('profile_picture')->store('profile_photos', 'public');
         // }
+        // $photoPath = null;
+        // if ($request->hasFile('profile_picture')) {
+        //     $photoPath = $request->file('profile_picture')->store('profile_photos', 'public');
+        // }
         // Simpan user baru dengan user_role_id default = 4 (Penyewa)
         $user = User::create([
             'name' => $request->name,
             'username' => $request->username,
+            // 'gender' => $request->gender,
+            // 'phone' => $request->phone,
+            // 'address' => $request->address,
+            // 'profile_picture' => $photoPath,
             // 'gender' => $request->gender,
             // 'phone' => $request->phone,
             // 'address' => $request->address,
