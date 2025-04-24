@@ -28,13 +28,30 @@ class PropertyController extends Controller
      */
     public function index()
     {
-        $properties = Property::with(['kostDetail', 'homestayDetail', 'province', 'city', 'district', 'subdistrict'])
+        $user_id = Auth::id();
+
+        // Stats hanya untuk owner yang login
+        $stats = DB::select('CALL get_owner_property_stats(?)', [$user_id]);
+
+        // Properti aktif milik owner yang login
+        $activeProperties = Property::with(['kostDetail', 'homestayDetail', 'province', 'city', 'district', 'subdistrict'])
+            ->where('user_id', $user_id)
             ->where('isDeleted', false)
             ->latest()
             ->paginate(10);
 
+        // Properti nonaktif milik owner yang login
+        $inactiveProperties = Property::with(['kostDetail', 'homestayDetail', 'province', 'city', 'district', 'subdistrict'])
+            ->where('user_id', $user_id)
+            ->where('isDeleted', true)
+            ->latest()
+            ->paginate(10);
 
-        return view('admin.properties.index', compact('properties'));
+        return view('admin.properties.index', [
+            'stats' => $stats[0] ?? null,
+            'activeProperties' => $activeProperties,
+            'inactiveProperties' => $inactiveProperties,
+        ]);
     }
 
     /**
@@ -46,6 +63,20 @@ class PropertyController extends Controller
     {
         $provinces = Province::all();
         return view('admin.properties.create', compact('provinces'));
+    }
+
+    public function dashboard()
+    {
+        $user_id = Auth::id();
+
+        $totalProperties = Property::where('user_id', $user_id)->count();
+        $activeProperties = Property::where('user_id', $user_id)->count(); // Ganti ini
+        $pendingProperties = Property::where('user_id', $user_id)->count(); // Ganti ini
+        $latestProperties = Property::where('user_id', $user_id)->latest()->take(5)->get();
+        $totalViews = 120; // contoh angka
+        $totalMessages = 50; // contoh angka
+
+        return view('admin.properties.dashboard', compact('totalProperties', 'activeProperties', 'pendingProperties', 'latestProperties', 'totalViews', 'totalMessages'));
     }
 
     public function store(StorePropertyRequest $request)
@@ -73,7 +104,7 @@ class PropertyController extends Controller
                 'longitude' => $request->longitude,
                 'image' => $imagePath,
                 'capacity' => $request->capacity,
-                'available_rooms' => $request->available_rooms,
+                'available_rooms' => $request->property_type_id == 1 ? $request->available_rooms : 0, // Tambahkan nilai untuk available_rooms
                 'rules' => $request->rules,
                 'isDeleted' => false
             ]);
@@ -93,7 +124,7 @@ class PropertyController extends Controller
                 HomestayDetail::create([
                     'property_id' => $property->id,
                     'total_units' => $request->total_units,
-                    'available_units' => $request->total_units, // Default sama dengan total
+                    'available_units' => $request->available_units,
                     'minimum_stay' => $request->minimum_stay,
                     'maximum_guest' => $request->maximum_guest,
                     'checkin_time' => $request->checkin_time,
@@ -103,8 +134,7 @@ class PropertyController extends Controller
 
             DB::commit();
 
-            return redirect()->route('admin.properties.index')
-                ->with('success', 'Properti berhasil dibuat');
+            return redirect()->route('admin.properties.index');
         } catch (\Exception $e) {
             DB::rollBack();
 
@@ -127,17 +157,7 @@ class PropertyController extends Controller
      */
     public function show($id)
     {
-        $property = Property::with([
-            'kostDetail',
-            'homestayDetail',
-            'rooms.facilities',
-            'province',
-            'city',
-            'district',
-            'subdistrict'
-        ])
-            ->where('isDeleted', false)
-            ->findOrFail($id);
+        $property = Property::with('rooms')->findOrFail($id);
 
         $totalRooms = $property->rooms->count();
         $availableRooms = $property->rooms->where('is_available', true)->count();
@@ -146,8 +166,14 @@ class PropertyController extends Controller
             ? ($availableRooms / $totalRooms) * 100
             : 0;
 
-        return view('admin.properties.show', compact('property', 'availablePercentage'));
+        return view('admin.properties.show', compact(
+            'property',
+            'totalRooms',
+            'availableRooms',
+            'availablePercentage'
+        ));
     }
+
 
 
     /**
@@ -158,16 +184,22 @@ class PropertyController extends Controller
      */
     public function edit($id)
     {
-        $property = Property::with(['detail'])
-            ->where('isDeleted', false)
-            ->findOrFail($id);
+        $property = Property::where('isDeleted', false)->findOrFail($id);
 
         $provinces = Province::all();
-        $cities = City::where('province_id', $property->province_id)->get();
+        $cities = City::where('prov_id', $property->province_id)->get();
         $districts = District::where('city_id', $property->city_id)->get();
-        $subdistricts = Subdistrict::where('district_id', $property->district_id)->get();
+        $subdistricts = Subdistrict::where('dis_id', $property->district_id)->get();
 
-        return view('admin.properties.edit', compact('property', 'provinces', 'cities', 'districts', 'subdistricts'));
+        // Mengambil detail sesuai jenis properti
+        $detail = null;
+        if ($property->property_type_id == 1) { // Kost
+            $detail = KostDetail::where('property_id', $id)->first();
+        } elseif ($property->property_type_id == 2) { // Homestay
+            $detail = HomestayDetail::where('property_id', $id)->first();
+        }
+
+        return view('admin.properties.edit', compact('property', 'provinces', 'cities', 'districts', 'subdistricts', 'detail'));
     }
 
     /**

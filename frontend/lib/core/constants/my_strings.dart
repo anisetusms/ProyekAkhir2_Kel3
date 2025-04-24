@@ -80,6 +80,10 @@ class MyString {
   static const String booking = "Pesanan";
   static const String profile = "Profil";
 
+  //-----------------------------------BottomBar_Screen Owner ------------------------------
+  static const String properti = "Properti ";
+  static const String ulasan = "Ulasan";
+
 //-----------------------------------Home_Screen------------------------------
   static List itemSelect = [
     "Rekomendasi",
@@ -289,6 +293,10 @@ class MyString {
     'Gujarati',
   ];
 
+
+
+  // ---------------------------------- Owner Menu ------------------------------------
+
 //----------------------------------- helpCenter_Screen ------------------------------
   static const String helpCenter = "Pusat Bantuan";
   static const String helpYou = "Bagaimana Kami Dapat Membantu Anda?";
@@ -318,6 +326,7 @@ class MyString {
   static const String cancelBookingDescription = "Hanya 80% dari uang yang dapat Anda kembalikan dari pembayaran Anda sesuai dengan kebijakan kami";
   static const String yesContinue = "Ya, Lanjutkan";
   static const String cancelHotelBooking = "Batalkan Pemesanan Hotel";
+  static const String cancelHotelBookingOwner = "Batalkan Pemesanan Hotel boyy";
   static const String refundDescription = "Silakan pilih metode pengembalian dana pembayaran (hanya 80% yang akan dikembalikan).";
   static const String confirmCancel = "Konfirmasi Pembatalan";
   static const String successFull = "Berhasil!";

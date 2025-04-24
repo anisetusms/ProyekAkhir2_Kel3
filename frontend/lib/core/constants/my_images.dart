@@ -63,14 +63,20 @@ class MyImages {
 //-----------------------------------BottomBar_Screen------------------------------
   static const String selectedBooking = "${bottomBarPath}selectedBooking.svg";
   static const String selectedHome = "${bottomBarPath}selectedHome.svg";
+  static const String selectedProperty = "${bottomBarPath}selectedProperty.svg";
+  static const String selectedComment = "${bottomBarPath}selectedComment.svg";
+  static const String unSelectedComment = "${bottomBarPath}unSelectedComment.svg";
   static const String selectedHomewhite = "${bottomBarPath}selectedHomewhite.svg";
   static const String selectedProfile = "${bottomBarPath}selectedProfile.svg";
   static const String selectedSearch = "${bottomBarPath}selectedSearch.svg";
   static const String selectedSearchwhite = "${bottomBarPath}selectedSearchwhite.svg";
+  static const String unSelectedProperty = "${bottomBarPath}unSelectedProperty.svg";
   static const String unSelectedBooking = "${bottomBarPath}unSelectedBooking.svg";
   static const String unSelectedHome = "${bottomBarPath}unSelectedHome.svg";
   static const String unSelectedProfile = "${bottomBarPath}unSelectedProfile.svg";
   static const String unSelectedSearch = "${bottomBarPath}unSelectedSearch.svg";
+
+
 
 //-----------------------------------Home_Screen------------------------------
   static const String notification = "${homePath}notification.svg";

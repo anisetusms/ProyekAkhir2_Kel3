@@ -14,6 +14,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Route;
 use App\Models\User;
+use App\Http\Controllers\Admin\SettingController;
+use App\Http\Controllers\SettingControllerS;
+use App\Http\Controllers\SettingControllerP;
 
 
 // Landing Page
@@ -76,7 +79,9 @@ Route::prefix('owner')->name('owner.')->group(function () {
 // Super Admin Routes
 Route::prefix('super-admin')->name('super_admin.')->group(function () {
     Route::get('/dashboard', [SuperAdminController::class, 'dashboard'])->name('dashboard');
-
+    Route::get('/settings', [SettingControllerS::class, 'index'])->name('settings');
+    Route::put('/settings/profile', [SettingControllerS::class, 'updateProfile'])->name('settings.profile.update');
+    Route::put('/settings/password', [SettingControllerS::class, 'updatePassword'])->name('settings.password.update');
 
     // Route untuk melihat profil Super Admin
     Route::get('/profiles', [SuperAdminController::class, 'showProfile'])->name('profiles.index');
@@ -109,6 +114,9 @@ Route::prefix('super-admin')->name('super_admin.')->group(function () {
 
 // Platform Admin Routes
 Route::prefix('platform-admin')->name('platform_admin.')->group(function () {
+    Route::get('/settings', [SettingControllerP::class, 'index'])->name('settings');
+    Route::put('/settings/profile', [SettingControllerP::class, 'updateProfile'])->name('settings.profile.update');
+    Route::put('/settings/password', [SettingControllerP::class, 'updatePassword'])->name('settings.password.update');
     Route::get('/dashboard', [PlatformAdminController::class, 'dashboard'])->name('dashboard');
     Route::get('/pengusaha', [PlatformAdminController::class, 'pengusaha'])->name('pengusaha');
     Route::get('/penyewa', [PlatformAdminController::class, 'penyewa'])->name('penyewa');
@@ -120,7 +128,10 @@ Route::prefix('platform-admin')->name('platform_admin.')->group(function () {
 });
 
 Route::prefix('admin')->name('admin.')->group(function () {
-    Route::get('/dashboard', [PropertyController::class, 'dashboard'])->name('dashboard');
+    Route::get('/settings', [SettingController::class, 'index'])->name('settings');
+    Route::put('/settings/profile', [SettingController::class, 'updateProfile'])->name('settings.profile.update');
+    Route::put('/settings/password', [SettingController::class, 'updatePassword'])->name('settings.password.update');
+    Route::get('/properties/dashboard', [PropertyController::class, 'dashboard'])->name('properties.dashboard');
     Route::get('/properties', [PropertyController::class, 'index'])->name('properties.index');
     Route::get('/properties/rooms', [PropertyController::class, 'index'])->name('properties.rooms.index');
     Route::get('/rooms', [PropertyController::class, 'index'])->name('rooms.index');
@@ -134,10 +145,18 @@ Route::prefix('admin')->name('admin.')->group(function () {
     // Route::post('/cities', [OwnerController::class, 'storeCities']);
     // Route::post('/districts', [OwnerController::class, 'storeDistricts']);
     // Route::post('/subdistricts', [OwnerController::class, 'storeSubdistricts']);
-    Route::get('properties/{property}/rooms/create', [RoomController::class, 'create'])->name('properties.rooms.create');
-    Route::post('properties/{property}/rooms', [RoomController::class, 'store'])->name('properties.rooms.store');
-    Route::get('properties/{property}/units/create', [UnitController::class, 'create'])->name('properties.units.create');
-    Route::post('properties/{property}/units', [UnitController::class, 'store'])->name('properties.units.store');
+    // Route::get('properties/{property}/rooms/create', [RoomController::class, 'create'])->name('properties.rooms.create');
+    // Route::post('properties/{property}/rooms', [RoomController::class, 'store'])->name('properties.rooms.store');
+    // Route::get('properties/{property}/units/create', [UnitController::class, 'create'])->name('properties.units.create');
+    // Route::post('properties/{property}/units', [UnitController::class, 'store'])->name('properties.units.store');
+    Route::prefix('properties/{property}/rooms')->name('properties.rooms.')->group(function () {
+        Route::get('/', [RoomController::class, 'index'])->name('index');
+        Route::get('/create', [RoomController::class, 'create'])->name('create');
+        Route::post('/', [RoomController::class, 'store'])->name('store');
+        Route::get('/{room}/edit', [RoomController::class, 'edit'])->name('edit');
+        Route::put('/{room}', [RoomController::class, 'update'])->name('update');
+        Route::delete('/{room}', [RoomController::class, 'destroy'])->name('destroy');
+    });
 });
 
 Route::prefix('admin/properties')->name('admin.properties.')->group(function () {

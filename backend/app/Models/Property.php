@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Property extends Model
 {
@@ -33,8 +34,6 @@ class Property extends Model
         'latitude' => 'decimal:8',
         'longitude' => 'decimal:8',
         'isDeleted' => 'boolean',
-        'meal_included' => 'boolean',
-        'laundry_included' => 'boolean'
     ];
 
     // Relationships
@@ -78,7 +77,7 @@ class Property extends Model
         return $this->hasOne(HomestayDetail::class);
     }
 
-    public function rooms()
+    public function rooms(): HasMany
     {
         return $this->hasMany(Room::class);
     }
@@ -86,7 +85,7 @@ class Property extends Model
     // Accessors
     public function getImageUrlAttribute()
     {
-        return $this->image ? asset('storage/'.$this->image) : asset('images/default-property.jpg');
+        return $this->image ? asset('storage/' . $this->image) : asset('images/default-property.jpg');
     }
 
     // Scopes
@@ -95,3 +94,4 @@ class Property extends Model
         return $query->where('isDeleted', false);
     }
 }
+

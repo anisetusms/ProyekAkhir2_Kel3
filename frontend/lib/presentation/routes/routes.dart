@@ -14,12 +14,12 @@ class Routes {
       transition: Transition.leftToRight,
       transitionDuration: const Duration(milliseconds: 600),
     ),
-    GetPage(
-      name: "/loginOptionScreen",
-      page: () => const LoginOptionScreen(),
-      transition: Transition.leftToRight,
-      transitionDuration: const Duration(milliseconds: 600),
-    ),
+    // GetPage(
+    //   name: "/loginOptionScreen",
+    //   page: () => const LoginOptionScreen(),
+    //   transition: Transition.leftToRight,
+    //   transitionDuration: const Duration(milliseconds: 600),
+    // ),
     GetPage(
       name: "/loginScreen",
       page: () => const LoginScreen(),
@@ -182,6 +182,12 @@ class Routes {
     //   transitionDuration: const Duration(milliseconds: 600),
     // ),
     GetPage(
+      name: "/editProfileo",
+      page: () => const EditProfilePage(),
+      transition: Transition.leftToRight,
+      transitionDuration: const Duration(milliseconds: 600),
+    ),
+    GetPage(
       name: "/chooseLanguage",
       page: () => const ChooseLanguage(),
       transition: Transition.leftToRight,
@@ -196,6 +202,12 @@ class Routes {
     GetPage(
       name: "/PrivacyPolicy",
       page: () => const PrivacyPolicyScreen(),
+      transition: Transition.leftToRight,
+      transitionDuration: const Duration(milliseconds: 600),
+    ),
+    GetPage(
+      name: "/bottomBarOwner",
+      page: () => const BottomBarOwner(),
       transition: Transition.leftToRight,
       transitionDuration: const Duration(milliseconds: 600),
     ),

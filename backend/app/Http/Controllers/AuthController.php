@@ -119,7 +119,7 @@ class AuthController extends Controller
                 case 1: // Super Admin
                     return redirect()->route('super_admin.dashboard')->with('message', 'Login sebagai Super Admin!');
                 case 2: // Owner
-                    return redirect()->route('admin.properties.index')->with('message', 'Login sebagai sebagai Owner!');
+                    return redirect()->route('admin.properties.dashboard')->with('message', 'Login sebagai sebagai Owner!');
                 case 3: // User
                     return redirect()->route('platform_admin.dashboard')->with('message', 'Login berhasil Admin Platform!');
                 case 4: // Admin Platform

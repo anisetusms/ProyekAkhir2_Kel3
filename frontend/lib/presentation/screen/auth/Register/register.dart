@@ -243,31 +243,31 @@ class RegisterScreenState extends State<RegisterScreen> {
                       const SizedBox(height: 30),
 
                       // TERMS
-                      RichText(
-                        textAlign: TextAlign.center,
-                        text: TextSpan(children: [
-                          TextSpan(
-                            text: 'By signing up you agree to BookNest’s ',
-                            style: TextStyle(
-                              color: controller.themeController.isDarkMode.value
-                                  ? MyColors.white
-                                  : MyColors.textBlackColor,
-                              fontWeight: FontWeight.w400,
-                              fontSize: 14,
-                            ),
-                          ),
-                          const TextSpan(
-                            text: 'Terms of Services and Privacy Policy.',
-                            style: TextStyle(
-                              color: MyColors.successColor,
-                              fontWeight: FontWeight.w600,
-                              fontSize: 14,
-                              height: 1.5,
-                            ),
-                          )
-                        ]),
-                      ),
-                      const SizedBox(height: 30),
+                      // RichText(
+                      //   textAlign: TextAlign.center,
+                      //   text: TextSpan(children: [
+                      //     TextSpan(
+                      //       text: 'By signing up you agree to BookNest’s ',
+                      //       style: TextStyle(
+                      //         color: controller.themeController.isDarkMode.value
+                      //             ? MyColors.white
+                      //             : MyColors.textBlackColor,
+                      //         fontWeight: FontWeight.w400,
+                      //         fontSize: 14,
+                      //       ),
+                      //     ),
+                      //     const TextSpan(
+                      //       text: 'Terms of Services and Privacy Policy.',
+                      //       style: TextStyle(
+                      //         color: MyColors.successColor,
+                      //         fontWeight: FontWeight.w600,
+                      //         fontSize: 14,
+                      //         height: 1.5,
+                      //       ),
+                      //     )
+                      //   ]),
+                      // ),
+                      // const SizedBox(height: 30),
 
                       // LOGIN
                       Row(

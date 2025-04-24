@@ -205,7 +205,6 @@
                             </div>
                         </div>
                     </div>
-
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
@@ -239,6 +238,17 @@
                                 <input type="number" class="form-control @error('total_units') is-invalid @enderror"
                                     id="total_units" name="total_units" value="{{ old('total_units') }}" min="1" required>
                                 @error('total_units')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="available_units">Unit tersedia <span class="text-danger">*</span></label>
+                                <input type="number" class="form-control @error('available_units') is-invalid @enderror"
+                                    id="available_units" name="available_units" value="{{ old('available_units') }}" min="1" required>
+                                @error('available_units')
                                 <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>

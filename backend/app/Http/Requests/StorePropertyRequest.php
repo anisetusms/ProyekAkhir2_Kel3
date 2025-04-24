@@ -27,31 +27,28 @@ class StorePropertyRequest extends FormRequest
             'longitude' => 'required|numeric',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'capacity' => 'required|integer|min:1',
-            'available_rooms' => 'required|integer|min:0',
+            'available_rooms' => 'required_if:property_type_id,1|nullable|numeric|min:0',
             'rules' => 'nullable|string',
         ];
 
-        // Kost specific rules
-        if ($this->property_type_id == 1) {
-            $rules = array_merge($rules, [
+        $typeSpecificRules = match ($this->property_type_id) {
+            1 => [ // Kost
                 'kost_type' => 'required|in:putra,putri,campur',
                 'total_rooms' => 'required|integer|min:1',
                 'meal_included' => 'nullable|boolean',
-                'laundry_included' => 'nullable|boolean'
-            ]);
-        }
-
-        // Homestay specific rules
-        if ($this->property_type_id == 2) {
-            $rules = array_merge($rules, [
+                'laundry_included' => 'nullable|boolean',
+            ],
+            2 => [ // Homestay
                 'total_units' => 'required|integer|min:1',
+                'available_units' => 'required|numeric',
                 'minimum_stay' => 'required|integer|min:1',
                 'maximum_guest' => 'required|integer|min:1',
                 'checkin_time' => 'required|date_format:H:i',
-                'checkout_time' => 'required|date_format:H:i'
-            ]);
-        }
+                'checkout_time' => 'required|date_format:H:i',
+            ],
+            default => [], // Default rules jika property_type_id tidak 1 atau 2
+        };
 
-        return $rules;
+        return array_merge($rules, $typeSpecificRules);
     }
 }

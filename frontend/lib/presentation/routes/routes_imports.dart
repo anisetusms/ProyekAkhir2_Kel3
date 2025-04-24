@@ -1,6 +1,7 @@
 import 'package:get/get_navigation/src/routes/get_route.dart';
 import 'package:get/get_navigation/src/routes/transitions_type.dart';
 import 'package:hotel_booking/presentation/common_widgets/bottom_navigation_bar.dart';
+import 'package:hotel_booking/presentation/common_widgets/bottom_navigation_bar owner.dart';
 import 'package:hotel_booking/presentation/screen/auth/Register/register_import.dart';
 import 'package:hotel_booking/presentation/screen/auth/forgetpassword/password_import.dart';
 import 'package:hotel_booking/presentation/screen/booking/booking_import.dart';
@@ -14,6 +15,7 @@ import 'package:hotel_booking/presentation/screen/profile/profile_import.dart';
 import 'package:hotel_booking/presentation/screen/reservation/reservation_import.dart';
 import 'package:hotel_booking/presentation/screen/search/search_import.dart';
 import 'package:hotel_booking/presentation/screen/selectRoom/select_room_import.dart';
+import '../screen/Owner/profile-owner/edit_profile.dart';
 import '../../core/constants/my_images.dart';
 import '../../core/constants/my_strings.dart';
 import '../screen/auth/login/login_import.dart';
@@ -24,5 +26,6 @@ import '../screen/onboarding/onboarding_import.dart';
 import '../screen/privacyPolicy/privacy_policy_import.dart';
 import '../screen/review/review_import.dart';
 import '../screen/welcome/welcome_import.dart';
+
 
 part 'routes.dart';

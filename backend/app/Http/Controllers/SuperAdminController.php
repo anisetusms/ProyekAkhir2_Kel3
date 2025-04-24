@@ -7,12 +7,22 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use App\Models\Booking;
+use App\Models\Property;
 
 class SuperAdminController extends Controller
 {
     public function dashboard()
     {
-        return view('super_admin.dashboard');
+        $user_id = Auth::id();
+        $bookings = Booking::with('user', 'property')->latest()->get();
+        $totalProperties = Property::count();
+        $totalBookings = Booking::count();
+        $latestProperties = Property::where('user_id', $user_id)->latest()->take(5)->get();
+        $totalViews = 120;
+        $totalMessages = 50;
+
+        return view('super_admin.dashboard', compact('totalProperties', 'totalBookings', 'latestProperties', 'totalViews', 'totalMessages', 'bookings'));
     }
 
     public function manageEntrepreneurs()
@@ -29,7 +39,7 @@ class SuperAdminController extends Controller
     public function managePlatformAdmins()
     {
         // Ambil data admin platform dari database
-        $platformAdmins = DB::table('users')->where('user_role_id', 4)->get();
+        $platformAdmins = DB::table('users')->where('user_role_id', 3)->get();
 
         // Tampilkan view dengan data admin platform
         return view('super_admin.platform_admins.index', compact('platformAdmins'));
@@ -134,7 +144,7 @@ class SuperAdminController extends Controller
             'email' => $request->email,
             'username' => $request->username,
             'password' => bcrypt($request->password),
-            'user_role_id' => 4, 
+            'user_role_id' => 3,
             'created_at' => now(),
             'updated_at' => now(),
         ]);
@@ -147,7 +157,7 @@ class SuperAdminController extends Controller
     public function editPlatformAdmin($id)
     {
         // Ambil data admin platform berdasarkan ID
-        $admin = DB::table('users')->where('id', $id)->where('user_role_id', 4)->first();
+        $admin = DB::table('users')->where('id', $id)->where('user_role_id', 3)->first();
 
         // Jika admin tidak ditemukan, redirect dengan pesan error
         if (!$admin) {

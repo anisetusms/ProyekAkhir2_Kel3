@@ -14,7 +14,7 @@
 
                 <!-- Foto Profil -->
                 <div class="text-center mb-4">
-                    <img src="{{ Auth::user()->profile_picture ? asset('storage/' . Auth::user()->profile_picture) : asset('assets/images/avatars/default.png') }}"
+                    <img src="{{ Auth::user()->profile_picture ? asset('storage/profile_pictures/'.Auth::user()->profile_picture) : asset('images/default-avatar.png') }}"
                         class="rounded-circle mb-3"
                         width="120"
                         height="120"

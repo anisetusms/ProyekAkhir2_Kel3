@@ -7,11 +7,11 @@ class LoginController extends GetxController {
 
   RxBool password = true.obs;
   RxBool isLoading = false.obs;
-
+ 
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
 
-  static const String baseUrl = "http://10.0.2.2:8000"; // sesuaikan IP
+  static const String baseUrl = "http://192.168.0.45:8000"; // Gunakan 10.0.2.2 untuk emulator 
 
   void submit() async {
     final isValid = formKey.currentState!.validate();
@@ -32,23 +32,32 @@ class LoginController extends GetxController {
 
       isLoading.value = false;
 
+      final data = jsonDecode(response.body);
+
       if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        final token = data['token'];
+  final token = data['access_token'];
+  final role = data['user']['user_role_id'];
+  final message = data['message'];
 
-        // Simpan token
-        SharedPreferences prefs = await SharedPreferences.getInstance();
-        await prefs.setString("token", token);
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  await prefs.setString("token", token);
 
-        // Navigasi ke halaman utama
-        Get.offNamedUntil("/bottomBar", (route) => false);
-      } else {
-        final error = jsonDecode(response.body);
-        Get.snackbar("Login Gagal", error['message'] ?? "Terjadi kesalahan");
+  Get.snackbar("Sukses", message, backgroundColor: Colors.green, colorText: Colors.white);
+
+  if (role == 2) {
+    Get.offNamedUntil("/bottomBarOwner", (route) => false);
+  } else if (role == 4) {
+    Get.offNamedUntil("/bottomBar", (route) => false);
+  } else {
+    Get.snackbar("Akses Ditolak", "Role tidak dikenali", backgroundColor: Colors.orange, colorText: Colors.white);
+  }
+}else {
+        final errorMsg = data['message'] ?? "Email atau password salah";
+        Get.snackbar("Login Gagal", errorMsg, backgroundColor: Colors.red, colorText: Colors.white);
       }
     } catch (e) {
       isLoading.value = false;
-      Get.snackbar("Error", "Tidak dapat menghubungi server");
+      Get.snackbar("Error", "Tidak dapat menghubungi server", backgroundColor: Colors.red, colorText: Colors.white);
     }
   }
 }
