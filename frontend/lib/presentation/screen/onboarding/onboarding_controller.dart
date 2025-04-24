@@ -19,6 +19,6 @@ class OnboardingController extends GetxController {
   Future<void> storeValue() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setBool('onboarding', true);
-    Get.offNamed("/loginOptionScreen");
+    Get.offNamed("/loginScreen");
   }
 }

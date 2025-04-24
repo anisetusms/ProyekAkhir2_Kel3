@@ -8,7 +8,7 @@ class EditPropertyScreen extends StatefulWidget {
   final int? propertyId; // Sekarang propertyId bisa null
 
   const EditPropertyScreen({Key? key, this.propertyId})
-    : super(key: key); // required dihapus
+      : super(key: key); // required dihapus
   @override
   _EditPropertyScreenState createState() => _EditPropertyScreenState();
 }
@@ -43,17 +43,16 @@ class _EditPropertyScreenState extends State<EditPropertyScreen> {
   bool _isLoading = false;
   String? _errorMessage;
   Map<String, dynamic>? _propertyData;
+  double? _latitude;
+  double? _longitude;
 
   @override
   void initState() {
     super.initState();
     if (widget.propertyId != null) {
-      _fetchPropertyDetails(
-        widget.propertyId!,
-      ); // Gunakan ! karena sudah diperiksa tidak null
+      _fetchPropertyDetails(widget.propertyId!);
     } else {
       // Handle kasus jika propertyId null
-      // Misalnya, tampilkan pesan error atau kembali ke screen sebelumnya
       print(
         'Error: propertyId tidak ditemukan saat inisialisasi EditPropertyScreen.',
       );
@@ -82,6 +81,8 @@ class _EditPropertyScreenState extends State<EditPropertyScreen> {
           _cityId = response['city_id'];
           _districtId = response['district_id'];
           _subdistrictId = response['subdistrict_id'];
+          _latitude = response['latitude']?.toDouble();
+          _longitude = response['longitude']?.toDouble();
           _capacityController.text = response['capacity']?.toString() ?? '';
           _rulesController.text = response['rules'] ?? '';
 
@@ -101,7 +102,7 @@ class _EditPropertyScreenState extends State<EditPropertyScreen> {
                 response['homestay_detail']['total_units']?.toString() ?? '';
             _availableUnitsController.text =
                 response['homestay_detail']['available_units']?.toString() ??
-                '';
+                    '';
             _minimumStayController.text =
                 response['homestay_detail']['minimum_stay']?.toString() ?? '';
             _maximumGuestController.text =
@@ -139,12 +140,14 @@ class _EditPropertyScreenState extends State<EditPropertyScreen> {
         final Map<String, dynamic> body = {
           'name': _nameController.text,
           'description': _descriptionController.text,
-          'province_id': _provinceId,
-          'city_id': _cityId,
-          'district_id': _districtId,
-          'subdistrict_id': _subdistrictId,
+          if (_provinceId != null) 'province_id': _provinceId,
+          if (_cityId != null) 'city_id': _cityId,
+          if (_districtId != null) 'district_id': _districtId,
+          if (_subdistrictId != null) 'subdistrict_id': _subdistrictId,
           'price': double.tryParse(_priceController.text),
           'address': _addressController.text,
+          if (_latitude != null) 'latitude': _latitude,
+          if (_longitude != null) 'longitude': _longitude,
           if (_capacityController.text.isNotEmpty)
             'capacity': int.tryParse(_capacityController.text),
           if (_rulesController.text.isNotEmpty) 'rules': _rulesController.text,
@@ -173,8 +176,7 @@ class _EditPropertyScreenState extends State<EditPropertyScreen> {
           },
         };
 
-        final response = await ApiClient().post(
-          // Menggunakan POST untuk update sesuai route
+        final response = await ApiClient().put( // Gunakan PUT untuk update
           '${Constants.baseUrl}/properties/${widget.propertyId}',
           body: body,
         );
@@ -204,268 +206,265 @@ class _EditPropertyScreenState extends State<EditPropertyScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text('Edit Properti')),
-      body:
-          _isLoading
-              ? Center(child: CircularProgressIndicator())
-              : _errorMessage != null
+      body: _isLoading
+          ? Center(child: CircularProgressIndicator())
+          : _errorMessage != null
               ? Center(child: Text(_errorMessage!))
               : _propertyData == null
-              ? Center(child: Text('Data properti tidak ditemukan.'))
-              : SingleChildScrollView(
-                padding: const EdgeInsets.all(16.0),
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      TextFormField(
-                        controller: _nameController,
-                        decoration: InputDecoration(
-                          labelText: 'Nama Properti',
-                          border: OutlineInputBorder(),
-                        ),
-                        validator:
-                            (value) =>
-                                value == null || value.isEmpty
-                                    ? 'Nama tidak boleh kosong'
-                                    : null,
-                      ),
-                      SizedBox(height: 16.0),
-                      TextFormField(
-                        controller: _descriptionController,
-                        maxLines: 3,
-                        decoration: InputDecoration(
-                          labelText: 'Deskripsi',
-                          border: OutlineInputBorder(),
-                        ),
-                      ),
-                      SizedBox(height: 16.0),
-                      TextFormField(
-                        controller: _priceController,
-                        keyboardType: TextInputType.number,
-                        decoration: InputDecoration(
-                          labelText: 'Harga',
-                          border: OutlineInputBorder(),
-                        ),
-                        validator:
-                            (value) =>
-                                value == null || value.isEmpty
-                                    ? 'Harga tidak boleh kosong'
-                                    : null,
-                      ),
-                      SizedBox(height: 16.0),
-                      TextFormField(
-                        controller: _addressController,
-                        maxLines: 2,
-                        decoration: InputDecoration(
-                          labelText: 'Alamat',
-                          border: OutlineInputBorder(),
-                        ),
-                        validator:
-                            (value) =>
-                                value == null || value.isEmpty
-                                    ? 'Alamat tidak boleh kosong'
-                                    : null,
-                      ),
-                      SizedBox(height: 16.0),
-                      LocationInput(
-                        initialProvinceId: _provinceId,
-                        initialCityId: _cityId,
-                        initialDistrictId: _districtId,
-                        initialSubdistrictId: _subdistrictId,
-                        onProvinceChanged: (value) => _provinceId = value,
-                        onCityChanged: (value) => _cityId = value,
-                        onDistrictChanged: (value) => _districtId = value,
-                        onSubdistrictChanged: (value) => _subdistrictId = value,
-                      ),
-                      SizedBox(height: 16.0),
-                      DropdownButtonFormField<int>(
-                        decoration: InputDecoration(
-                          labelText: 'Jenis Properti',
-                          border: OutlineInputBorder(),
-                        ),
-                        value: _propertyTypeId,
-                        items: [
-                          DropdownMenuItem(value: 1, child: Text('Kost')),
-                          DropdownMenuItem(value: 2, child: Text('Homestay')),
-                        ],
-                        onChanged: (value) {
-                          setState(() {
-                            _propertyTypeId = value;
-                          });
-                        },
-                        validator:
-                            (value) =>
-                                value == null
-                                    ? 'Jenis properti harus dipilih'
-                                    : null,
-                      ),
-                      SizedBox(height: 16.0),
-                      if (_propertyTypeId == 1)
-                        Column(
+                  ? Center(child: Text('Data properti tidak ditemukan.'))
+                  : SingleChildScrollView(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Form(
+                        key: _formKey,
+                        child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
+                          children: <Widget>[
                             TextFormField(
-                              controller: _capacityController,
-                              keyboardType: TextInputType.number,
+                              controller: _nameController,
                               decoration: InputDecoration(
-                                labelText: 'Kapasitas (Orang)',
+                                labelText: 'Nama Properti',
+                                border: OutlineInputBorder(),
+                              ),
+                              validator: (value) => value == null || value.isEmpty
+                                  ? 'Nama tidak boleh kosong'
+                                  : null,
+                            ),
+                            SizedBox(height: 16.0),
+                            TextFormField(
+                              controller: _descriptionController,
+                              maxLines: 3,
+                              decoration: InputDecoration(
+                                labelText: 'Deskripsi',
                                 border: OutlineInputBorder(),
                               ),
                             ),
                             SizedBox(height: 16.0),
                             TextFormField(
-                              controller: _totalRoomsController,
+                              controller: _priceController,
                               keyboardType: TextInputType.number,
                               decoration: InputDecoration(
-                                labelText: 'Total Kamar',
+                                labelText: 'Harga',
                                 border: OutlineInputBorder(),
                               ),
+                              validator: (value) => value == null || value.isEmpty
+                                  ? 'Harga tidak boleh kosong'
+                                  : null,
                             ),
                             SizedBox(height: 16.0),
                             TextFormField(
-                              controller: _availableRoomsController,
-                              keyboardType: TextInputType.number,
+                              controller: _addressController,
+                              maxLines: 2,
                               decoration: InputDecoration(
-                                labelText: 'Kamar Tersedia',
+                                labelText: 'Alamat',
                                 border: OutlineInputBorder(),
                               ),
+                              validator: (value) => value == null || value.isEmpty
+                                  ? 'Alamat tidak boleh kosong'
+                                  : null,
                             ),
                             SizedBox(height: 16.0),
-                            DropdownButtonFormField<String>(
+                            LocationInput(
+                              initialProvinceId: _provinceId,
+                              initialCityId: _cityId,
+                              initialDistrictId: _districtId,
+                              initialSubdistrictId: _subdistrictId,
+                              initialLatitude: _latitude,
+                              initialLongitude: _longitude,
+                              onProvinceChanged: (value) => _provinceId = value,
+                              onCityChanged: (value) => _cityId = value,
+                              onDistrictChanged: (value) => _districtId = value,
+                              onSubdistrictChanged: (value) =>
+                                  _subdistrictId = value,
+                              onCoordinatesChanged: (latitude, longitude) {
+                                setState(() {
+                                  _latitude = latitude;
+                                  _longitude = longitude;
+                                });
+                              },
+                            ),
+                            SizedBox(height: 16.0),
+                            DropdownButtonFormField<int>(
                               decoration: InputDecoration(
-                                labelText: 'Tipe Kost',
+                                labelText: 'Jenis Properti',
                                 border: OutlineInputBorder(),
                               ),
-                              value: _kostType,
+                              value: _propertyTypeId,
                               items: [
+                                DropdownMenuItem(value: 1, child: Text('Kost')),
                                 DropdownMenuItem(
-                                  value: 'putra',
-                                  child: Text('Putra'),
-                                ),
-                                DropdownMenuItem(
-                                  value: 'putri',
-                                  child: Text('Putri'),
-                                ),
-                                DropdownMenuItem(
-                                  value: 'campur',
-                                  child: Text('Campur'),
-                                ),
+                                    value: 2, child: Text('Homestay')),
                               ],
                               onChanged: (value) {
                                 setState(() {
-                                  _kostType = value;
+                                  _propertyTypeId = value;
                                 });
                               },
+                              validator: (value) => value == null
+                                  ? 'Jenis properti harus dipilih'
+                                  : null,
                             ),
                             SizedBox(height: 16.0),
-                            CheckboxListTile(
-                              title: Text('Makan Termasuk'),
-                              value: _mealIncluded,
-                              onChanged: (value) {
-                                setState(() {
-                                  _mealIncluded = value ?? false;
-                                });
-                              },
-                              controlAffinity: ListTileControlAffinity.leading,
-                            ),
-                            CheckboxListTile(
-                              title: Text('Laundry Termasuk'),
-                              value: _laundryIncluded,
-                              onChanged: (value) {
-                                setState(() {
-                                  _laundryIncluded = value ?? false;
-                                });
-                              },
-                              controlAffinity: ListTileControlAffinity.leading,
-                            ),
-                            TextFormField(
-                              controller: _rulesController,
-                              maxLines: 3,
-                              decoration: InputDecoration(
-                                labelText: 'Peraturan Kost',
-                                border: OutlineInputBorder(),
+                            if (_propertyTypeId == 1)
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  TextFormField(
+                                    controller: _capacityController,
+                                    keyboardType: TextInputType.number,
+                                    decoration: InputDecoration(
+                                      labelText: 'Kapasitas (Orang)',
+                                      border: OutlineInputBorder(),
+                                    ),
+                                  ),
+                                  SizedBox(height: 16.0),
+                                  TextFormField(
+                                    controller: _totalRoomsController,
+                                    keyboardType: TextInputType.number,
+                                    decoration: InputDecoration(
+                                      labelText: 'Total Kamar',
+                                      border: OutlineInputBorder(),
+                                    ),
+                                  ),
+                                  SizedBox(height: 16.0),
+                                  TextFormField(
+                                    controller: _availableRoomsController,
+                                    keyboardType: TextInputType.number,
+                                    decoration: InputDecoration(
+                                      labelText: 'Kamar Tersedia',
+                                      border: OutlineInputBorder(),
+                                    ),
+                                  ),
+                                  SizedBox(height: 16.0),
+                                  DropdownButtonFormField<String>(
+                                    decoration: InputDecoration(
+                                      labelText: 'Tipe Kost',
+                                      border: OutlineInputBorder(),
+                                    ),
+                                    value: _kostType,
+                                    items: [
+                                      DropdownMenuItem(
+                                          value: 'putra', child: Text('Putra')),
+                                      DropdownMenuItem(
+                                          value: 'putri', child: Text('Putri')),
+                                      DropdownMenuItem(
+                                          value: 'campur',
+                                          child: Text('Campur')),
+                                    ],
+                                    onChanged: (value) {
+                                      setState(() {
+                                        _kostType = value;
+                                      });
+                                    },
+                                  ),
+                                  SizedBox(height: 16.0),
+                                  CheckboxListTile(
+                                    title: Text('Makan Termasuk'),
+                                    value: _mealIncluded,
+                                    onChanged: (value) {
+                                      setState(() {
+                                        _mealIncluded = value ?? false;
+                                      });
+                                    },
+                                    controlAffinity:
+                                        ListTileControlAffinity.leading,
+                                  ),
+                                  CheckboxListTile(
+                                    title: Text('Laundry Termasuk'),
+                                    value: _laundryIncluded,
+                                    onChanged: (value) {
+                                      setState(() {
+                                        _laundryIncluded = value ?? false;
+                                      });
+                                    },
+                                    controlAffinity:
+                                        ListTileControlAffinity.leading,
+                                  ),
+                                  TextFormField(
+                                    controller: _rulesController,
+                                    maxLines: 3,
+                                    decoration: InputDecoration(
+                                      labelText: 'Peraturan Kost',
+                                      border: OutlineInputBorder(),
+                                    ),
+                                  ),
+                                ],
                               ),
+                            if (_propertyTypeId == 2)
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  TextFormField(
+                                    controller: _totalUnitsController,
+                                    keyboardType: TextInputType.number,
+                                    decoration: InputDecoration(
+                                      labelText: 'Total Unit',
+                                      border: OutlineInputBorder(),
+                                    ),
+                                  ),
+                                  SizedBox(height: 16.0),
+                                  TextFormField(
+                                    controller: _availableUnitsController,
+                                    keyboardType: TextInputType.number,
+                                    decoration: InputDecoration(
+                                      labelText: 'Unit Tersedia',
+                                      border: OutlineInputBorder(),
+                                    ),
+                                  ),
+                                  SizedBox(height: 16.0),
+                                  TextFormField(
+                                    controller: _minimumStayController,
+                                    keyboardType: TextInputType.number,
+                                    decoration: InputDecoration(
+                                      labelText: 'Minimum Menginap (Malam)',
+                                      border: OutlineInputBorder(),
+                                    ),
+                                  ),
+                                  SizedBox(height: 16.0),
+                                  TextFormField(
+                                    controller: _maximumGuestController,
+                                    keyboardType: TextInputType.number,
+                                    decoration: InputDecoration(
+                                      labelText: 'Maksimum Tamu',
+                                      border: OutlineInputBorder(),
+                                    ),
+                                  ),
+                                  SizedBox(height: 16.0),
+                                  TextFormField(
+                                    controller: _checkinTimeController,
+                                    decoration: InputDecoration(
+                                      labelText: 'Waktu Check-in (HH:MM)',
+                                      border: OutlineInputBorder(),
+                                    ),
+                                  ),
+                                  SizedBox(height: 16.0),
+                                  TextFormField(
+                                    controller: _checkoutTimeController,
+                                    decoration: InputDecoration(
+                                      labelText: 'Waktu Check-out (HH:MM)',
+                                      border: OutlineInputBorder(),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            SizedBox(height: 24.0),
+                            if (_errorMessage != null)
+                              Padding(
+                                padding: const EdgeInsets.only(bottom: 16.0),
+                                child: Text(
+                                  _errorMessage!,
+                                  style: TextStyle(color: Colors.red),
+                                ),
+                              ),
+                            ElevatedButton(
+                              onPressed: _isLoading ? null : _updateProperty,
+                              child: _isLoading
+                                  ? CircularProgressIndicator()
+                                  : Text('Simpan Perubahan'),
                             ),
                           ],
                         ),
-                      if (_propertyTypeId == 2)
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            TextFormField(
-                              controller: _totalUnitsController,
-                              keyboardType: TextInputType.number,
-                              decoration: InputDecoration(
-                                labelText: 'Total Unit',
-                                border: OutlineInputBorder(),
-                              ),
-                            ),
-                            SizedBox(height: 16.0),
-                            TextFormField(
-                              controller: _availableUnitsController,
-                              keyboardType: TextInputType.number,
-                              decoration: InputDecoration(
-                                labelText: 'Unit Tersedia',
-                                border: OutlineInputBorder(),
-                              ),
-                            ),
-                            SizedBox(height: 16.0),
-                            TextFormField(
-                              controller: _minimumStayController,
-                              keyboardType: TextInputType.number,
-                              decoration: InputDecoration(
-                                labelText: 'Minimum Menginap (Malam)',
-                                border: OutlineInputBorder(),
-                              ),
-                            ),
-                            SizedBox(height: 16.0),
-                            TextFormField(
-                              controller: _maximumGuestController,
-                              keyboardType: TextInputType.number,
-                              decoration: InputDecoration(
-                                labelText: 'Maksimum Tamu',
-                                border: OutlineInputBorder(),
-                              ),
-                            ),
-                            SizedBox(height: 16.0),
-                            TextFormField(
-                              controller: _checkinTimeController,
-                              decoration: InputDecoration(
-                                labelText: 'Waktu Check-in (HH:MM)',
-                                border: OutlineInputBorder(),
-                              ),
-                            ),
-                            SizedBox(height: 16.0),
-                            TextFormField(
-                              controller: _checkoutTimeController,
-                              decoration: InputDecoration(
-                                labelText: 'Waktu Check-out (HH:MM)',
-                                border: OutlineInputBorder(),
-                              ),
-                            ),
-                          ],
-                        ),
-                      SizedBox(height: 24.0),
-                      if (_errorMessage != null)
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 16.0),
-                          child: Text(
-                            _errorMessage!,
-                            style: TextStyle(color: Colors.red),
-                          ),
-                        ),
-                      ElevatedButton(
-                        onPressed: _isLoading ? null : _updateProperty,
-                        child:
-                            _isLoading
-                                ? CircularProgressIndicator()
-                                : Text('Simpan Perubahan'),
                       ),
-                    ],
-                  ),
-                ),
-              ),
+                    ),
     );
   }
 }

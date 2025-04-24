@@ -15,4 +15,4 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 part 'login.dart';
 part 'login_controller.dart';
-part 'login_option.dart';
+// part 'login_option.dart';
