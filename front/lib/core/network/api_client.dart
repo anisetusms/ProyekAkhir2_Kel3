@@ -64,11 +64,30 @@ class ApiClient {
 
  void _handleError(DioException error) {
   String errorMessage = 'Terjadi kesalahan yang tidak diketahui.';
+
   if (error.response != null && error.response!.data != null) {
-   errorMessage = error.response!.data['message'] ?? 'Terjadi kesalahan dari server.';
+    final responseData = error.response!.data;
+
+    print('🛠️ [DEBUG ERROR RESPONSE]: $responseData'); // ✅ tampilkan error server ke debug console
+
+    // Ambil pesan utama
+    errorMessage = responseData['message'] ?? 'Terjadi kesalahan dari server.';
+
+    // Jika ada detail errors (dari Laravel)
+    if (responseData['errors'] != null) {
+      final errors = responseData['errors'] as Map<String, dynamic>;
+      final detailErrors = errors.values
+          .map((e) => (e is List ? e.join(', ') : e.toString()))
+          .join('\n');
+
+      errorMessage += '\n$detailErrors'; // gabungkan ke errorMessage
+    }
   } else {
-   errorMessage = error.message ?? 'Terjadi kesalahan pada koneksi atau request.';
+    print('⚠️ [NETWORK ERROR]: ${error.message}');
+    errorMessage = error.message ?? 'Terjadi kesalahan pada koneksi atau request.';
   }
+
   throw Exception(errorMessage);
- }
+}
+
 }

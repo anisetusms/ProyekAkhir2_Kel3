@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Log;
 
 class AuthController extends Controller
 {
@@ -19,7 +20,8 @@ class AuthController extends Controller
             // 'address' => 'required|string|max:255',
             // 'profile_picture' => 'nullable|image|max:2048',
             'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8|confirmed', // Tambahkan konfirmasi password
+            'password' => 'required|string|min:8|confirmed',
+            'user_role_id' => 'required|integer|exists:user_roles,id', // Tambahkan konfirmasi password
         ]);
 
         if ($validator->fails()) {
@@ -40,6 +42,7 @@ class AuthController extends Controller
             // 'profile_picture' => $photoPath,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'user_role_id' => $request->user_role_id,
         ]);
         // Buat token
         $token = $user->createToken('authToken')->plainTextToken;
@@ -51,13 +54,12 @@ class AuthController extends Controller
                 'id' => $user->id,
                 'name' => $user->name,
                 'username' => $user->username,
-                'phone' => $user->phone,
-                'address' => $user->address,
                 'email' => $user->email,
             ],
             'access_token' => $token,
             'token_type' => 'Bearer',
         ], 201);
+        Log::debug('Data yang dikirim:', $request->all());
     }
 
     public function login(Request $request)

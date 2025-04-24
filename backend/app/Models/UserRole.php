@@ -16,4 +16,10 @@ class UserRole extends Model
     protected $fillable = [
         'name',
     ];
+
+    // Relasi ke tabel 'users' (satu role dimiliki oleh banyak user)
+    public function users()
+    {
+        return $this->hasMany(User::class, 'user_role_id');
+    }
 }

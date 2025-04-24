@@ -35,11 +35,17 @@ class _LoginScreenState extends State<LoginScreen> {
         );
 
         if (response['access_token'] != null) {
-          final prefs = await SharedPreferences.getInstance();
-          await prefs.setString('token', response['access_token']);
-          // Navigate to dashboard or home screen
-          Navigator.pushReplacementNamed(context, '/dashboard'); // Asumsi ada route '/dashboard'
-        } else {
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.setString('token', response['access_token']);
+
+  // Simpan juga role_id ke SharedPreferences
+  if (response['user']['user_role_id'] != null) {
+    await prefs.setInt('user_role_id', response['user']['user_role_id']);
+  }
+
+  Navigator.pushReplacementNamed(context, '/bottombar');
+}
+ else {
           setState(() {
             _errorMessage = response['message'] ?? 'Login gagal. Cek email dan password Anda.';
           });

@@ -6,6 +6,7 @@ import 'package:front/features/property/presentation/screens/add_property_screen
 import 'package:front/features/property/presentation/screens/edit_property_screen.dart';
 import 'package:front/features/property/presentation/screens/property_detail.dart';
 import 'package:front/features/property/presentation/screens/property_list.dart';
+import 'package:front/features/dashboard/presentation/screens/users/button_navbar.dart';
 
 void main() {
   runApp(MyApp());
@@ -25,6 +26,7 @@ class MyApp extends StatelessWidget {
         '/login': (context) => LoginScreen(),
         '/register': (context) => RegisterScreen(),
         '/dashboard': (context) => DashboardScreen(),
+        '/bottombar': (context) => BottomBar(),
         PropertyListScreen.routeName: (context) => PropertyListScreen(),
         PropertyDetailScreen.routeName: (context) => PropertyDetailScreen(),
         AddPropertyScreen.routeName: (context) => AddPropertyScreen(),

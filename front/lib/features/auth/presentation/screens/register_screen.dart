@@ -33,28 +33,43 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   Future<void> _fetchRoles() async {
-    try {
-      final response = await http.get(Uri.parse('${Constants.baseUrl}/roles'));
+  try {
+    final response = await http.get(Uri.parse('${Constants.baseUrl}/roles'));
 
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        setState(() {
-          _roles = List<Map<String, dynamic>>.from(data['data'].map((role) => {
-                'id': int.parse(role['id'].toString()), // ✅ pastikan id-nya integer
-                'name': role['name']
-              }));
-        });
-      } else {
-        setState(() {
-          _errorMessage = 'Gagal memuat data role';
-        });
-      }
-    } catch (e) {
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+
+      final allRoles = List<Map<String, dynamic>>.from(
+        data['data'].map((role) => {
+              'id': int.parse(role['id'].toString()),
+              'name': role['name'],
+            }),
+      );
+
+      // Filter hanya id 2 dan 4
+      final filteredRoles = allRoles.where((role) =>
+        role['id'] == 2 || role['id'] == 4
+      ).toList();
+
       setState(() {
-        _errorMessage = 'Terjadi kesalahan saat mengambil data role: $e';
+        _roles = filteredRoles;
+        _errorMessage = null;
+      });
+    } else {
+      setState(() {
+        _errorMessage =
+            'Gagal memuat data role (kode ${response.statusCode})';
       });
     }
+  } catch (e) {
+    setState(() {
+      _errorMessage = 'Terjadi kesalahan saat mengambil data role: $e';
+    });
   }
+}
+
+
+
 
   Future<void> _register() async {
     if (_formKey.currentState!.validate()) {
@@ -79,7 +94,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             'email': _emailController.text,
             'password': _passwordController.text,
             'password_confirmation': _confirmPasswordController.text,
-            'role_id': _selectedRoleId.toString(), // kirim sebagai string ke API
+            'user_role_id': _selectedRoleId, // kirim sebagai integer ke API
           },
         );
 
@@ -141,26 +156,51 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   return null;
                 }),
                 SizedBox(height: 16.0),
-                DropdownButtonFormField<int>(
-                  decoration: InputDecoration(
-                    labelText: 'Pilih Role',
-                    border: OutlineInputBorder(),
-                  ),
-                  value: _selectedRoleId,
-                  items: _roles.map((role) {
-                    return DropdownMenuItem<int>(
-                      value: role['id'],
-                      child: Text(role['name']),
-                    );
-                  }).toList(),
-                  onChanged: (value) {
-                    setState(() {
-                      _selectedRoleId = value;
-                    });
-                  },
-                  validator: (value) =>
-                      value == null ? 'Role harus dipilih' : null,
-                ),
+
+                
+  DropdownButtonFormField<int>(
+  decoration: InputDecoration(
+    labelText: 'Pilih Role',
+    border: OutlineInputBorder(),
+  ),
+  value: _selectedRoleId,
+  items: _roles.isEmpty
+      ? [
+          DropdownMenuItem<int>(
+            value: null,
+            child: Text(
+              _errorMessage != null
+                  ? 'Gagal memuat role'
+                  : 'Memuat role...',
+            ),
+          ),
+        ]
+      : _roles.map((role) {
+          return DropdownMenuItem<int>(
+            value: role['id'],
+            child: Text(role['name']),
+          );
+        }).toList(),
+  onChanged: _roles.isEmpty
+      ? null
+      : (value) {
+          setState(() {
+            _selectedRoleId = value;
+          });
+        },
+  validator: (value) => value == null ? 'Role harus dipilih' : null,
+),
+
+
+if (_errorMessage != null && _roles.isEmpty)
+  Padding(
+    padding: const EdgeInsets.symmetric(vertical: 8),
+    child: Text(
+      _errorMessage!,
+      style: TextStyle(color: Colors.red),
+    ),
+  ),
+
                 SizedBox(height: 24.0),
                 if (_errorMessage != null)
                   Padding(
