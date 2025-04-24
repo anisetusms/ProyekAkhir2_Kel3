@@ -39,6 +39,8 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
   bool _laundryIncluded = false;
   bool _isLoading = false;
   String? _errorMessage;
+  double? _latitude;
+  double? _longitude;
 
   Future<void> _addProperty() async {
     if (_formKey.currentState!.validate()) {
@@ -52,15 +54,14 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
           'name': _nameController.text,
           'description': _descriptionController.text,
           'property_type_id': _propertyTypeId,
-          if (_provinceId != null)
-            'province_id': _provinceId, // Tambahkan null check
-          if (_cityId != null) 'city_id': _cityId, // Tambahkan null check
-          if (_districtId != null)
-            'district_id': _districtId, // Tambahkan null check
-          if (_subdistrictId != null)
-            'subdistrict_id': _subdistrictId, // Tambahkan null check
+          if (_provinceId != null) 'province_id': _provinceId,
+          if (_cityId != null) 'city_id': _cityId,
+          if (_districtId != null) 'district_id': _districtId,
+          if (_subdistrictId != null) 'subdistrict_id': _subdistrictId,
           'price': double.tryParse(_priceController.text),
           'address': _addressController.text,
+          if (_latitude != null) 'latitude': _latitude, // Kirim latitude jika tidak null
+          if (_longitude != null) 'longitude': _longitude, // Kirim longitude jika tidak null
           if (_capacityController.text.isNotEmpty)
             'capacity': int.tryParse(_capacityController.text),
           if (_rulesController.text.isNotEmpty) 'rules': _rulesController.text,
@@ -132,11 +133,8 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                   labelText: 'Nama Properti',
                   border: OutlineInputBorder(),
                 ),
-                validator:
-                    (value) =>
-                        value == null || value.isEmpty
-                            ? 'Nama tidak boleh kosong'
-                            : null,
+                validator: (value) =>
+                    value == null || value.isEmpty ? 'Nama tidak boleh kosong' : null,
               ),
               SizedBox(height: 16.0),
               TextFormField(
@@ -155,11 +153,8 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                   labelText: 'Harga',
                   border: OutlineInputBorder(),
                 ),
-                validator:
-                    (value) =>
-                        value == null || value.isEmpty
-                            ? 'Harga tidak boleh kosong'
-                            : null,
+                validator: (value) =>
+                    value == null || value.isEmpty ? 'Harga tidak boleh kosong' : null,
               ),
               SizedBox(height: 16.0),
               TextFormField(
@@ -169,11 +164,8 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                   labelText: 'Alamat',
                   border: OutlineInputBorder(),
                 ),
-                validator:
-                    (value) =>
-                        value == null || value.isEmpty
-                            ? 'Alamat tidak boleh kosong'
-                            : null,
+                validator: (value) =>
+                    value == null || value.isEmpty ? 'Alamat tidak boleh kosong' : null,
               ),
               SizedBox(height: 16.0),
               LocationInput(
@@ -181,6 +173,12 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                 onCityChanged: (value) => _cityId = value,
                 onDistrictChanged: (value) => _districtId = value,
                 onSubdistrictChanged: (value) => _subdistrictId = value,
+                onCoordinatesChanged: (latitude, longitude) {
+                  setState(() {
+                    _latitude = latitude;
+                    _longitude = longitude;
+                  });
+                },
               ),
               SizedBox(height: 16.0),
               DropdownButtonFormField<int>(
@@ -198,9 +196,8 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                     _propertyTypeId = value;
                   });
                 },
-                validator:
-                    (value) =>
-                        value == null ? 'Jenis properti harus dipilih' : null,
+                validator: (value) =>
+                    value == null ? 'Jenis properti harus dipilih' : null,
               ),
               SizedBox(height: 16.0),
               if (_propertyTypeId == 1)
@@ -244,9 +241,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                         DropdownMenuItem(value: 'putra', child: Text('Putra')),
                         DropdownMenuItem(value: 'putri', child: Text('Putri')),
                         DropdownMenuItem(
-                          value: 'campur',
-                          child: Text('Campur'),
-                        ),
+                            value: 'campur', child: Text('Campur')),
                       ],
                       onChanged: (value) {
                         setState(() {
@@ -353,10 +348,9 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                 ),
               ElevatedButton(
                 onPressed: _isLoading ? null : _addProperty,
-                child:
-                    _isLoading
-                        ? CircularProgressIndicator()
-                        : Text('Tambah Properti'),
+                child: _isLoading
+                    ? CircularProgressIndicator()
+                    : Text('Tambah Properti'),
               ),
             ],
           ),

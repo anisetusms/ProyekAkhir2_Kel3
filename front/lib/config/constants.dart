@@ -1,9 +1,13 @@
 class Constants {
+  // Sesuaikan dengan URL API Anda
   static const String baseUrl = 'http://192.168.0.45:8000/api';
-  // Anda bisa menambahkan konstanta lain di sini, seperti warna primer,
-  // nama storage untuk gambar profil, dll.
+  
+  // Untuk development di emulator Android:
+  // static const String baseUrl = 'http://10.0.2.2:8000';
+  
+  // Untuk development di iOS simulator:
+  // static const String baseUrl = 'http://localhost:8000';
 
-  // Contoh konstanta warna (jika Anda ingin menggunakannya di seluruh aplikasi)
-  // static const Color primaryColor = Colors.blue;
-  // static const Color accentColor = Colors.amber;
+  // Pastikan URL storage benar
+  static String get imageBaseUrl => '$baseUrl/storage';
 }

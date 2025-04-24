@@ -7,10 +7,13 @@ class LocationInput extends StatefulWidget {
   final Function(int?) onCityChanged;
   final Function(int?) onDistrictChanged;
   final Function(int?) onSubdistrictChanged;
+  final Function(double?, double?) onCoordinatesChanged; // Tambahkan callback ini
   final int? initialProvinceId;
   final int? initialCityId;
   final int? initialDistrictId;
   final int? initialSubdistrictId;
+  final double? initialLatitude;
+  final double? initialLongitude;
 
   const LocationInput({
     Key? key,
@@ -18,10 +21,13 @@ class LocationInput extends StatefulWidget {
     required this.onCityChanged,
     required this.onDistrictChanged,
     required this.onSubdistrictChanged,
+    required this.onCoordinatesChanged, // Wajib ditambahkan
     this.initialProvinceId,
     this.initialCityId,
     this.initialDistrictId,
     this.initialSubdistrictId,
+    this.initialLatitude,
+    this.initialLongitude,
   }) : super(key: key);
 
   @override
@@ -38,6 +44,8 @@ class _LocationInputState extends State<LocationInput> {
   int? _selectedCityId;
   int? _selectedDistrictId;
   int? _selectedSubdistrictId;
+  TextEditingController _latitudeController = TextEditingController();
+  TextEditingController _longitudeController = TextEditingController();
 
   @override
   void initState() {
@@ -47,6 +55,9 @@ class _LocationInputState extends State<LocationInput> {
     _selectedCityId = widget.initialCityId;
     _selectedDistrictId = widget.initialDistrictId;
     _selectedSubdistrictId = widget.initialSubdistrictId;
+    _latitudeController.text = widget.initialLatitude?.toString() ?? '';
+    _longitudeController.text = widget.initialLongitude?.toString() ?? '';
+
     if (_selectedProvinceId != null) {
       _fetchCities(_selectedProvinceId!);
     }
@@ -140,17 +151,16 @@ class _LocationInputState extends State<LocationInput> {
             border: OutlineInputBorder(),
           ),
           value: _selectedProvinceId,
-          items:
-              _provinces
-                  .map(
-                    (province) => DropdownMenuItem<int>(
-                      value: province['id'] as int?,
-                      child: Text(
-                        (province['name'] ?? '') as String,
-                      ), // Null check
-                    ),
-                  )
-                  .toList(),
+          items: _provinces
+              .map(
+                (province) => DropdownMenuItem<int>(
+                  value: province['id'] as int?,
+                  child: Text(
+                    (province['prov_name'] ?? '') as String,
+                  ), // Null check
+                ),
+              )
+              .toList(),
           onChanged: (value) {
             setState(() {
               _selectedProvinceId = value;
@@ -165,6 +175,9 @@ class _LocationInputState extends State<LocationInput> {
             if (value != null) {
               _fetchCities(value);
             }
+            widget.onCoordinatesChanged(
+                double.tryParse(_latitudeController.text),
+                double.tryParse(_longitudeController.text)); // Kirim saat berubah
           },
           validator: (value) => value == null ? 'Provinsi harus dipilih' : null,
         ),
@@ -175,15 +188,14 @@ class _LocationInputState extends State<LocationInput> {
             border: OutlineInputBorder(),
           ),
           value: _selectedCityId,
-          items:
-              _cities
-                  .map(
-                    (city) => DropdownMenuItem<int>(
-                      value: city['id'] as int?,
-                      child: Text((city['name'] ?? '') as String), // Null check
-                    ),
-                  )
-                  .toList(),
+          items: _cities
+              .map(
+                (city) => DropdownMenuItem<int>(
+                  value: city['id'] as int?,
+                  child: Text((city['city_name'] ?? '') as String), // Null check
+                ),
+              )
+              .toList(),
           onChanged: (value) {
             setState(() {
               _selectedCityId = value;
@@ -196,12 +208,14 @@ class _LocationInputState extends State<LocationInput> {
             if (value != null) {
               _fetchDistricts(value);
             }
+            widget.onCoordinatesChanged(
+                double.tryParse(_latitudeController.text),
+                double.tryParse(_longitudeController.text)); // Kirim saat berubah
           },
-          validator:
-              (value) =>
-                  _cities.isNotEmpty && value == null
-                      ? 'Kota/Kabupaten harus dipilih'
-                      : null,
+          validator: (value) =>
+              _cities.isNotEmpty && value == null
+                  ? 'Kota/Kabupaten harus dipilih'
+                  : null,
         ),
         const SizedBox(height: 16.0),
         DropdownButtonFormField<int>(
@@ -210,17 +224,16 @@ class _LocationInputState extends State<LocationInput> {
             border: OutlineInputBorder(),
           ),
           value: _selectedDistrictId,
-          items:
-              _districts
-                  .map(
-                    (district) => DropdownMenuItem<int>(
-                      value: district['id'] as int?,
-                      child: Text(
-                        (district['name'] ?? '') as String,
-                      ), // Null check
-                    ),
-                  )
-                  .toList(),
+          items: _districts
+              .map(
+                (district) => DropdownMenuItem<int>(
+                  value: district['id'] as int?,
+                  child: Text(
+                    (district['dis_name'] ?? '') as String,
+                  ), // Null check
+                ),
+              )
+              .toList(),
           onChanged: (value) {
             setState(() {
               _selectedDistrictId = value;
@@ -231,12 +244,14 @@ class _LocationInputState extends State<LocationInput> {
             if (value != null) {
               _fetchSubdistricts(value);
             }
+            widget.onCoordinatesChanged(
+                double.tryParse(_latitudeController.text),
+                double.tryParse(_longitudeController.text)); // Kirim saat berubah
           },
-          validator:
-              (value) =>
-                  _districts.isNotEmpty && value == null
-                      ? 'Kecamatan harus dipilih'
-                      : null,
+          validator: (value) =>
+              _districts.isNotEmpty && value == null
+                  ? 'Kecamatan harus dipilih'
+                  : null,
         ),
         const SizedBox(height: 16.0),
         DropdownButtonFormField<int>(
@@ -245,28 +260,59 @@ class _LocationInputState extends State<LocationInput> {
             border: OutlineInputBorder(),
           ),
           value: _selectedSubdistrictId,
-          items:
-              _subdistricts
-                  .map(
-                    (subdistrict) => DropdownMenuItem<int>(
-                      value: subdistrict['id'] as int?,
-                      child: Text(
-                        (subdistrict['name'] ?? '') as String,
-                      ), // Null check
-                    ),
-                  )
-                  .toList(),
+          items: _subdistricts
+              .map(
+                (subdistrict) => DropdownMenuItem<int>(
+                  value: subdistrict['id'] as int?,
+                  child: Text(
+                    (subdistrict['subdis_name'] ?? '') as String,
+                  ), // Null check
+                ),
+              )
+              .toList(),
           onChanged: (value) {
             setState(() {
               _selectedSubdistrictId = value;
             });
             widget.onSubdistrictChanged(value);
+            widget.onCoordinatesChanged(
+                double.tryParse(_latitudeController.text),
+                double.tryParse(_longitudeController.text)); // Kirim saat berubah
           },
-          validator:
-              (value) =>
-                  _subdistricts.isNotEmpty && value == null
-                      ? 'Kelurahan/Desa harus dipilih'
-                      : null,
+          validator: (value) =>
+              _subdistricts.isNotEmpty && value == null
+                  ? 'Kelurahan/Desa harus dipilih'
+                  : null,
+        ),
+        const SizedBox(height: 16.0),
+        TextFormField(
+          controller: _latitudeController,
+          keyboardType: TextInputType.numberWithOptions(decimal: true),
+          decoration: const InputDecoration(
+            labelText: 'Latitude',
+            border: OutlineInputBorder(),
+          ),
+          onChanged: (value) {
+            widget.onCoordinatesChanged(
+                double.tryParse(value), double.tryParse(_longitudeController.text));
+          },
+          validator: (value) =>
+              value == null || value.isEmpty ? 'Latitude harus diisi' : null,
+        ),
+        const SizedBox(height: 16.0),
+        TextFormField(
+          controller: _longitudeController,
+          keyboardType: TextInputType.numberWithOptions(decimal: true),
+          decoration: const InputDecoration(
+            labelText: 'Longitude',
+            border: OutlineInputBorder(),
+          ),
+          onChanged: (value) {
+            widget.onCoordinatesChanged(
+                double.tryParse(_latitudeController.text), double.tryParse(value));
+          },
+          validator: (value) =>
+              value == null || value.isEmpty ? 'Longitude harus diisi' : null,
         ),
       ],
     );

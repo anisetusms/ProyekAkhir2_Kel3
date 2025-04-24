@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:front/core/network/api_client.dart';
 import 'package:front/core/utils/constants.dart';
+import 'package:url_launcher/url_launcher.dart'; // Import untuk membuka peta
 
 class PropertyDetailScreen extends StatefulWidget {
   static const routeName = '/property_detail';
@@ -36,6 +37,33 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
     }
   }
 
+  // Fungsi untuk membuka peta
+  Future<void> _openMap(double? latitude, double? longitude, String? address) async {
+    if (latitude != null && longitude != null) {
+      final url = 'https://www.google.com/maps/search/?api=1&query=$latitude,$longitude';
+      if (await canLaunchUrl(Uri.parse(url))) {
+        await launchUrl(Uri.parse(url));
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Tidak dapat membuka peta.')),
+        );
+      }
+    } else if (address != null && address.isNotEmpty) {
+      final url = 'https://www.google.com/maps/search/?api=1&query=${Uri.encodeComponent(address)}';
+      if (await canLaunchUrl(Uri.parse(url))) {
+        await launchUrl(Uri.parse(url));
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Tidak dapat membuka peta.')),
+        );
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Lokasi tidak tersedia.')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -58,7 +86,7 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
                 children: <Widget>[
                   if (property['image'] != null)
                     Image.network(
-                      '${Constants.baseUrl}/storage/${property['image']}',
+                      '${Constants.baseUrl}/storage/properties/${property['image']}',
                       width: double.infinity,
                       height: 200,
                       fit: BoxFit.cover,
@@ -69,9 +97,28 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
                     style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
                   ),
                   SizedBox(height: 8.0),
-                  Text(
-                    property['address'] ?? 'Alamat',
-                    style: TextStyle(color: Colors.grey[600]),
+                  Row(
+                    children: [
+                      Icon(Icons.location_on, color: Colors.grey[600]),
+                      SizedBox(width: 4.0),
+                      Expanded(
+                        child: Text(
+                          property['address'] ?? 'Alamat',
+                          style: TextStyle(color: Colors.grey[600]),
+                        ),
+                      ),
+                      if (property['latitude'] != null && property['longitude'] != null || property['address'] != null && property['address'].isNotEmpty)
+                        IconButton(
+                          icon: Icon(Icons.map),
+                          onPressed: () {
+                            _openMap(
+                              property['latitude']?.toDouble(),
+                              property['longitude']?.toDouble(),
+                              property['address'],
+                            );
+                          },
+                        ),
+                    ],
                   ),
                   SizedBox(height: 16.0),
                   Text(
@@ -85,9 +132,11 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                   SizedBox(height: 16.0),
-                  if (property['property_type_id'] == 1 && property['kost_detail'] != null)
+                  if (property['property_type_id'] == 1 &&
+                      property['kost_detail'] != null)
                     _buildKostDetails(property['kost_detail']),
-                  if (property['property_type_id'] == 2 && property['homestay_detail'] != null)
+                  if (property['property_type_id'] == 2 &&
+                      property['homestay_detail'] != null)
                     _buildHomestayDetails(property['homestay_detail']),
                   // Tambahkan detail lain sesuai kebutuhan
                 ],
@@ -109,6 +158,7 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
         Text('Tipe: ${details['kost_type'] ?? '-'}'),
         Text('Total Kamar: ${details['total_rooms'] ?? '-'}'),
         Text('Kamar Tersedia: ${details['available_rooms'] ?? '-'}'),
+        Text('Kapasitas: ${details['capacity'] ?? '-'} Orang'),
         Text('Makan Termasuk: ${details['meal_included'] ? 'Ya' : 'Tidak'}'),
         Text('Laundry Termasuk: ${details['laundry_included'] ? 'Ya' : 'Tidak'}'),
         Text('Peraturan: ${details['rules'] ?? '-'}'),
