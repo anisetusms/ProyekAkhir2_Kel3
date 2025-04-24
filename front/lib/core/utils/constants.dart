@@ -6,4 +6,5 @@ class Constants {
   // Contoh konstanta warna (jika Anda ingin menggunakannya di seluruh aplikasi)
   // static const Color primaryColor = Colors.blue;
   // static const Color accentColor = Colors.amber;
+  static const String defaultPropertyImage = 'https://via.placeholder.com/400?text=No+Image';
 }

@@ -3,6 +3,8 @@ import 'package:front/core/network/api_client.dart';
 import 'package:front/core/utils/constants.dart';
 import 'package:front/features/property/presentation/widgets/property_card.dart';
 import 'package:front/features/property/presentation/screens/property_detail.dart';
+import 'package:front/core/widgets/loading_indicator.dart';
+import 'package:front/core/widgets/error_state.dart';
 import 'dart:developer';
 
 class PropertyListScreen extends StatefulWidget {
@@ -16,11 +18,18 @@ class _PropertyListScreenState extends State<PropertyListScreen> {
   late Future<List<dynamic>> _propertiesFuture;
   bool _isLoading = false;
   String? _errorMessage;
+  final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
     super.initState();
     _loadProperties();
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
   }
 
   Future<void> _loadProperties() async {
@@ -58,93 +67,127 @@ class _PropertyListScreenState extends State<PropertyListScreen> {
 
   Map<String, dynamic> _parseProperty(dynamic propertyData) {
     final Map<String, dynamic> property = {};
-    
-    // Konversi semua key ke String dan handle null values
     if (propertyData is Map) {
       propertyData.forEach((key, value) {
         property[key.toString()] = value;
       });
+      // Gunakan isDeleted sebagai indikator status
+      property['status'] = propertyData['isDeleted'] == false ? 'active' : 'inactive';
     }
-
-    // Handle price conversion
-    property['price'] = double.tryParse(property['price']?.toString() ?? '0') ?? 0;
-
+    property['price'] = double.tryParse(property['price']?.toString() ?? '0') ?? 0.0;
     return property;
+  }
+
+  Widget _buildPropertyCard(BuildContext context, dynamic propertyData) {
+    final property = _parseProperty(propertyData);
+    log('Data properti yang dikirim ke PropertyCard: $property');
+    log('Tipe data harga sebelum ke PropertyCard: ${property['price'].runtimeType}, nilai: ${property['price']}');
+    return PropertyCard(
+      property: property,
+      onTap: () {
+        Navigator.pushNamed(
+          context,
+          PropertyDetailScreen.routeName,
+          arguments: property['id'],
+        );
+      },
+      onManageRooms: () {
+        Navigator.pushNamed(
+          context,
+          '/manage_rooms',
+          arguments: property['id'],
+        );
+      },
+      onEdit: () {
+        Navigator.pushNamed(
+          context,
+          '/edit_property',
+          arguments: property['id'],
+        );
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Daftar Properti Anda'),
+        title: const Text('Kelola Properti'),
+        centerTitle: true,
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: _loadProperties,
+            tooltip: 'Refresh',
           ),
         ],
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? const LoadingIndicator()
           : _errorMessage != null
-              ? Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(_errorMessage!),
-                      const SizedBox(height: 16),
-                      ElevatedButton(
-                        onPressed: _loadProperties,
-                        child: const Text('Coba Lagi'),
-                      ),
-                    ],
-                  ),
+              ? ErrorState(
+                  message: _errorMessage!,
+                  onRetry: _loadProperties,
                 )
               : FutureBuilder<List<dynamic>>(
                   future: _propertiesFuture,
                   builder: (context, snapshot) {
                     if (snapshot.hasError) {
-                      return Center(
-                        child: Text('Error: ${snapshot.error}'),
+                      return ErrorState(
+                        message: 'Terjadi kesalahan: ${snapshot.error}',
+                        onRetry: _loadProperties,
                       );
                     }
 
                     if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                      return const Center(
-                        child: Text('Belum ada properti yang ditambahkan.'),
+                      return Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(
+                              Icons.home_work_outlined,
+                              size: 64,
+                              color: Colors.grey,
+                            ),
+                            const SizedBox(height: 16),
+                            const Text(
+                              'Belum ada properti yang ditambahkan',
+                              style: TextStyle(fontSize: 16),
+                            ),
+                            const SizedBox(height: 16),
+                            ElevatedButton.icon(
+                              icon: const Icon(Icons.add),
+                              label: const Text('Tambah Properti Baru'),
+                              onPressed: () {
+                                Navigator.pushNamed(context, '/add_property');
+                              },
+                            ),
+                          ],
+                        ),
                       );
                     }
 
                     return RefreshIndicator(
                       onRefresh: _loadProperties,
                       child: ListView.builder(
+                        controller: _scrollController,
                         physics: const AlwaysScrollableScrollPhysics(),
                         itemCount: snapshot.data!.length,
                         itemBuilder: (context, index) {
-                          final property = _parseProperty(snapshot.data![index]);
-                          log('Properti ke-$index: $property');
-
-                          return PropertyCard(
-                            property: property,
-                            onTap: () {
-                              Navigator.pushNamed(
-                                context,
-                                PropertyDetailScreen.routeName,
-                                arguments: property['id'],
-                              );
-                            },
-                          );
+                          return _buildPropertyCard(
+                              context, snapshot.data![index]);
                         },
                       ),
                     );
                   },
                 ),
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
           Navigator.pushNamed(context, '/add_property');
         },
-        child: const Icon(Icons.add),
-        tooltip: 'Tambah Properti Baru',
+        icon: const Icon(Icons.add),
+        label: const Text('Tambah Properti'),
+        backgroundColor: Theme.of(context).primaryColor,
       ),
     );
   }

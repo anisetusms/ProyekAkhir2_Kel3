@@ -9,7 +9,7 @@ use App\Models\RoomFacility;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
-class RoomController extends Controller
+class RoomApiController extends Controller
 {
     /**
      * Display a listing of rooms for a property.
