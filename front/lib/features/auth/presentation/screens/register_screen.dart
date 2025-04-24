@@ -1,4 +1,6 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:front/core/network/api_client.dart';
 import 'package:front/core/utils/constants.dart';
 import 'package:front/features/auth/presentation/screens/login_screen.dart';
@@ -17,11 +19,52 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController = TextEditingController();
+
   bool _isLoading = false;
   String? _errorMessage;
 
+  List<Map<String, dynamic>> _roles = [];
+  int? _selectedRoleId;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchRoles();
+  }
+
+  Future<void> _fetchRoles() async {
+    try {
+      final response = await http.get(Uri.parse('${Constants.baseUrl}/roles'));
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        setState(() {
+          _roles = List<Map<String, dynamic>>.from(data['data'].map((role) => {
+                'id': int.parse(role['id'].toString()), // ✅ pastikan id-nya integer
+                'name': role['name']
+              }));
+        });
+      } else {
+        setState(() {
+          _errorMessage = 'Gagal memuat data role';
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _errorMessage = 'Terjadi kesalahan saat mengambil data role: $e';
+      });
+    }
+  }
+
   Future<void> _register() async {
     if (_formKey.currentState!.validate()) {
+      if (_selectedRoleId == null) {
+        setState(() {
+          _errorMessage = 'Role harus dipilih';
+        });
+        return;
+      }
+
       setState(() {
         _isLoading = true;
         _errorMessage = null;
@@ -29,21 +72,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
       try {
         final response = await ApiClient().post(
-          Constants.baseUrl + '/register',
+          '${Constants.baseUrl}/register',
           body: {
             'name': _nameController.text,
             'username': _usernameController.text,
             'email': _emailController.text,
             'password': _passwordController.text,
             'password_confirmation': _confirmPasswordController.text,
-            'gender': 'Pria', // Contoh default
-            'phone': '081234567890', // Contoh default
-            'address': 'Alamat Lengkap', // Contoh default
+            'role_id': _selectedRoleId.toString(), // kirim sebagai string ke API
           },
         );
 
         if (response['access_token'] != null) {
-          // Registration successful, navigate to login or home
           Navigator.pushReplacementNamed(context, LoginScreen.routeName);
         } else if (response['errors'] != null) {
           setState(() {
@@ -78,88 +118,48 @@ class _RegisterScreenState extends State<RegisterScreen> {
           child: Form(
             key: _formKey,
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                TextFormField(
-                  controller: _nameController,
-                  decoration: InputDecoration(
-                    labelText: 'Nama Lengkap',
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Nama tidak boleh kosong';
-                    }
-                    return null;
-                  },
-                ),
+                _buildTextField(_nameController, 'Nama Lengkap'),
                 SizedBox(height: 16.0),
-                TextFormField(
-                  controller: _usernameController,
-                  decoration: InputDecoration(
-                    labelText: 'Username',
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Username tidak boleh kosong';
-                    }
-                    return null;
-                  },
-                ),
+                _buildTextField(_usernameController, 'Username'),
                 SizedBox(height: 16.0),
-                TextFormField(
-                  controller: _emailController,
-                  keyboardType: TextInputType.emailAddress,
-                  decoration: InputDecoration(
-                    labelText: 'Email',
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Email tidak boleh kosong';
-                    }
-                    if (!value.contains('@')) {
-                      return 'Email tidak valid';
-                    }
-                    return null;
-                  },
-                ),
+                _buildTextField(_emailController, 'Email', keyboardType: TextInputType.emailAddress, validator: (value) {
+                  if (value == null || value.isEmpty) return 'Email tidak boleh kosong';
+                  if (!value.contains('@')) return 'Email tidak valid';
+                  return null;
+                }),
                 SizedBox(height: 16.0),
-                TextFormField(
-                  controller: _passwordController,
-                  obscureText: true,
-                  decoration: InputDecoration(
-                    labelText: 'Password',
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Password tidak boleh kosong';
-                    }
-                    if (value.length < 8) {
-                      return 'Password minimal 8 karakter';
-                    }
-                    return null;
-                  },
-                ),
+                _buildTextField(_passwordController, 'Password', obscureText: true, validator: (value) {
+                  if (value == null || value.isEmpty) return 'Password tidak boleh kosong';
+                  if (value.length < 8) return 'Password minimal 8 karakter';
+                  return null;
+                }),
                 SizedBox(height: 16.0),
-                TextFormField(
-                  controller: _confirmPasswordController,
-                  obscureText: true,
+                _buildTextField(_confirmPasswordController, 'Konfirmasi Password', obscureText: true, validator: (value) {
+                  if (value == null || value.isEmpty) return 'Konfirmasi password tidak boleh kosong';
+                  if (value != _passwordController.text) return 'Konfirmasi password tidak sesuai';
+                  return null;
+                }),
+                SizedBox(height: 16.0),
+                DropdownButtonFormField<int>(
                   decoration: InputDecoration(
-                    labelText: 'Konfirmasi Password',
+                    labelText: 'Pilih Role',
                     border: OutlineInputBorder(),
                   ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Konfirmasi password tidak boleh kosong';
-                    }
-                    if (value != _passwordController.text) {
-                      return 'Konfirmasi password tidak sesuai';
-                    }
-                    return null;
+                  value: _selectedRoleId,
+                  items: _roles.map((role) {
+                    return DropdownMenuItem<int>(
+                      value: role['id'],
+                      child: Text(role['name']),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      _selectedRoleId = value;
+                    });
                   },
+                  validator: (value) =>
+                      value == null ? 'Role harus dipilih' : null,
                 ),
                 SizedBox(height: 24.0),
                 if (_errorMessage != null)
@@ -188,6 +188,27 @@ class _RegisterScreenState extends State<RegisterScreen> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildTextField(
+    TextEditingController controller,
+    String label, {
+    TextInputType keyboardType = TextInputType.text,
+    bool obscureText = false,
+    String? Function(String?)? validator,
+  }) {
+    return TextFormField(
+      controller: controller,
+      keyboardType: keyboardType,
+      obscureText: obscureText,
+      decoration: InputDecoration(
+        labelText: label,
+        border: OutlineInputBorder(),
+      ),
+      validator: validator ??
+          (value) =>
+              value == null || value.isEmpty ? '$label tidak boleh kosong' : null,
     );
   }
 }

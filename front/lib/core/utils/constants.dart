@@ -1,5 +1,5 @@
 class Constants {
-  static const String baseUrl = 'http://192.168.0.45:8000/api';
+  static const String baseUrl = 'http://192.168.32.6:8000/api';
   // Anda bisa menambahkan konstanta lain di sini, seperti warna primer,
   // nama storage untuk gambar profil, dll.
 

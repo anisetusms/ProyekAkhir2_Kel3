@@ -14,6 +14,6 @@ class UserRole extends Model
     protected $primaryKey = 'id'; // Primary key tabel
 
     protected $fillable = [
-        'role_name',
+        'name',
     ];
 }

@@ -14,10 +14,10 @@ class AuthController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'username' => 'required|string|max:255',
-            'gender' => 'required|in:Pria,Wanita',
-            'phone' => 'required|string|min:12',
-            'address' => 'required|string|max:255',
-            'profile_picture' => 'nullable|image|max:2048',
+            // 'gender' => 'required|in:Pria,Wanita',
+            // 'phone' => 'required|string|min:12',
+            // 'address' => 'required|string|max:255',
+            // 'profile_picture' => 'nullable|image|max:2048',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed', // Tambahkan konfirmasi password
         ]);
@@ -26,22 +26,20 @@ class AuthController extends Controller
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
-        $photoPath = null;
-        if ($request->hasFile('profile_picture')) {
-            $photoPath = $request->file('profile_picture')->store('profile_photos', 'public');
-        }
+        // $photoPath = null;
+        // if ($request->hasFile('profile_picture')) {
+        //     $photoPath = $request->file('profile_picture')->store('profile_photos', 'public');
+        // }
         // Simpan user baru dengan user_role_id default = 4 (Penyewa)
         $user = User::create([
             'name' => $request->name,
             'username' => $request->username,
-            'gender' => $request->gender,
-            'phone' => $request->phone,
-            'address' => $request->address,
-            'profile_picture' => $photoPath,
+            // 'gender' => $request->gender,
+            // 'phone' => $request->phone,
+            // 'address' => $request->address,
+            // 'profile_picture' => $photoPath,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'user_role_id' => 4,
-            'user_type_id' => 4,
         ]);
         // Buat token
         $token = $user->createToken('authToken')->plainTextToken;
