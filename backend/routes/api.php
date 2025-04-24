@@ -7,7 +7,13 @@ use App\Http\Controllers\Api\PropertyApiController;
 use App\Http\Controllers\Api\RoomApiController; 
 use App\Http\Controllers\Api\DashboardApiController;
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 use App\Http\Controllers\Api\RoleController;
+=======
+use Illuminate\Support\Facades\Storage;
+use Symfony\Component\HttpFoundation\Response;
+
+>>>>>>> Stashed changes
 =======
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\Response;
