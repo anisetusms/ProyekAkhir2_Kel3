@@ -10,4 +10,5 @@ class Constants {
 
   // Pastikan URL storage benar
   static String get imageBaseUrl => '$baseUrl/storage';
+  static const String defaultPropertyImage = 'https://via.placeholder.com/400?text=No+Image';
 }
