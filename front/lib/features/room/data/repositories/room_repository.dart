@@ -41,23 +41,32 @@ class RoomRepository {
     try {
       final response = await _apiClient.post(
         '${Constants.baseUrl}/properties/${room.propertyId}/rooms',
-        body: room.toJson(),
+        body:
+            room.toJsonWithoutFacilities(), // Gunakan method toJsonWithoutFacilities
       );
-      if (response != null && response['data'] is Map<String, dynamic>) {
-        return Room.fromJson(response['data']);
+      if (response != null) {
+        if (response['success'] == true &&
+            response['data'] is Map<String, dynamic>) {
+          return Room.fromJson(response['data']);
+        } else {
+          throw Exception(
+            response['message'] ?? 'Gagal menambahkan kamar dari server',
+          );
+        }
       }
       return null;
     } catch (e) {
-      print('Error adding room: $e');
-      return null; // Return null on error, or handle differently
+      debugPrint('Error adding room: $e');
+      throw e; // Re-throw error untuk ditangani di UI
     }
   }
 
   Future<Room?> updateRoom(Room room) async {
     try {
-      final response = await _apiClient.put(
-        '${Constants.baseUrl}/rooms/${room.id}',
-        body: room.toJson(),
+      final response = await _apiClient.post(
+        // Menggunakan POST sesuai route
+        '${Constants.baseUrl}/properties/${room.propertyId}/rooms/${room.id}',
+        body: room.toJsonWithoutFacilities(), // Juga update tanpa fasilitas
       );
       if (response != null && response['data'] is Map<String, dynamic>) {
         return Room.fromJson(response['data']);
@@ -69,10 +78,10 @@ class RoomRepository {
     }
   }
 
-  Future<bool> deleteRoom(int roomId) async {
+  Future<bool> deleteRoom(int roomId, int propertyId) async {
     try {
       final response = await _apiClient.delete(
-        '${Constants.baseUrl}/rooms/$roomId',
+        '${Constants.baseUrl}/properties/$propertyId/rooms/$roomId',
       );
       return response != null && response['success'] == true;
     } catch (e) {
@@ -98,10 +107,14 @@ class RoomRepository {
     }
   }
 
-  Future<RoomFacility?> addRoomFacility(int roomId, String facilityName) async {
+  Future<RoomFacility?> addRoomFacility(
+    int roomId,
+    String facilityName, {
+    required int propertyId,
+  }) async {
     try {
       final response = await _apiClient.post(
-        '${Constants.baseUrl}/rooms/$roomId/facilities',
+        '${Constants.baseUrl}/properties/$propertyId/rooms/$roomId/facilities',
         body: {'facility_name': facilityName},
       );
       if (response != null && response['data'] is Map<String, dynamic>) {
@@ -124,5 +137,21 @@ class RoomRepository {
       print('Error deleting room facility: $e');
       return false;
     }
+  }
+}
+
+// Tambahkan method toJsonWithoutFacilities pada model Room
+extension RoomToJsonWithoutFacilities on Room {
+  Map<String, dynamic> toJsonWithoutFacilities() {
+    return {
+      'property_id': propertyId,
+      'room_type': roomType,
+      'room_number': roomNumber,
+      'price': price,
+      'size': size,
+      'capacity': capacity,
+      'is_available': isAvailable,
+      'description': description,
+    };
   }
 }

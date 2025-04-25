@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers\API;
 
-use App\Http\Controllers\Controller; 
+use App\Http\Controllers\Controller;
+use App\Models\HomestayDetail; // Pastikan ini ada
+use App\Models\KostDetail;    // Pastikan ini ada
 use App\Models\Property;
 use App\Models\Room;
 use App\Models\RoomFacility;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
 class RoomApiController extends Controller
@@ -39,7 +42,6 @@ class RoomApiController extends Controller
                 'message' => 'Daftar kamar berhasil diambil',
                 'data' => $rooms
             ]);
-
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -118,7 +120,6 @@ class RoomApiController extends Controller
                 'message' => 'Kamar berhasil ditambahkan',
                 'data' => $room->load('facilities')
             ], 201);
-
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -154,7 +155,6 @@ class RoomApiController extends Controller
                 'message' => 'Detail kamar berhasil diambil',
                 'data' => $room
             ]);
-
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -235,7 +235,6 @@ class RoomApiController extends Controller
                 'message' => 'Kamar berhasil diperbarui',
                 'data' => $room->load('facilities')
             ]);
-
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -274,7 +273,6 @@ class RoomApiController extends Controller
                 'success' => true,
                 'message' => 'Kamar berhasil dihapus'
             ]);
-
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -292,13 +290,67 @@ class RoomApiController extends Controller
      */
     private function updateAvailableRooms(Property $property)
     {
-        if ($property->property_type === 'kost') {
-            $availableRooms = $property->rooms()->where('is_available', true)->count();
-            $property->detail->update(['available_rooms' => $availableRooms]);
-        } else {
-            $availableUnits = $property->rooms()->where('is_available', true)->count();
-            $property->detail->update(['available_units' => $availableUnits]);
+        Log::info('Updating available rooms for property ID: ' . $property->id);
+        Log::info('Property Type: ' . $property->property_type);
+
+        try {
+            if ($property->property_type === 'kost') {
+                $availableRooms = $property->rooms()->where('is_available', true)->count();
+                if ($property->kostDetail) {
+                    $property->kostDetail()->update(['available_rooms' => $availableRooms]);
+                    Log::info('Updated kostDetail available_rooms to: ' . $availableRooms . ' for property ID: ' . $property->id);
+                } else {
+                    Log::warning('KostDetail not found for property ID: ' . $property->id);
+                }
+            } elseif ($property->property_type === 'homestay') {
+                $availableUnits = $property->rooms()->where('is_available', true)->count();
+                if ($property->homestayDetail) {
+                    $property->homestayDetail()->update(['available_units' => $availableUnits]);
+                    Log::info('Updated homestayDetail available_units to: ' . $availableUnits . ' for property ID: ' . $property->id);
+                } else {
+                    Log::warning('HomestayDetail not found for property ID: ' . $property->id);
+                }
+            } else {
+                Log::warning('Property type not kost or homestay for property ID: ' . $property->id);
+            }
+        } catch (\Exception $e) {
+            Log::error('Error updating available rooms/units: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Add a new facility to a specific room.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Models\Property  $property
+     * @param  \App\Models\Room  $room
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function addFacility(Request $request, Property $property, Room $room)
+    {
+        // Pastikan kamar berada di properti yang sesuai
+        if ($room->property_id !== $property->id) {
+            return response()->json(['success' => false, 'message' => 'Kamar tidak ditemukan di properti ini'], 404);
+        }
+
+        // Validasi input fasilitas
+        $validator = Validator::make($request->all(), [
+            'facility_name' => 'required|string|max:255',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['success' => false, 'errors' => $validator->errors()], 422);
+        }
+
+        try {
+            $facility = RoomFacility::create([
+                'room_id' => $room->id,
+                'facility_name' => $request->facility_name,
+            ]);
+
+            return response()->json(['success' => true, 'data' => $facility], 201);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Gagal menambahkan fasilitas', 'error' => $e->getMessage()], 500);
         }
     }
 }
-

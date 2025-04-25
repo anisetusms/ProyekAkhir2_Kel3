@@ -116,7 +116,7 @@ class _BottomBarState extends State<BottomBar> {
     if (_role == 2) { // Owner
       switch (_selectedIndex) {
         case 0:
-          return const HomeOwner();
+          return DashboardScreen();
         case 1:
           return  PropertyListScreen();
         case 2:
@@ -126,7 +126,7 @@ class _BottomBarState extends State<BottomBar> {
         case 4:
           return const ProfileOwner();
         default:
-          return const HomeOwner();
+          return DashboardScreen();
       }
     } else { // Customer
       switch (_selectedIndex) {

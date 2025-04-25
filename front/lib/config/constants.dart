@@ -1,6 +1,7 @@
 class Constants {
   // Sesuaikan dengan URL API Anda
-  static const String baseUrl = 'http://192.168.0.45:8000/api';
+  // static const String baseUrl = 'http://192.168.106.45:8000/api';
+  static const String baseUrl = 'http://192.168.106.45:8000/api';
   
   // Untuk development di emulator Android:
   // static const String baseUrl = 'http://10.0.2.2:8000';

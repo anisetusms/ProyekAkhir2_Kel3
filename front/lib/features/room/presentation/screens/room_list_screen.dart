@@ -37,18 +37,18 @@ class _RoomListScreenState extends State<RoomListScreen> {
   }
 
   Future<void> _deleteRoom(int roomId) async {
-    bool success = await _roomRepository.deleteRoom(roomId);
-    if (success) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Kamar berhasil dihapus')));
-      _loadRooms();
-    } else {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Gagal menghapus kamar')));
-    }
+  bool success = await _roomRepository.deleteRoom(roomId, widget.propertyId); // Tambahkan widget.propertyId
+  if (success) {
+   ScaffoldMessenger.of(
+    context,
+   ).showSnackBar(const SnackBar(content: Text('Kamar berhasil dihapus')));
+   _loadRooms();
+  } else {
+   ScaffoldMessenger.of(
+    context,
+   ).showSnackBar(const SnackBar(content: Text('Gagal menghapus kamar')));
   }
+ }
 
   @override
   Widget build(BuildContext context) {
