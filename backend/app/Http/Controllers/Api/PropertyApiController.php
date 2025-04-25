@@ -130,7 +130,10 @@ class PropertyApiController extends Controller
 
             DB::commit();
 
-            return response()->json($property, 201);
+            return response()->json([
+                'message' => 'Properti berhasil dibuat',
+                'data' => $property
+            ], 201);
         } catch (\Exception $e) {
             DB::rollBack();
 

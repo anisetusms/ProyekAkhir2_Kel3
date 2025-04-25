@@ -3,7 +3,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:front/features/dashboard/presentation/screens/users/owner/Homeowner.dart';
 import 'package:front/features/dashboard/presentation/screens/users/penyewa/HomePenyewa.dart';
-import 'package:front/features/dashboard/presentation/screens/users/owner/Properti.dart';
+// import 'package:front/features/dashboard/presentation/screens/users/owner/Properti.dart';
+import 'package:front/features/property/presentation/screens/property_list.dart';
 import 'package:front/features/dashboard/presentation/screens/users/owner/Profil.dart';
 
 class BottomBar extends StatefulWidget {

@@ -8,6 +8,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
 // import 'package:async/async.dart';
 import 'package:flutter/foundation.dart'; 
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AddPropertyScreen extends StatefulWidget {
   static const routeName = '/add_property';
@@ -58,74 +59,93 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
   }
 
   Future<void> _uploadPropertyWithImage() async {
-    if (_formKey.currentState!.validate()) {
-      setState(() {
-        _isLoading = true;
-        _errorMessage = null;
-      });
+  if (_formKey.currentState!.validate()) {
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
 
-      try {
-        http.StreamedResponse response;
-        var uri = Uri.parse('${Constants.baseUrl}/properties');
-        var request = http.MultipartRequest('POST', uri);
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('token'); // Ambil token dari SharedPreferences
 
-        request.fields['name'] = _nameController.text;
-        request.fields['description'] = _descriptionController.text;
-        request.fields['property_type_id'] = _propertyTypeId.toString();
-        if (_provinceId != null) request.fields['province_id'] = _provinceId.toString();
-        if (_cityId != null) request.fields['city_id'] = _cityId.toString();
-        if (_districtId != null) request.fields['district_id'] = _districtId.toString();
-        if (_subdistrictId != null) request.fields['subdistrict_id'] = _subdistrictId.toString();
-        request.fields['price'] = _priceController.text;
-        request.fields['address'] = _addressController.text;
-        if (_latitude != null) request.fields['latitude'] = _latitude.toString();
-        if (_longitude != null) request.fields['longitude'] = _longitude.toString();
-        if (_capacityController.text.isNotEmpty) request.fields['capacity'] = _capacityController.text;
-        if (_rulesController.text.isNotEmpty) request.fields['rules'] = _rulesController.text;
-
-        if (_propertyTypeId == 1) {
-          if (_availableRoomsController.text.isNotEmpty) request.fields['available_rooms'] = _availableRoomsController.text;
-          if (_totalRoomsController.text.isNotEmpty) request.fields['total_rooms'] = _totalRoomsController.text;
-          if (_kostType != null) request.fields['kost_type'] = _kostType!;
-          request.fields['meal_included'] = _mealIncluded ? '1' : '0';
-          request.fields['laundry_included'] = _laundryIncluded ? '1' : '0';
-        }
-
-        if (_propertyTypeId == 2) {
-          if (_totalUnitsController.text.isNotEmpty) request.fields['total_units'] = _totalUnitsController.text;
-          if (_availableUnitsController.text.isNotEmpty) request.fields['available_units'] = _availableUnitsController.text;
-          if (_minimumStayController.text.isNotEmpty) request.fields['minimum_stay'] = _minimumStayController.text;
-          if (_maximumGuestController.text.isNotEmpty) request.fields['maximum_guest'] = _maximumGuestController.text;
-          if (_checkinTimeController.text.isNotEmpty) request.fields['checkin_time'] = _checkinTimeController.text;
-          if (_checkoutTimeController.text.isNotEmpty) request.fields['checkout_time'] = _checkoutTimeController.text;
-        }
-
-        if (_imageFile != null) {
-          request.files.add(await http.MultipartFile.fromPath('image', _imageFile!.path));
-        }
-
-        response = await request.send();
-        var responseBody = await response.stream.bytesToString();
-        var parsedResponse = jsonDecode(responseBody);
-
-        if (response.statusCode == 200 && parsedResponse['id'] != null) {
-          Navigator.pop(context);
-        } else {
-          setState(() {
-            _errorMessage = parsedResponse['message'] ?? 'Gagal menambahkan properti.';
-          });
-        }
-      } catch (e) {
+      if (token == null) {
         setState(() {
-          _errorMessage = 'Terjadi kesalahan: $e';
+          _errorMessage = 'Token tidak ditemukan. Silakan login ulang.';
         });
-      } finally {
-        setState(() {
-          _isLoading = false;
-        });
+        return;
       }
+
+      var uri = Uri.parse('${Constants.baseUrl}/properties');
+      var request = http.MultipartRequest('POST', uri);
+
+      // Tambahkan header Authorization
+      request.headers['Authorization'] = 'Bearer $token';
+      request.headers['Accept'] = 'application/json';
+
+      // Isi semua fields seperti sebelumnya
+      request.fields['name'] = _nameController.text;
+      request.fields['description'] = _descriptionController.text;
+      request.fields['property_type_id'] = _propertyTypeId.toString();
+      if (_provinceId != null) request.fields['province_id'] = _provinceId.toString();
+      if (_cityId != null) request.fields['city_id'] = _cityId.toString();
+      if (_districtId != null) request.fields['district_id'] = _districtId.toString();
+      if (_subdistrictId != null) request.fields['subdistrict_id'] = _subdistrictId.toString();
+      request.fields['price'] = _priceController.text;
+      request.fields['address'] = _addressController.text;
+      if (_latitude != null) request.fields['latitude'] = _latitude.toString();
+      if (_longitude != null) request.fields['longitude'] = _longitude.toString();
+      if (_capacityController.text.isNotEmpty) request.fields['capacity'] = _capacityController.text;
+      if (_rulesController.text.isNotEmpty) request.fields['rules'] = _rulesController.text;
+
+      // Tambahan untuk property_type_id 1 (Kost)
+      if (_propertyTypeId == 1) {
+        if (_availableRoomsController.text.isNotEmpty) request.fields['available_rooms'] = _availableRoomsController.text;
+        if (_totalRoomsController.text.isNotEmpty) request.fields['total_rooms'] = _totalRoomsController.text;
+        if (_kostType != null) request.fields['kost_type'] = _kostType!;
+        request.fields['meal_included'] = _mealIncluded ? '1' : '0';
+        request.fields['laundry_included'] = _laundryIncluded ? '1' : '0';
+      }
+
+      // Tambahan untuk property_type_id 2 (Apartemen, Guesthouse, dll)
+      if (_propertyTypeId == 2) {
+        if (_totalUnitsController.text.isNotEmpty) request.fields['total_units'] = _totalUnitsController.text;
+        if (_availableUnitsController.text.isNotEmpty) request.fields['available_units'] = _availableUnitsController.text;
+        if (_minimumStayController.text.isNotEmpty) request.fields['minimum_stay'] = _minimumStayController.text;
+        if (_maximumGuestController.text.isNotEmpty) request.fields['maximum_guest'] = _maximumGuestController.text;
+        if (_checkinTimeController.text.isNotEmpty) request.fields['checkin_time'] = _checkinTimeController.text;
+        if (_checkoutTimeController.text.isNotEmpty) request.fields['checkout_time'] = _checkoutTimeController.text;
+      }
+
+      if (_imageFile != null) {
+        request.files.add(await http.MultipartFile.fromPath('image', _imageFile!.path));
+      }
+
+      var response = await request.send();
+      var responseBody = await response.stream.bytesToString();
+      var parsedResponse = jsonDecode(responseBody);
+
+      print('Response Body: $parsedResponse'); // Untuk debug
+
+      if (response.statusCode == 200 && parsedResponse['message'] == 'Properti berhasil dibuat') {
+  Navigator.pop(context);
+} else {
+  setState(() {
+    _errorMessage = parsedResponse['message'] ?? 'Gagal menambahkan properti.';
+  });
+}
+    } catch (e) {
+      setState(() {
+        _errorMessage = 'Terjadi kesalahan: $e';
+      });
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
+}
+
 
   Widget _buildImagePreview() {
     if (_imageFile != null) {
