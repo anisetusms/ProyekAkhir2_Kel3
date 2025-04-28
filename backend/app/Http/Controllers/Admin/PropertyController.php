@@ -98,7 +98,7 @@ class PropertyController extends Controller
                 'longitude' => $request->longitude,
                 'image' => $imagePath,
                 'capacity' => $request->capacity,
-                'available_rooms' => $request->property_type_id == 1 ? $request->available_rooms : 0, // Tambahkan nilai untuk available_rooms
+                'available_rooms' => $request->property_type_id == 1 ? $request->available_rooms : 0, 
                 'rules' => $request->rules,
                 'isDeleted' => false
             ]);

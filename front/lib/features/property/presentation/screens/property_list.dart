@@ -3,6 +3,7 @@ import 'package:front/core/network/api_client.dart';
 import 'package:front/core/utils/constants.dart';
 import 'package:front/features/property/presentation/widgets/property_card.dart';
 import 'package:front/features/property/presentation/screens/property_detail.dart';
+import 'package:front/features/property/presentation/screens/edit_property_screen.dart'; // Import screen edit yang baru
 import 'package:front/core/widgets/loading_indicator.dart';
 import 'package:front/core/widgets/error_state.dart';
 import 'dart:developer';
@@ -71,17 +72,20 @@ class _PropertyListScreenState extends State<PropertyListScreen> {
       propertyData.forEach((key, value) {
         property[key.toString()] = value;
       });
-      // Gunakan isDeleted sebagai indikator status
-      property['status'] = propertyData['isDeleted'] == false ? 'active' : 'inactive';
+      property['status'] =
+          propertyData['isDeleted'] == false ? 'active' : 'inactive';
     }
-    property['price'] = double.tryParse(property['price']?.toString() ?? '0') ?? 0.0;
+    property['price'] =
+        double.tryParse(property['price']?.toString() ?? '0') ?? 0.0;
     return property;
   }
 
   Widget _buildPropertyCard(BuildContext context, dynamic propertyData) {
     final property = _parseProperty(propertyData);
     log('Data properti yang dikirim ke PropertyCard: $property');
-    log('Tipe data harga sebelum ke PropertyCard: ${property['price'].runtimeType}, nilai: ${property['price']}');
+    log(
+      'Tipe data harga sebelum ke PropertyCard: ${property['price'].runtimeType}, nilai: ${property['price']}',
+    );
     return PropertyCard(
       property: property,
       onTap: () {
@@ -99,10 +103,11 @@ class _PropertyListScreenState extends State<PropertyListScreen> {
         );
       },
       onEdit: () {
+        log('Data properti yang dikirim ke EditPropertyScreen: $property');
         Navigator.pushNamed(
           context,
-          '/edit_property',
-          arguments: property['id'],
+          EditPropertyScreen.routeName,
+          arguments: property,
         );
       },
     );
@@ -122,65 +127,65 @@ class _PropertyListScreenState extends State<PropertyListScreen> {
           ),
         ],
       ),
-      body: _isLoading
-          ? const LoadingIndicator()
-          : _errorMessage != null
-              ? ErrorState(
-                  message: _errorMessage!,
-                  onRetry: _loadProperties,
-                )
+      body:
+          _isLoading
+              ? const LoadingIndicator()
+              : _errorMessage != null
+              ? ErrorState(message: _errorMessage!, onRetry: _loadProperties)
               : FutureBuilder<List<dynamic>>(
-                  future: _propertiesFuture,
-                  builder: (context, snapshot) {
-                    if (snapshot.hasError) {
-                      return ErrorState(
-                        message: 'Terjadi kesalahan: ${snapshot.error}',
-                        onRetry: _loadProperties,
-                      );
-                    }
+                future: _propertiesFuture,
+                builder: (context, snapshot) {
+                  if (snapshot.hasError) {
+                    return ErrorState(
+                      message: 'Terjadi kesalahan: ${snapshot.error}',
+                      onRetry: _loadProperties,
+                    );
+                  }
 
-                    if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                      return Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Icon(
-                              Icons.home_work_outlined,
-                              size: 64,
-                              color: Colors.grey,
-                            ),
-                            const SizedBox(height: 16),
-                            const Text(
-                              'Belum ada properti yang ditambahkan',
-                              style: TextStyle(fontSize: 16),
-                            ),
-                            const SizedBox(height: 16),
-                            ElevatedButton.icon(
-                              icon: const Icon(Icons.add),
-                              label: const Text('Tambah Properti Baru'),
-                              onPressed: () {
-                                Navigator.pushNamed(context, '/add_property');
-                              },
-                            ),
-                          ],
-                        ),
-                      );
-                    }
-
-                    return RefreshIndicator(
-                      onRefresh: _loadProperties,
-                      child: ListView.builder(
-                        controller: _scrollController,
-                        physics: const AlwaysScrollableScrollPhysics(),
-                        itemCount: snapshot.data!.length,
-                        itemBuilder: (context, index) {
-                          return _buildPropertyCard(
-                              context, snapshot.data![index]);
-                        },
+                  if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                    return Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(
+                            Icons.home_work_outlined,
+                            size: 64,
+                            color: Colors.grey,
+                          ),
+                          const SizedBox(height: 16),
+                          const Text(
+                            'Belum ada properti yang ditambahkan',
+                            style: TextStyle(fontSize: 16),
+                          ),
+                          const SizedBox(height: 16),
+                          ElevatedButton.icon(
+                            icon: const Icon(Icons.add),
+                            label: const Text('Tambah Properti Baru'),
+                            onPressed: () {
+                              Navigator.pushNamed(context, '/add_property');
+                            },
+                          ),
+                        ],
                       ),
                     );
-                  },
-                ),
+                  }
+
+                  return RefreshIndicator(
+                    onRefresh: _loadProperties,
+                    child: ListView.builder(
+                      controller: _scrollController,
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      itemCount: snapshot.data!.length,
+                      itemBuilder: (context, index) {
+                        return _buildPropertyCard(
+                          context,
+                          snapshot.data![index],
+                        );
+                      },
+                    ),
+                  );
+                },
+              ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
           Navigator.pushNamed(context, '/add_property');
