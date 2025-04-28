@@ -9,9 +9,11 @@ class PropertyFacility extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['property_id', 'name'];
+    protected $fillable = [
+        'property_id',
+        'facility_name',
+    ];
 
-    // Relasi ke model Property
     public function property()
     {
         return $this->belongsTo(Property::class);

@@ -59,17 +59,11 @@ class RoomController extends Controller
             'facilities.*.facility_name' => 'required|string|max:255',
         ]);
 
-        // Tambahkan property_id
         $validatedRoomData['property_id'] = $propertyId;
-        $validatedRoomData['is_available'] = $request->input('is_available', true); // Default tersedia
-
-        // Gunakan transaksi untuk memastikan integritas data
+        $validatedRoomData['is_available'] = $request->input('is_available', true); 
         DB::beginTransaction();
         try {
-            // Buat ruangan
             $room = Room::create($validatedRoomData);
-
-            // Simpan fasilitas (jika ada)
             if ($request->has('facilities')) {
                 foreach ($request->input('facilities') as $facility) {
                     RoomFacility::create([

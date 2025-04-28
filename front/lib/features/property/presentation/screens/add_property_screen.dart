@@ -154,7 +154,6 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
   }
 }
 
-
   Widget _buildImagePreview() {
     if (_imageFile != null) {
       if (kIsWeb) {

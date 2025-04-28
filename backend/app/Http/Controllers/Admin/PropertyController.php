@@ -29,18 +29,12 @@ class PropertyController extends Controller
     public function index()
     {
         $user_id = Auth::id();
-
-        // Stats hanya untuk owner yang login
         $stats = DB::select('CALL get_owner_property_stats(?)', [$user_id]);
-
-        // Properti aktif milik owner yang login
         $activeProperties = Property::with(['kostDetail', 'homestayDetail', 'province', 'city', 'district', 'subdistrict'])
             ->where('user_id', $user_id)
             ->where('isDeleted', false)
             ->latest()
             ->paginate(10);
-
-        // Properti nonaktif milik owner yang login
         $inactiveProperties = Property::with(['kostDetail', 'homestayDetail', 'province', 'city', 'district', 'subdistrict'])
             ->where('user_id', $user_id)
             ->where('isDeleted', true)
@@ -73,8 +67,8 @@ class PropertyController extends Controller
         $activeProperties = Property::where('user_id', $user_id)->count(); // Ganti ini
         $pendingProperties = Property::where('user_id', $user_id)->count(); // Ganti ini
         $latestProperties = Property::where('user_id', $user_id)->latest()->take(5)->get();
-        $totalViews = 120; // contoh angka
-        $totalMessages = 50; // contoh angka
+        $totalViews = 120; 
+        $totalMessages = 50; 
 
         return view('admin.properties.dashboard', compact('totalProperties', 'activeProperties', 'pendingProperties', 'latestProperties', 'totalViews', 'totalMessages'));
     }
@@ -104,7 +98,7 @@ class PropertyController extends Controller
                 'longitude' => $request->longitude,
                 'image' => $imagePath,
                 'capacity' => $request->capacity,
-                'available_rooms' => $request->property_type_id == 1 ? $request->available_rooms : 0, // Tambahkan nilai untuk available_rooms
+                'available_rooms' => $request->property_type_id == 1 ? $request->available_rooms : 0, 
                 'rules' => $request->rules,
                 'isDeleted' => false
             ]);

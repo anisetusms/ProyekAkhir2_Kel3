@@ -70,6 +70,9 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/{room}', [RoomApiController::class, 'show'])->name('show'); // Get a specific room
         Route::post('/{room}', [RoomApiController::class, 'update'])->name('update'); // Update a specific room (POST for Flutter)
         Route::delete('/{room}', [RoomApiController::class, 'destroy'])->name('destroy'); // Delete a specific room
+
+        // Route for adding facilities to a specific room
+        Route::post('/{room}/facilities', [RoomApiController::class, 'addFacility'])->name('facilities.store');
     });
 
     Route::prefix('wishlist')->group(function () {
