@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Property extends Model
 {
     protected $fillable = [
+        'id',
         'name',
         'description',
         'property_type_id',
@@ -93,5 +94,7 @@ class Property extends Model
     {
         return $query->where('isDeleted', false);
     }
+    // app/Models/Property.php
+
 }
 

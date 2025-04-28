@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
-
+import 'package:dotenv/dotenv.dart';
 part 'property_model.g.dart';
 
 @JsonSerializable()

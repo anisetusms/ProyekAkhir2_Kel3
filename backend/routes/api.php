@@ -6,6 +6,8 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\PropertyApiController;
 use App\Http\Controllers\Api\RoomApiController; // Pastikan controller ini ada
 use App\Http\Controllers\Api\DashboardApiController;
+use App\Http\Controllers\Api\CustomerDashboardController;
+use App\Http\Controllers\Api\WishlistController;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\Response;
 use App\Http\Controllers\Api\RoleController;
@@ -45,6 +47,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/me', [AuthController::class, 'me']); // Endpoint untuk mendapatkan informasi user yang login
 
     // Property Routes
+    Route::get('properties/available', [PropertyController::class, 'getAvailableProperties']);
     Route::get('/properties', [PropertyApiController::class, 'index'])->name('api.properties.index');
     Route::post('/properties', [PropertyApiController::class, 'store'])->name('api.properties.store');
     Route::get('/properties/{id}', [PropertyApiController::class, 'show'])->name('api.properties.show');
@@ -59,7 +62,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Dashboard Route
     Route::get('/dashboard', [DashboardApiController::class, 'index'])->name('api.dashboard');
-
+    Route::get('/dashboardc', [CustomerDashboardController::class, 'dashboardc']);
     // Room Routes under a specific Property
     Route::prefix('properties/{property}/rooms')->name('api.properties.rooms.')->group(function () {
         Route::get('/', [RoomApiController::class, 'index'])->name('index'); // Get all rooms for a property
@@ -67,5 +70,11 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/{room}', [RoomApiController::class, 'show'])->name('show'); // Get a specific room
         Route::post('/{room}', [RoomApiController::class, 'update'])->name('update'); // Update a specific room (POST for Flutter)
         Route::delete('/{room}', [RoomApiController::class, 'destroy'])->name('destroy'); // Delete a specific room
+    });
+
+    Route::prefix('wishlist')->group(function () {
+        Route::post('/toggle/{property}', [WishlistController::class, 'toggleWishlist']);
+        Route::get('/check/{property}', [WishlistController::class, 'checkWishlist']);
+        Route::get('/user', [WishlistController::class, 'getUserWishlists']);
     });
 });

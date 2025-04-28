@@ -50,13 +50,21 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
   final ImagePicker _picker = ImagePicker();
 
   Future<void> _pickImage() async {
+  try {
     final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
       setState(() {
         _imageFile = File(pickedFile.path);
       });
+      print('File berhasil dipilih: ${pickedFile.path}');
+    } else {
+      print('Tidak ada gambar yang dipilih.');
     }
+  } catch (e) {
+    print('Gagal memilih gambar: $e');
   }
+}
+
 
   Future<void> _uploadPropertyWithImage() async {
   if (_formKey.currentState!.validate()) {

@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:injectable/injectable.dart';
-import 'package:property_management/features/property/data/models/property_model.dart';
+import 'package:front/features/property/data/models/property_model.dart';
 
 abstract class PropertyRemoteDataSource {
   Future<List<PropertyModel>> getProperties({bool? isDeleted});
