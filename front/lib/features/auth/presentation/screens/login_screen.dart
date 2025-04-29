@@ -16,6 +16,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool _isLoading = false;
+  bool _obscurePassword = true;
   String? _errorMessage;
 
   Future<void> _login() async {
@@ -35,19 +36,22 @@ class _LoginScreenState extends State<LoginScreen> {
         );
 
         if (response['access_token'] != null) {
-  final prefs = await SharedPreferences.getInstance();
-  await prefs.setString('token', response['access_token']);
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setString('token', response['access_token']);
 
-  // Simpan juga role_id ke SharedPreferences
-  if (response['user']['user_role_id'] != null) {
-    await prefs.setInt('user_role_id', response['user']['user_role_id']);
-  }
+          if (response['user']['user_role_id'] != null) {
+            await prefs.setInt(
+              'user_role_id',
+              response['user']['user_role_id'],
+            );
+          }
 
-  Navigator.pushReplacementNamed(context, '/bottombar');
-}
- else {
+          Navigator.pushReplacementNamed(context, '/bottombar');
+        } else {
           setState(() {
-            _errorMessage = response['message'] ?? 'Login gagal. Cek email dan password Anda.';
+            _errorMessage =
+                response['message'] ??
+                'Login gagal. Cek email dan password Anda.';
           });
         }
       } catch (e) {
@@ -65,23 +69,39 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Login'),
-      ),
       body: Center(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(24.0),
           child: Form(
             key: _formKey,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
+                // Ilustrasi gambar di atas
+                Image.asset(
+                  'assets/icons/logo.jpg', // Ganti dengan path gambar kamu
+                  height: 200,
+                ),
+                SizedBox(height: 24.0),
+
+                // Judul
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    "Login",
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
+                ),
+                SizedBox(height: 16.0),
+
+                // Email field
                 TextFormField(
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
                   decoration: InputDecoration(
-                    labelText: 'Email',
-                    border: OutlineInputBorder(),
+                    hintText: 'Email',
+                    prefixIcon: Icon(Icons.email_outlined),
+                    border: UnderlineInputBorder(),
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
@@ -94,12 +114,27 @@ class _LoginScreenState extends State<LoginScreen> {
                   },
                 ),
                 SizedBox(height: 16.0),
+
+                // Password field
                 TextFormField(
                   controller: _passwordController,
-                  obscureText: true,
+                  obscureText: _obscurePassword,
                   decoration: InputDecoration(
-                    labelText: 'Password',
-                    border: OutlineInputBorder(),
+                    hintText: 'Password',
+                    prefixIcon: Icon(Icons.lock_outline),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _obscurePassword
+                            ? Icons.visibility_off
+                            : Icons.visibility,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _obscurePassword = !_obscurePassword;
+                        });
+                      },
+                    ),
+                    border: UnderlineInputBorder(),
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
@@ -108,7 +143,24 @@ class _LoginScreenState extends State<LoginScreen> {
                     return null;
                   },
                 ),
-                SizedBox(height: 24.0),
+
+                // Lupa password
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton(
+                    onPressed: () {
+                      // TODO: buat halaman lupa password
+                    },
+                    child: Text(
+                      'Lupa password?',
+                      style: TextStyle(color: Colors.blue),
+                    ),
+                  ),
+                ),
+
+                SizedBox(height: 8.0),
+
+                // Error Message
                 if (_errorMessage != null)
                   Padding(
                     padding: const EdgeInsets.only(bottom: 16.0),
@@ -117,18 +169,49 @@ class _LoginScreenState extends State<LoginScreen> {
                       style: TextStyle(color: Colors.red),
                     ),
                   ),
-                ElevatedButton(
-                  onPressed: _isLoading ? null : _login,
-                  child: _isLoading
-                      ? CircularProgressIndicator()
-                      : Text('Login'),
+
+                // Tombol Login
+                SizedBox(
+                  width: double.infinity,
+                  height: 48,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                    ),
+                    onPressed: _isLoading ? null : _login,
+                    child:
+                        _isLoading
+                            ? CircularProgressIndicator(color: Colors.white)
+                            : Text('Masuk', style: TextStyle(fontSize: 16)),
+                  ),
                 ),
-                SizedBox(height: 16.0),
-                TextButton(
-                  onPressed: () {
-                    Navigator.pushNamed(context, RegisterScreen.routeName);
-                  },
-                  child: Text('Belum punya akun? Daftar di sini'),
+
+                SizedBox(height: 24.0),
+
+                // Daftar Akun
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Belum punya akun?',
+                      style: TextStyle(color: Colors.grey),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pushNamed(context, RegisterScreen.routeName);
+                      },
+                      child: Text(
+                        'Daftar',
+                        style: TextStyle(
+                          color: Colors.blue,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
