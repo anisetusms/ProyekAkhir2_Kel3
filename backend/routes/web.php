@@ -156,6 +156,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/{room}/edit', [RoomController::class, 'edit'])->name('edit');
         Route::put('/{room}', [RoomController::class, 'update'])->name('update');
         Route::delete('/{room}', [RoomController::class, 'destroy'])->name('destroy');
+        Route::post('/delete-image', [RoomController::class, 'deleteImage'])->name('deleteImage');
+        Route::get('{room}/show', [RoomController::class, 'show'])->name('show');
     });
 });
 

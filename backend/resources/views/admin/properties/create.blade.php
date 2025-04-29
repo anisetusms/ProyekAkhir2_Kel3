@@ -334,7 +334,6 @@
                     <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
-
                 <!-- Submit Button -->
                 <div class="form-group mt-4">
                     <button type="submit" class="btn btn-primary">
