@@ -145,7 +145,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 _buildTextField(_nameController, 'Nama Lengkap'),
                 SizedBox(height: 16.0),
                 _buildTextField(_usernameController, 'Username'),
-                SizedBox(height: 16.0),  
+                SizedBox(height: 16.0), 
                 _buildTextField(_emailController, 'Email', keyboardType: TextInputType.emailAddress, validator: (value) {
                   if (value == null || value.isEmpty) return 'Email tidak boleh kosong';
                   if (!value.contains('@')) return 'Email tidak valid';

@@ -377,6 +377,15 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     TextFormField(
+                      controller: _capacityController,
+                      keyboardType: TextInputType.number,
+                      decoration: InputDecoration(
+                        labelText: 'Kapasitas (Orang)',
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                    SizedBox(height: 16.0),
+                    TextFormField(
                       controller: _totalUnitsController,
                       keyboardType: TextInputType.number,
                       decoration: InputDecoration(
@@ -424,6 +433,15 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                       controller: _checkoutTimeController,
                       decoration: InputDecoration(
                         labelText: 'Waktu Check-out (HH:MM)',
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                    SizedBox(height: 16.0),
+                    TextFormField(
+                      controller: _rulesController,
+                      maxLines: 3,
+                      decoration: InputDecoration(
+                        labelText: 'Peraturan Kost',
                         border: OutlineInputBorder(),
                       ),
                     ),

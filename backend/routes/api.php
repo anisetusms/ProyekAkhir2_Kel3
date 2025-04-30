@@ -4,6 +4,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\PropertyApiController;
+use App\Http\Controllers\Api\PropertyPenywaApiController;
+use App\Http\Controllers\Api\RoomPenywaApiController;
 use App\Http\Controllers\Api\RoomApiController; // Pastikan controller ini ada
 use App\Http\Controllers\Api\DashboardApiController;
 use App\Http\Controllers\Api\CustomerDashboardController;
@@ -22,6 +24,8 @@ use App\Http\Controllers\Api\RoleController;
 |
 */
 
+Route::get('/properties/{propertyId}/rooms', [RoomPenywaApiController::class, 'index']);
+Route::get('/propertiesdetail/{id}', [PropertyPenywaApiController::class, 'show'])->name('api.properties.show');
 Route::get('/roles', [RoleController::class, 'index']);
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
@@ -41,16 +45,18 @@ Route::get('/storage/properties/{filename}', function ($filename) {
     return response('', Response::HTTP_NOT_FOUND);
 })->where('filename', '.*');
 
+
 // Protected Routes (require Sanctum authentication)
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/me', [AuthController::class, 'me']); // Endpoint untuk mendapatkan informasi user yang login
 
     // Property Routes
-    Route::get('properties/available', [PropertyController::class, 'getAvailableProperties']);
+    Route::get('properties/available', [PropertyApiController::class, 'getAvailableProperties']);
     Route::get('/properties', [PropertyApiController::class, 'index'])->name('api.properties.index');
     Route::post('/properties', [PropertyApiController::class, 'store'])->name('api.properties.store');
     Route::get('/properties/{id}', [PropertyApiController::class, 'show'])->name('api.properties.show');
+    // Route::get('/properties/show1/{id}', [PropertyApiController::class, 'show'])->name('api.properties.show1');
     Route::post('/properties/{id}', [PropertyApiController::class, 'update'])->name('api.properties.update'); // Menggunakan POST untuk update agar sesuai Flutter
     Route::delete('/properties/{id}', [PropertyApiController::class, 'destroy'])->name('api.properties.destroy');
 

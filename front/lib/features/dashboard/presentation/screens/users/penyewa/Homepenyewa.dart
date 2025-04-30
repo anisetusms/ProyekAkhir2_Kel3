@@ -4,7 +4,7 @@ import 'package:front/features/dashboard/presentation/screens/users/penyewa/mode
 import 'package:front/features/dashboard/presentation/screens/users/penyewa/home_header.dart';
 import 'package:front/features/dashboard/presentation/screens/users/penyewa/service/wishlist_service.dart';
 import 'package:front/features/dashboard/presentation/screens/users/penyewa/wishlist_manager.dart';
-
+import 'package:front/features/dashboard/presentation/screens/users/penyewa/property_detail_screen.dart';
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
 
@@ -88,6 +88,12 @@ class _DashboardPageState extends State<DashboardPage> {
         return GestureDetector(
           onTap: () {
             // Navigasi ke detail properti jika diperlukan
+            Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => PropertyDetailScreen(propertyId: property.id),
+            ),
+          );
           },
           child: Container(
             width: 160,
@@ -230,6 +236,12 @@ class _DashboardPageState extends State<DashboardPage> {
         return GestureDetector(
           onTap: () {
             // Navigasi ke detail properti jika diperlukan
+            Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => PropertyDetailScreen(propertyId: property.id),
+            ),
+          );
           },
           child: Container(
             margin: const EdgeInsets.only(bottom: 20),

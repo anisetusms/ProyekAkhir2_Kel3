@@ -36,6 +36,7 @@ class PropertyApiController extends Controller
 
         return response()->json($properties);
     }
+    
 
     /**
      * Store a newly created property in storage.
@@ -161,6 +162,8 @@ class PropertyApiController extends Controller
 
         return response()->json($property);
     }
+
+    
 
     /**
      * Update the specified property in storage.

@@ -47,14 +47,17 @@ class PropertyModel extends Equatable {
     required this.updatedAt,
   });
 
+  bool get isKost => propertyTypeId == 1;
+  bool get isHomestay => propertyTypeId == 2;
+
   factory PropertyModel.fromJson(Map<String, dynamic> json) =>
       _$PropertyModelFromJson(json);
 
   Map<String, dynamic> toJson() => _$PropertyModelToJson(this);
 
-  String get imageUrl => image != null 
-      ? '${dotenv.get('API_BASE_URL')}/storage/$image'
-      : 'https://via.placeholder.com/150';
+  // String get imageUrl => image != null 
+  //     ? '${dotenv.get('API_BASE_URL')}/storage/$image'
+  //     : 'https://via.placeholder.com/150';
 
   @override
   List<Object?> get props => [id];

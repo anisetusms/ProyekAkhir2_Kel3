@@ -10,7 +10,8 @@ class CustomerDashboardController extends Controller
     {
         // Ambil 5 properti terbaru beserta relasi yang dibutuhkan
         $latestProperties = Property::with(['district', 'subdistrict','propertytype'])
-            ->orderBy('created_at', 'desc')
+            ->where('isDeleted', false)
+            ->orderBy('created_at', 'desc')           
             ->limit(5)
             ->get();
 
