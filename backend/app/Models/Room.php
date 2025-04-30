@@ -24,6 +24,7 @@ class Room extends Model
 
     protected $casts = [
         'price' => 'decimal:2',
+        'gallery_images' => 'array',
         'is_available' => 'boolean'
     ];
 
@@ -71,5 +72,25 @@ class Room extends Model
     public function roomFacilities()
     {
         return $this->hasMany(RoomFacility::class);
+    }
+    // app/Models/Room.php
+    public function images()
+    {
+        return $this->hasMany(RoomImage::class);
+    }
+
+    public function mainImage()
+    {
+        return $this->hasOne(RoomImage::class)->where('is_main', true);
+    }
+
+    public function getMainImageAttribute()
+    {
+        return $this->images()->where('is_main', true)->value('image_url');
+    }
+
+    public function getGalleryImagesAttribute()
+    {
+        return $this->images()->where('is_main', false)->pluck('image_url')->toArray();
     }
 }
