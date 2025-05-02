@@ -121,13 +121,13 @@ class _ProfileOwnerState extends State<ProfileOwner> {
                 onTap: () {
                   Get.toNamed("/editProfileOwner");
                 },
-                child: commonListTile(Icons.edit, "Edit Profile"),
+                child: commonListTile(Icons.edit, "Edit Profil"),
               ),
               InkWell(
                 onTap: () {
                   Get.toNamed('/ownerNotification');
                 },
-                child: commonListTile(Icons.notifications, "Notifications"),
+                child: commonListTile(Icons.notifications, "Pengaturan Notifikasi"),
               ),
               InkWell(
                 onTap: () {
@@ -166,19 +166,19 @@ class _ProfileOwnerState extends State<ProfileOwner> {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             const Text(
-                              "Logout",
+                              "Keluar",
                               style: TextStyle(
                                   fontSize: 18, fontWeight: FontWeight.bold),
                             ),
                             const SizedBox(height: 10),
-                            const Text("Are you sure you want to logout?"),
+                            const Text("apakah kamu yakin ingin keluar?"),
                             const SizedBox(height: 20),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: [
                                 TextButton(
                                   onPressed: () => Navigator.pop(context),
-                                  child: const Text("Cancel"),
+                                  child: const Text("Batal"),
                                 ),
                                 ElevatedButton(
   onPressed: () {
@@ -189,7 +189,7 @@ class _ProfileOwnerState extends State<ProfileOwner> {
       (route) => false,
     );
   },
-  child: const Text("Logout"),
+  child: const Text("Keluar"),
 ),
 
                               ],
@@ -201,7 +201,7 @@ class _ProfileOwnerState extends State<ProfileOwner> {
                   );
                 },
                 leading: const Icon(Icons.logout, color: Colors.red),
-                title: const Text("Logout"),
+                title: const Text("Keluar"),
                 titleTextStyle: const TextStyle(
                   color: Colors.red,
                   fontWeight: FontWeight.w500,

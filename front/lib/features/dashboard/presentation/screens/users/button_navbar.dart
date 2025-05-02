@@ -131,7 +131,7 @@ class _BottomBarState extends State<BottomBar> {
     } else { // Customer
       switch (_selectedIndex) {
         case 0:
-          return const HomePenyewa();
+          return const DashboardPage();
         case 1:
           return const Search();
         case 2:
@@ -139,7 +139,7 @@ class _BottomBarState extends State<BottomBar> {
           case 3:
           return const ProfileCustomer();
         default:
-          return const HomePenyewa();
+          return const DashboardPage();
       }
     }
   }

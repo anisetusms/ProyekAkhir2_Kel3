@@ -77,14 +77,13 @@ class _LoginScreenState extends State<LoginScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                // Ilustrasi gambar di atas
+                
                 Image.asset(
-                  'assets/icons/logo.jpg', // Ganti dengan path gambar kamu
+                  'assets/icons/logo.jpg', 
                   height: 200,
                 ),
                 SizedBox(height: 24.0),
 
-                // Judul
                 Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
