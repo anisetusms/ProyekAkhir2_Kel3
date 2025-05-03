@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:front/features/dashboard/presentation/screens/users/owner/Homeowner.dart';
+import 'package:front/features/dashboard/presentation/screens/users/owner/homeowner.dart';
 import 'package:front/features/dashboard/presentation/screens/users/penyewa/HomePenyewa.dart';
-// import 'package:front/features/dashboard/presentation/screens/users/owner/Properti.dart';
 import 'package:front/features/property/presentation/screens/property_list.dart';
-import 'package:front/features/dashboard/presentation/screens/users/owner/Profil.dart';
+import 'package:front/features/dashboard/presentation/screens/users/penyewa/profil/profil_user.dart';
+import 'package:front/features/dashboard/presentation/screens/users/owner/profil.dart';
 
 class BottomBar extends StatefulWidget {
   const BottomBar({super.key});
@@ -49,6 +49,9 @@ class _BottomBarState extends State<BottomBar> {
             _selectedIndex = index;
           });
         },
+        selectedItemColor: Colors.black, // Color for selected item (icon color)
+        unselectedItemColor: Colors.grey, // Color for unselected items
+        selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold), // Bold label when selected
       ),
       body: _getBody(),
     );
@@ -58,15 +61,15 @@ class _BottomBarState extends State<BottomBar> {
   List<BottomNavigationBarItem> _getBottomNavItems() {
     if (_role == 2) { // Owner
       return [
-        _bottomNavigationBarItem('Home', 'assets/icons/home.svg'),
-        _bottomNavigationBarItem('Properti', 'assets/icons/Properti.svg'),
+        _bottomNavigationBarItem('Home', 'assets/icons/h.svg'),
+        _bottomNavigationBarItem('Properti', 'assets/icons/Vector.svg'),
         _bottomNavigationBarItem('Booking', 'assets/icons/pesanan_owner.svg'),
         _bottomNavigationBarItem('Ulasan', 'assets/icons/ulasan.svg'),
         _bottomNavigationBarItem('Profile', 'assets/icons/profil.svg'),
       ];
     } else if (_role == 4) { // Customer
       return [
-        _bottomNavigationBarItem('Home', 'assets/icons/home.svg'),
+        _bottomNavigationBarItem('Home', 'assets/icons/h.svg'),
         _bottomNavigationBarItem('Pencarian', 'assets/icons/Search.svg'),
         _bottomNavigationBarItem('Booking', 'assets/icons/pesanan_owner.svg'),
         _bottomNavigationBarItem('Profile', 'assets/icons/profil.svg'),
@@ -81,35 +84,24 @@ class _BottomBarState extends State<BottomBar> {
 
   // Fungsi untuk membuat BottomNavigationBarItem dengan SVG
   BottomNavigationBarItem _bottomNavigationBarItem(String label, String svgPath) {
-  return BottomNavigationBarItem(
-    icon: ColorFiltered(
-      colorFilter: ColorFilter.mode(
-        Colors.black, // Mengubah warna menjadi hitam
-        BlendMode.srcIn, // Menerapkan warna hitam ke ikon
-      ),
-      child: SvgPicture.asset(
+    return BottomNavigationBarItem(
+      icon: SvgPicture.asset(
         svgPath,
         width: 24,
         height: 24,
         semanticsLabel: label, // Menambahkan label untuk aksesibilitas
+        color: Colors.black.withOpacity(0.6), // Default color for the icon
       ),
-    ),
-    activeIcon: ColorFiltered(
-      colorFilter: ColorFilter.mode(
-        Colors.black, // Mengubah warna menjadi hitam ketika aktif
-        BlendMode.srcIn,
-      ),
-      child: SvgPicture.asset(
+      activeIcon: SvgPicture.asset(
         svgPath,
         width: 24,
         height: 24,
         semanticsLabel: label,
+        color: Colors.black, // Color when active (selected)
       ),
-    ),
-    label: label,
-  );
-}
-
+      label: label,
+    );
+  }
 
   // Halaman yang akan ditampilkan berdasarkan tab yang dipilih
   Widget _getBody() {
@@ -118,7 +110,7 @@ class _BottomBarState extends State<BottomBar> {
         case 0:
           return DashboardScreen();
         case 1:
-          return  PropertyListScreen();
+          return PropertyListScreen();
         case 2:
           return const BookingOwner();
         case 3:
@@ -136,8 +128,8 @@ class _BottomBarState extends State<BottomBar> {
           return const Search();
         case 2:
           return const BookingCustomer();
-          case 3:
-          return const ProfileCustomer();
+        case 3:
+          return const ProfileUser();
         default:
           return const DashboardPage();
       }
@@ -146,22 +138,6 @@ class _BottomBarState extends State<BottomBar> {
 }
 
 // Dummy halaman untuk Owner/Admin
-// class HomeOwner extends StatelessWidget {
-//   const HomeOwner({super.key});
-//   @override
-//   Widget build(BuildContext context) {
-//     return const Center(child: Text('Home Owner'));
-//   }
-// }
-
-// class PropertyListScreen extends StatelessWidget {
-//   const PropertyListScreen({super.key});
-//   @override
-//   Widget build(BuildContext context) {
-//     return const Center(child: Text('Properti Owner'));
-//   }
-// }
-
 class BookingOwner extends StatelessWidget {
   const BookingOwner({super.key});
   @override
@@ -169,6 +145,7 @@ class BookingOwner extends StatelessWidget {
     return const Center(child: Text('Booking Owner'));
   }
 }
+
 class Search extends StatelessWidget {
   const Search({super.key});
   @override
@@ -185,29 +162,11 @@ class Ulasan extends StatelessWidget {
   }
 }
 
-// class ProfileOwner extends StatelessWidget {
-//   const ProfileOwner({super.key});
-//   @override
-//   Widget build(BuildContext context) {
-//     return const Center(child: Text('Profile Owner'));
-//   }
-// }
-
 // Dummy halaman untuk Customer
-
-
 class BookingCustomer extends StatelessWidget {
   const BookingCustomer({super.key});
   @override
   Widget build(BuildContext context) {
     return const Center(child: Text('Booking Customer'));
-  }
-}
-
-class ProfileCustomer extends StatelessWidget {
-  const ProfileCustomer({super.key});
-  @override
-  Widget build(BuildContext context) {
-    return const Center(child: Text('Profile Customer'));
   }
 }

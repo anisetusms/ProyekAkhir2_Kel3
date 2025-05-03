@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\DashboardApiController;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\Response;
 use App\Http\Controllers\Api\RoleController;
+use App\Http\Controllers\Api\SettingController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -39,10 +40,22 @@ Route::get('/storage/properties/{filename}', function ($filename) {
     return response('', Response::HTTP_NOT_FOUND);
 })->where('filename', '.*');
 
+<<<<<<< Updated upstream
+=======
+Route::middleware('auth:sanctum')->get('/profile', [SettingController::class, 'profile']);
+
+>>>>>>> Stashed changes
 // Protected Routes (require Sanctum authentication)
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/me', [AuthController::class, 'me']); // Endpoint untuk mendapatkan informasi user yang login
+    // Untuk memperbarui profil tanpa autentikasi (jika dibutuhkan)
+    Route::post('/profile', [SettingController::class, 'updateProfile'])->name('api.profile.update');
+    Route::get('/profile', [SettingController::class, 'profile']);
+    Route::post('/profile', [SettingController::class, 'updateProfile']);
+    Route::post('/update-password', [SettingController::class, 'updatePassword']);
+    // Untuk mendapatkan profil (akses publik jika perlu)
+    Route::get('/profile', [SettingController::class, 'profile'])->name('api.profile');
 
     // Property Routes
     Route::get('/properties', [PropertyApiController::class, 'index'])->name('api.properties.index');
@@ -71,4 +84,14 @@ Route::middleware('auth:sanctum')->group(function () {
         // Route for adding facilities to a specific room
         Route::post('/{room}/facilities', [RoomApiController::class, 'addFacility'])->name('facilities.store');
     });
+<<<<<<< Updated upstream
 });
+=======
+
+    Route::prefix('wishlist')->group(function () {
+        Route::post('/toggle/{property}', [WishlistController::class, 'toggleWishlist']);
+        Route::get('/check/{property}', [WishlistController::class, 'checkWishlist']);
+        Route::get('/user', [WishlistController::class, 'getUserWishlists']);
+    });
+});
+>>>>>>> Stashed changes

@@ -1,14 +1,13 @@
 import 'dart:io';
-import 'dart:convert'; // Import untuk jsonDecode
+import 'dart:convert';
 import 'package:flutter/material.dart';
-// import 'package:front/core/network/api_client.dart';
-import 'package:front/core/utils/constants.dart';
-import 'package:front/features/property/presentation/widgets/location_input.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
-// import 'package:async/async.dart';
-import 'package:flutter/foundation.dart'; 
+import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:front/features/property/presentation/widgets/location_input.dart';
+import 'package:front/core/utils/constants.dart';
+
 
 class AddPropertyScreen extends StatefulWidget {
   static const routeName = '/add_property';
@@ -19,20 +18,24 @@ class AddPropertyScreen extends StatefulWidget {
 
 class _AddPropertyScreenState extends State<AddPropertyScreen> {
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _descriptionController = TextEditingController();
-  final TextEditingController _priceController = TextEditingController();
-  final TextEditingController _addressController = TextEditingController();
-  final TextEditingController _capacityController = TextEditingController();
-  final TextEditingController _availableRoomsController = TextEditingController();
-  final TextEditingController _rulesController = TextEditingController();
-  final TextEditingController _totalRoomsController = TextEditingController();
-  final TextEditingController _totalUnitsController = TextEditingController();
-  final TextEditingController _availableUnitsController = TextEditingController();
-  final TextEditingController _minimumStayController = TextEditingController();
-  final TextEditingController _maximumGuestController = TextEditingController();
-  final TextEditingController _checkinTimeController = TextEditingController();
-  final TextEditingController _checkoutTimeController = TextEditingController();
+  final _scrollController = ScrollController();
+  final List<TextEditingController> _controllers = List.generate(13, (index) => TextEditingController());
+  
+  // Controllers mapping for better readability
+  TextEditingController get _nameController => _controllers[0];
+  TextEditingController get _descriptionController => _controllers[1];
+  TextEditingController get _priceController => _controllers[2];
+  TextEditingController get _addressController => _controllers[3];
+  TextEditingController get _capacityController => _controllers[4];
+  TextEditingController get _availableRoomsController => _controllers[5];
+  TextEditingController get _rulesController => _controllers[6];
+  TextEditingController get _totalRoomsController => _controllers[7];
+  TextEditingController get _totalUnitsController => _controllers[8];
+  TextEditingController get _availableUnitsController => _controllers[9];
+  TextEditingController get _minimumStayController => _controllers[10];
+  TextEditingController get _maximumGuestController => _controllers[11];
+  TextEditingController get _checkinTimeController => _controllers[12];
+  TextEditingController get _checkoutTimeController => _controllers[13];
 
   int? _propertyTypeId;
   int? _provinceId;
@@ -49,6 +52,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
   File? _imageFile;
   final ImagePicker _picker = ImagePicker();
 
+<<<<<<< Updated upstream
   Future<void> _pickImage() async {
     final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
@@ -57,9 +61,31 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
       });
     }
   }
+=======
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    for (var controller in _controllers) {
+      controller.dispose();
+    }
+    super.dispose();
+  }
+
+  Future<void> _pickImage() async {
+    try {
+      final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+      if (pickedFile != null) {
+        setState(() => _imageFile = File(pickedFile.path));
+      }
+    } catch (e) {
+      setState(() => _errorMessage = 'Gagal memilih gambar: $e');
+    }
+  }
+>>>>>>> Stashed changes
 
   Future<void> _uploadPropertyWithImage() async {
-  if (_formKey.currentState!.validate()) {
+    if (!_formKey.currentState!.validate()) return;
+
     setState(() {
       _isLoading = true;
       _errorMessage = null;
@@ -67,54 +93,53 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
 
     try {
       final prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString('token'); // Ambil token dari SharedPreferences
+      final token = prefs.getString('token');
 
       if (token == null) {
-        setState(() {
-          _errorMessage = 'Token tidak ditemukan. Silakan login ulang.';
-        });
+        setState(() => _errorMessage = 'Token tidak ditemukan. Silakan login ulang.');
         return;
       }
 
-      var uri = Uri.parse('${Constants.baseUrl}/properties');
-      var request = http.MultipartRequest('POST', uri);
+      var request = http.MultipartRequest('POST', Uri.parse('${Constants.baseUrl}/properties'))
+        ..headers.addAll({
+          'Authorization': 'Bearer $token',
+          'Accept': 'application/json',
+        })
+        ..fields.addAll({
+          'name': _nameController.text,
+          'description': _descriptionController.text,
+          'property_type_id': _propertyTypeId.toString(),
+          'price': _priceController.text,
+          'address': _addressController.text,
+          if (_provinceId != null) 'province_id': _provinceId.toString(),
+          if (_cityId != null) 'city_id': _cityId.toString(),
+          if (_districtId != null) 'district_id': _districtId.toString(),
+          if (_subdistrictId != null) 'subdistrict_id': _subdistrictId.toString(),
+          if (_latitude != null) 'latitude': _latitude.toString(),
+          if (_longitude != null) 'longitude': _longitude.toString(),
+          if (_capacityController.text.isNotEmpty) 'capacity': _capacityController.text,
+          if (_rulesController.text.isNotEmpty) 'rules': _rulesController.text,
+        });
 
-      // Tambahkan header Authorization
-      request.headers['Authorization'] = 'Bearer $token';
-      request.headers['Accept'] = 'application/json';
-
-      // Isi semua fields seperti sebelumnya
-      request.fields['name'] = _nameController.text;
-      request.fields['description'] = _descriptionController.text;
-      request.fields['property_type_id'] = _propertyTypeId.toString();
-      if (_provinceId != null) request.fields['province_id'] = _provinceId.toString();
-      if (_cityId != null) request.fields['city_id'] = _cityId.toString();
-      if (_districtId != null) request.fields['district_id'] = _districtId.toString();
-      if (_subdistrictId != null) request.fields['subdistrict_id'] = _subdistrictId.toString();
-      request.fields['price'] = _priceController.text;
-      request.fields['address'] = _addressController.text;
-      if (_latitude != null) request.fields['latitude'] = _latitude.toString();
-      if (_longitude != null) request.fields['longitude'] = _longitude.toString();
-      if (_capacityController.text.isNotEmpty) request.fields['capacity'] = _capacityController.text;
-      if (_rulesController.text.isNotEmpty) request.fields['rules'] = _rulesController.text;
-
-      // Tambahan untuk property_type_id 1 (Kost)
       if (_propertyTypeId == 1) {
-        if (_availableRoomsController.text.isNotEmpty) request.fields['available_rooms'] = _availableRoomsController.text;
-        if (_totalRoomsController.text.isNotEmpty) request.fields['total_rooms'] = _totalRoomsController.text;
-        if (_kostType != null) request.fields['kost_type'] = _kostType!;
-        request.fields['meal_included'] = _mealIncluded ? '1' : '0';
-        request.fields['laundry_included'] = _laundryIncluded ? '1' : '0';
+        request.fields.addAll({
+          if (_availableRoomsController.text.isNotEmpty) 'available_rooms': _availableRoomsController.text,
+          if (_totalRoomsController.text.isNotEmpty) 'total_rooms': _totalRoomsController.text,
+          if (_kostType != null) 'kost_type': _kostType!,
+          'meal_included': _mealIncluded ? '1' : '0',
+          'laundry_included': _laundryIncluded ? '1' : '0',
+        });
       }
 
-      // Tambahan untuk property_type_id 2 (Apartemen, Guesthouse, dll)
       if (_propertyTypeId == 2) {
-        if (_totalUnitsController.text.isNotEmpty) request.fields['total_units'] = _totalUnitsController.text;
-        if (_availableUnitsController.text.isNotEmpty) request.fields['available_units'] = _availableUnitsController.text;
-        if (_minimumStayController.text.isNotEmpty) request.fields['minimum_stay'] = _minimumStayController.text;
-        if (_maximumGuestController.text.isNotEmpty) request.fields['maximum_guest'] = _maximumGuestController.text;
-        if (_checkinTimeController.text.isNotEmpty) request.fields['checkin_time'] = _checkinTimeController.text;
-        if (_checkoutTimeController.text.isNotEmpty) request.fields['checkout_time'] = _checkoutTimeController.text;
+        request.fields.addAll({
+          if (_totalUnitsController.text.isNotEmpty) 'total_units': _totalUnitsController.text,
+          if (_availableUnitsController.text.isNotEmpty) 'available_units': _availableUnitsController.text,
+          if (_minimumStayController.text.isNotEmpty) 'minimum_stay': _minimumStayController.text,
+          if (_maximumGuestController.text.isNotEmpty) 'maximum_guest': _maximumGuestController.text,
+          if (_checkinTimeController.text.isNotEmpty) 'checkin_time': _checkinTimeController.text,
+          if (_checkoutTimeController.text.isNotEmpty) 'checkout_time': _checkoutTimeController.text,
+        });
       }
 
       if (_imageFile != null) {
@@ -125,246 +150,338 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
       var responseBody = await response.stream.bytesToString();
       var parsedResponse = jsonDecode(responseBody);
 
-      print('Response Body: $parsedResponse'); // Untuk debug
-
       if (response.statusCode == 200 && parsedResponse['message'] == 'Properti berhasil dibuat') {
-  Navigator.pop(context);
-} else {
-  setState(() {
-    _errorMessage = parsedResponse['message'] ?? 'Gagal menambahkan properti.';
-  });
-}
+        Navigator.pop(context);
+      } else {
+        setState(() => _errorMessage = parsedResponse['message'] ?? 'Gagal menambahkan properti.');
+      }
     } catch (e) {
-      setState(() {
-        _errorMessage = 'Terjadi kesalahan: $e';
-      });
+      setState(() => _errorMessage = 'Terjadi kesalahan: $e');
     } finally {
-      setState(() {
-        _isLoading = false;
-      });
+      setState(() => _isLoading = false);
     }
   }
-}
 
 
   Widget _buildImagePreview() {
-    if (_imageFile != null) {
-      if (kIsWeb) {
-        // Konversi File ke Uint8List (bytes)
-        return FutureBuilder<Uint8List>(
-          future: _imageFile!.readAsBytes(),
-          builder: (BuildContext context, AsyncSnapshot<Uint8List> snapshot) {
-            if (snapshot.hasData) {
-              // Buat data URI
-              String base64Image = base64Encode(snapshot.data!);
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 16.0),
-                child: SizedBox(
-                  height: 100,
-                  width: double.infinity,
-                  child: Image.network(
-                    'data:image/png;base64,$base64Image', // Sesuaikan mime type jika perlu
-                    fit: BoxFit.cover,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Foto Properti',
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+        ),
+        SizedBox(height: 8),
+        GestureDetector(
+          onTap: _pickImage,
+          child: Container(
+            height: 150,
+            width: double.infinity,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(12),
+              color: Colors.grey[100],
+              border: Border.all(color: Colors.grey[300]!),
+            ),
+            child: _imageFile != null
+                ? ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: kIsWeb
+                        ? FutureBuilder<Uint8List>(
+                            future: _imageFile!.readAsBytes(),
+                            builder: (context, snapshot) {
+                              if (snapshot.hasData) {
+                                return Image.memory(
+                                  snapshot.data!,
+                                  fit: BoxFit.cover,
+                                );
+                              }
+                              return _buildPlaceholder();
+                            },
+                          )
+                        : Image.file(
+                            _imageFile!,
+                            fit: BoxFit.cover,
+                          ),
+                  )
+                : _buildPlaceholder(),
+          ),
+        ),
+        SizedBox(height: 8),
+        TextButton.icon(
+          onPressed: _pickImage,
+          icon: Icon(Icons.camera_alt, size: 20),
+          label: Text('Pilih Gambar'),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPlaceholder() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.camera_alt, size: 40, color: Colors.grey[400]),
+          SizedBox(height: 8),
+          Text(
+            'Tambahkan Foto Properti',
+            style: TextStyle(color: Colors.grey[600]),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFormField({
+    required String label,
+    required TextEditingController controller,
+    int? maxLines = 1,
+    TextInputType? keyboardType,
+    String? Function(String?)? validator,
+    bool required = false,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label + (required ? ' *' : ''),
+            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+          ),
+          SizedBox(height: 4),
+          TextFormField(
+            controller: controller,
+            maxLines: maxLines,
+            keyboardType: keyboardType,
+            decoration: InputDecoration(
+              contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: BorderSide(color: Colors.grey[300]!),
+              ),
+              filled: true,
+              fillColor: Colors.grey[50],
+            ),
+            validator: validator ?? (required ? (v) => v!.isEmpty ? '$label wajib diisi' : null : null),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSectionTitle(String title) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 16.0),
+      child: Text(
+        title,
+        style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+      ),
+    );
+  }
+
+  Widget _buildPropertyTypeSpecificFields() {
+    if (_propertyTypeId == 1) {
+      return Column(
+        children: [
+          _buildSectionTitle('Detail Kost'),
+          _buildFormField(
+            label: 'Total Kamar',
+            controller: _totalRoomsController,
+            keyboardType: TextInputType.number,
+          ),
+          _buildFormField(
+            label: 'Kamar Tersedia',
+            controller: _availableRoomsController,
+            keyboardType: TextInputType.number,
+          ),
+          Padding(
+            padding: const EdgeInsets.only(bottom: 16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Tipe Kost',
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                ),
+                SizedBox(height: 4),
+                DropdownButtonFormField<String>(
+                  value: _kostType,
+                  items: ['putra', 'putri', 'campur']
+                      .map((type) => DropdownMenuItem(
+                            value: type,
+                            child: Text(type[0].toUpperCase() + type.substring(1)),
+                          ))
+                      .toList(),
+                  onChanged: (value) => setState(() => _kostType = value),
+                  decoration: InputDecoration(
+                    contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      borderSide: BorderSide(color: Colors.grey[300]!),
+                    ),
+                    filled: true,
+                    fillColor: Colors.grey[50],
                   ),
                 ),
-              );
-            } else if (snapshot.hasError) {
-              return Text('Gagal menampilkan gambar.', style: TextStyle(color: Colors.red));
-            } else {
-              return CircularProgressIndicator();
-            }
-          },
-        );
-      } else {
-        return Padding(
-          padding: const EdgeInsets.only(bottom: 16.0),
-          child: SizedBox(
-            height: 100,
-            width: double.infinity,
-            child: Image.file(
-              _imageFile!,
-              fit: BoxFit.cover,
+              ],
             ),
           ),
-        );
-      }
-    } else {
-      return Padding(
-        padding: const EdgeInsets.only(bottom: 16.0),
-        child: Text('Tidak ada gambar yang dipilih.', style: TextStyle(color: Colors.grey)),
+          SwitchListTile(
+            title: Text('Termasuk Makan'),
+            value: _mealIncluded,
+            onChanged: (value) => setState(() => _mealIncluded = value),
+            contentPadding: EdgeInsets.zero,
+          ),
+          SwitchListTile(
+            title: Text('Termasuk Laundry'),
+            value: _laundryIncluded,
+            onChanged: (value) => setState(() => _laundryIncluded = value),
+            contentPadding: EdgeInsets.zero,
+          ),
+        ],
+      );
+    } else if (_propertyTypeId == 2) {
+      return Column(
+        children: [
+          _buildSectionTitle('Detail Homestay'),
+          _buildFormField(
+            label: 'Total Unit',
+            controller: _totalUnitsController,
+            keyboardType: TextInputType.number,
+          ),
+          _buildFormField(
+            label: 'Unit Tersedia',
+            controller: _availableUnitsController,
+            keyboardType: TextInputType.number,
+          ),
+          _buildFormField(
+            label: 'Minimum Menginap (Malam)',
+            controller: _minimumStayController,
+            keyboardType: TextInputType.number,
+          ),
+          _buildFormField(
+            label: 'Maksimum Tamu',
+            controller: _maximumGuestController,
+            keyboardType: TextInputType.number,
+          ),
+          _buildFormField(
+            label: 'Waktu Check-in (HH:MM)',
+            controller: _checkinTimeController,
+          ),
+          _buildFormField(
+            label: 'Waktu Check-out (HH:MM)',
+            controller: _checkoutTimeController,
+          ),
+        ],
       );
     }
+    return SizedBox();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Tambah Properti Baru')),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
+      appBar: AppBar(
+        title: Text('Tambah Properti Baru'),
+        elevation: 0,
+        centerTitle: true,
+      ),
+      body: Form(
+        key: _formKey,
+        child: SingleChildScrollView(
+          controller: _scrollController,
+          padding: EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
+            children: [
               _buildImagePreview(),
-              ElevatedButton(
-                onPressed: _pickImage,
-                child: Text('Pilih Gambar'),
-              ),
-              SizedBox(height: 16.0),
-              TextFormField(
+              SizedBox(height: 24),
+              _buildSectionTitle('Informasi Dasar'),
+              _buildFormField(
+                label: 'Nama Properti',
                 controller: _nameController,
-                decoration: InputDecoration(
-                  labelText: 'Nama Properti',
-                  border: OutlineInputBorder(),
-                ),
-                validator: (value) =>
-                    value == null || value.isEmpty ? 'Nama tidak boleh kosong' : null,
+                required: true,
               ),
-              SizedBox(height: 16.0),
-              TextFormField(
+              _buildFormField(
+                label: 'Deskripsi',
                 controller: _descriptionController,
                 maxLines: 3,
-                decoration: InputDecoration(
-                  labelText: 'Deskripsi',
-                  border: OutlineInputBorder(),
-                ),
               ),
-              SizedBox(height: 16.0),
-              TextFormField(
+              _buildFormField(
+                label: 'Harga',
                 controller: _priceController,
                 keyboardType: TextInputType.number,
-                decoration: InputDecoration(
-                  labelText: 'Harga',
-                  border: OutlineInputBorder(),
-                ),
-                validator: (value) =>
-                    value == null || value.isEmpty ? 'Harga tidak boleh kosong' : null,
+                required: true,
               ),
-              SizedBox(height: 16.0),
-              TextFormField(
+              _buildFormField(
+                label: 'Alamat',
                 controller: _addressController,
                 maxLines: 2,
-                decoration: InputDecoration(
-                  labelText: 'Alamat',
-                  border: OutlineInputBorder(),
-                ),
-                validator: (value) =>
-                    value == null || value.isEmpty ? 'Alamat tidak boleh kosong' : null,
+                required: true,
               ),
-              SizedBox(height: 16.0),
+              _buildFormField(
+                label: 'Kapasitas (Orang)',
+                controller: _capacityController,
+                keyboardType: TextInputType.number,
+              ),
+              _buildFormField(
+                label: 'Peraturan',
+                controller: _rulesController,
+                maxLines: 3,
+              ),
+              SizedBox(height: 16),
               LocationInput(
                 onProvinceChanged: (value) => _provinceId = value,
                 onCityChanged: (value) => _cityId = value,
                 onDistrictChanged: (value) => _districtId = value,
                 onSubdistrictChanged: (value) => _subdistrictId = value,
-                onCoordinatesChanged: (latitude, longitude) {
+                onCoordinatesChanged: (lat, lng) {
                   setState(() {
-                    _latitude = latitude;
-                    _longitude = longitude;
+                    _latitude = lat;
+                    _longitude = lng;
                   });
                 },
               ),
-              SizedBox(height: 16.0),
-              DropdownButtonFormField<int>(
-                decoration: InputDecoration(
-                  labelText: 'Jenis Properti',
-                  border: OutlineInputBorder(),
-                ),
-                value: _propertyTypeId,
-                items: [
-                  DropdownMenuItem(value: 1, child: Text('Kost')),
-                  DropdownMenuItem(value: 2, child: Text('Homestay')),
-                ],
-                onChanged: (value) {
-                  setState(() {
-                    _propertyTypeId = value;
-                  });
-                },
-                validator: (value) =>
-                    value == null ? 'Jenis properti harus dipilih' : null,
-              ),
-              SizedBox(height: 16.0),
-              if (_propertyTypeId == 1)
-                Column(
+              SizedBox(height: 24),
+              _buildSectionTitle('Jenis Properti'),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 16.0),
+                child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    TextFormField(
-                      controller: _capacityController,
-                      keyboardType: TextInputType.number,
-                      decoration: InputDecoration(
-                        labelText: 'Kapasitas (Orang)',
-                        border: OutlineInputBorder(),
-                      ),
+                    Text(
+                      'Jenis Properti *',
+                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
                     ),
-                    SizedBox(height: 16.0),
-                    TextFormField(
-                      controller: _totalRoomsController,
-                      keyboardType: TextInputType.number,
-                      decoration: InputDecoration(
-                        labelText: 'Total Kamar',
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
-                    SizedBox(height: 16.0),
-                    TextFormField(
-                      controller: _availableRoomsController,
-                      keyboardType: TextInputType.number,
-                      decoration: InputDecoration(
-                        labelText: 'Kamar Tersedia',
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
-                    SizedBox(height: 16.0),
-                    DropdownButtonFormField<String>(
-                      decoration: InputDecoration(
-                        labelText: 'Tipe Kost',
-                        border: OutlineInputBorder(),
-                      ),
-                      value: _kostType,
+                    SizedBox(height: 4),
+                    DropdownButtonFormField<int>(
+                      value: _propertyTypeId,
                       items: [
-                        DropdownMenuItem(value: 'putra', child: Text('Putra')),
-                        DropdownMenuItem(value: 'putri', child: Text('Putri')),
-                        DropdownMenuItem(value: 'campur', child: Text('Campur')),
+                        DropdownMenuItem(
+                          value: 1,
+                          child: Text('Kost'),
+                        ),
+                        DropdownMenuItem(
+                          value: 2,
+                          child: Text('Homestay'),
+                        ),
                       ],
-                      onChanged: (value) {
-                        setState(() {
-                          _kostType = value;
-                        });
-                      },
-                    ),
-                    SizedBox(height: 16.0),
-                    CheckboxListTile(
-                      title: Text('Makan Termasuk'),
-                      value: _mealIncluded,
-                      onChanged: (value) {
-                        setState(() {
-                          _mealIncluded = value ?? false;
-                        });
-                      },
-                      controlAffinity: ListTileControlAffinity.leading,
-                    ),
-                    CheckboxListTile(
-                      title: Text('Laundry Termasuk'),
-                      value: _laundryIncluded,
-                      onChanged: (value) {
-                        setState(() {
-                          _laundryIncluded = value ?? false;
-                        });
-                      },
-                      controlAffinity: ListTileControlAffinity.leading,
-                    ),
-                    TextFormField(
-                      controller: _rulesController,
-                      maxLines: 3,
+                      onChanged: (value) => setState(() => _propertyTypeId = value),
                       decoration: InputDecoration(
-                        labelText: 'Peraturan Kost',
-                        border: OutlineInputBorder(),
+                        contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: BorderSide(color: Colors.grey[300]!),
+                        ),
+                        filled: true,
+                        fillColor: Colors.grey[50],
                       ),
+                      validator: (value) => value == null ? 'Pilih jenis properti' : null,
                     ),
                   ],
                 ),
+<<<<<<< Updated upstream
               if (_propertyTypeId == 2)
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -423,24 +540,49 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                   ],
                 ),
               SizedBox(height: 24.0),
+=======
+              ),
+              if (_propertyTypeId != null) _buildPropertyTypeSpecificFields(),
+              SizedBox(height: 24),
+>>>>>>> Stashed changes
               if (_errorMessage != null)
                 Padding(
                   padding: const EdgeInsets.only(bottom: 16.0),
                   child: Text(
                     _errorMessage!,
-                    style: TextStyle(color: Colors.red),
+                    style: TextStyle(color: Colors.red[700]),
                   ),
                 ),
-              ElevatedButton(
-                onPressed: _isLoading ? null : _uploadPropertyWithImage,
-                child: _isLoading
-                    ? CircularProgressIndicator()
-                    : Text('Tambah Properti'),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: _isLoading ? null : _uploadPropertyWithImage,
+                  style: ElevatedButton.styleFrom(
+                    padding: EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  child: _isLoading
+                      ? SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation(Colors.white),
+                          ),
+                        )
+                      : Text(
+                          'Simpan Properti',
+                          style: TextStyle(fontSize: 16),
+                        ),
+                ),
               ),
+              SizedBox(height: 24),
             ],
           ),
         ),
       ),
     );
-  }
+  } 
 }

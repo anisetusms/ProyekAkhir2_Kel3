@@ -1,6 +1,12 @@
 class Constants {
+<<<<<<< Updated upstream
   // static const String baseUrl = 'http://192.168.0.45:8000/api';
   static const String baseUrl = 'http://192.168.12.135:8000/api';
+=======
+  static const String baseUrl = 'http://192.168.43.198:8000/api';
+  static const String baseUrlImage = 'http://192.168.43.198:8000';
+  // static const String baseUrl = 'http://192.168.32.45:8000/api';
+>>>>>>> Stashed changes
   // Anda bisa menambahkan konstanta lain di sini, seperti warna primer,
   // nama storage untuk gambar profil, dll.
 

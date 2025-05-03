@@ -31,12 +31,25 @@ class Room {
       roomNumber: json['room_number'] as String,
       price: num.tryParse(json['price'].toString()) ?? 0,
       size: json['size'] as String?,
+<<<<<<< Updated upstream
       capacity: json['capacity'] != null ? int.tryParse(json['capacity'].toString()) : null,
       isAvailable: json['is_available'] as bool,
       description: json['description'] as String?,
       facilities: (json['facilities'] as List<dynamic>?)
           ?.map((e) => RoomFacility.fromJson(e as Map<String, dynamic>))
           .toList(),
+=======
+      capacity:
+          json['capacity'] != null
+              ? int.tryParse(json['capacity'].toString())
+              : null,
+      isAvailable: json['is_available'] as bool,
+      description: json['description'] as String?,
+      facilities:
+          (json['facilities'] as List<dynamic>?)
+              ?.map((e) => RoomFacility.fromJson(e as Map<String, dynamic>))
+              .toList(),
+>>>>>>> Stashed changes
     );
   }
 
@@ -76,9 +89,15 @@ class RoomFacility {
   }
 
   Map<String, dynamic> toJson() {
+<<<<<<< Updated upstream
     return {
       'room_id': roomId,
       'facility_name': facilityName,
     };
   }
 }
+=======
+    return {'room_id': roomId, 'facility_name': facilityName};
+  }
+}
+>>>>>>> Stashed changes
