@@ -7,6 +7,7 @@ class User {
   final String? address;
   final String? profilePicture;
   final int userRoleId;
+  final String status; 
 
   User({
     required this.id,
@@ -17,8 +18,10 @@ class User {
     this.address,
     this.profilePicture,
     required this.userRoleId,
+    required this.status,  
   });
 
+  // Factory constructor untuk membuat objek User dari JSON
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
       id: _parseInt(json['id']),
@@ -29,6 +32,7 @@ class User {
       address: _parseString(json['address']),
       profilePicture: _parseString(json['profile_picture']),
       userRoleId: _parseInt(json['user_role_id']),
+      status: _parseString(json['status']),  // Parsing status dari JSON
     );
   }
 
@@ -55,6 +59,7 @@ class User {
       'address': address,
       'profile_picture': profilePicture,
       'user_role_id': userRoleId,
+      'status': status,  // Menambahkan status ke dalam JSON
     };
   }
 }

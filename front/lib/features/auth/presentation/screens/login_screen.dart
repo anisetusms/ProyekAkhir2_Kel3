@@ -35,28 +35,38 @@ class _LoginScreenState extends State<LoginScreen> {
           },
         );
 
-        if (response['access_token'] != null) {
-          final prefs = await SharedPreferences.getInstance();
-          await prefs.setString('token', response['access_token']);
+        // Validasi jika response kosong atau tidak ada access token
+        if (response == null || response['access_token'] == null) {
+          setState(() {
+            _errorMessage = 'Login gagal. Cek email dan password Anda.';
+          });
+          return;
+        }
 
-          if (response['user']['user_role_id'] != null) {
-            await prefs.setInt(
-              'user_role_id',
-              response['user']['user_role_id'],
-            );
-          }
-
-          Navigator.pushReplacementNamed(context, '/bottombar');
-        } else {
+        // Cek jika akun memiliki status pending (khusus Owner)
+        if (response['user']['user_role_id'] == 2 && response['user']['status'] != 'approved') {
           setState(() {
             _errorMessage =
-                response['message'] ??
-                'Login gagal. Cek email dan password Anda.';
+                response['message'] ?? 'Akun Anda belum disetujui oleh admin. Silakan menunggu.';
           });
+
+          // Simpan token meskipun pending untuk kebutuhan tertentu
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setString('token', response['access_token']);
+          await prefs.setInt('user_role_id', response['user']['user_role_id']);
+          return;
         }
+
+        // Jika login berhasil, simpan token dan role ID ke SharedPreferences
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('token', response['access_token']);
+        await prefs.setInt('user_role_id', response['user']['user_role_id']);
+
+        // Redirect ke halaman utama setelah login sukses
+        Navigator.pushReplacementNamed(context, '/bottombar');
       } catch (e) {
         setState(() {
-          _errorMessage = 'Terjadi kesalahan: $e';
+          _errorMessage = 'Terjadi kesalahan: ${e.toString()}';
         });
       } finally {
         setState(() {
@@ -77,9 +87,8 @@ class _LoginScreenState extends State<LoginScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                
                 Image.asset(
-                  'assets/icons/logo.jpg', 
+                  'assets/icons/logo.jpg', // Pastikan path sesuai dengan file Anda
                   height: 200,
                 ),
                 SizedBox(height: 24.0),
@@ -112,7 +121,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     return null;
                   },
                 ),
-                SizedBox(height: 16.0),
+                SizedBox(height: 16.0), 
 
                 // Password field
                 TextFormField(

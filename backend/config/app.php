@@ -98,6 +98,13 @@ return [
     'cipher' => 'AES-256-CBC',
 
     'key' => env('APP_KEY'),
+    
+    'hash' => [
+        'driver' => 'bcrypt', // This tells Laravel to use bcrypt as the hashing algorithm
+        'bcrypt' => [
+            'rounds' => 12,  // The number of rounds used by bcrypt for password hashing
+        ],
+    ],
 
     'previous_keys' => [
         ...array_filter(

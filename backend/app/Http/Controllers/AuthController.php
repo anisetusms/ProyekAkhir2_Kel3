@@ -90,19 +90,24 @@ class AuthController extends Controller
         ]);
 
         try {
-            // Panggil Stored Procedure untuk mencari user berdasarkan email
-            $userData = DB::select("CALL login_user(?)", [$request->email]);
+            // Panggil query builder untuk mencari user berdasarkan email
+            $user = DB::table('users')
+                ->select('id', 'name', 'email', 'password', 'user_role_id', 'status', 'is_banned')
+                ->where('email', $request->email)
+                ->first();
 
-            if (empty($userData)) {
+            if (!$user) {
                 return redirect()->route('showLoginForm')->with('error', 'Email tidak ditemukan.');
             }
-
-            // Ambil data user dari hasil SP
-            $user = (object) $userData[0];
 
             // Periksa apakah akun diblokir
             if ($user->is_banned) {
                 return redirect()->route('showLoginForm')->with('error', 'Akun Anda telah dibekukan. Silakan hubungi admin.');
+            }
+
+            // Periksa apakah status untuk user role 2 (Owner) adalah approved
+            if ($user->user_role_id == 2 && $user->status != 'approved') {
+                return redirect()->route('showLoginForm')->with('error', 'Akun Anda belum disetujui oleh admin.');
             }
 
             // Verifikasi Password
@@ -111,18 +116,17 @@ class AuthController extends Controller
             }
 
             // Login User ke Laravel
-            $loggedInUser = User::find($user->id);
-            Auth::login($loggedInUser);
+            Auth::loginUsingId($user->id);
 
-            // Redirect Sesuai Role
+            // Redirect sesuai role
             switch ($user->user_role_id) {
                 case 1: // Super Admin
                     return redirect()->route('super_admin.dashboard')->with('message', 'Login sebagai Super Admin!');
                 case 2: // Owner
-                    return redirect()->route('admin.properties.dashboard')->with('message', 'Login sebagai sebagai Owner!');
-                case 3: // User
-                    return redirect()->route('platform_admin.dashboard')->with('message', 'Login berhasil Admin Platform!');
-                case 4: // Admin Platform
+                    return redirect()->route('admin.properties.dashboard')->with('message', 'Login sebagai Owner!');
+                case 3: // Admin Platform
+                    return redirect()->route('platform_admin.dashboard')->with('message', 'Login sebagai Admin Platform!');
+                case 4: // Penyewa
                     return redirect()->route('landingpage')->with('message', 'Login sebagai Penyewa!');
                 default:
                     return redirect()->route('landingpage')->with('message', 'Login berhasil!');
@@ -131,7 +135,6 @@ class AuthController extends Controller
             return redirect()->route('showLoginForm')->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
     }
-
     public function logout()
     {
         Auth::logout();

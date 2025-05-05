@@ -8,12 +8,19 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\Models\Booking;
+use Carbon\Carbon;
 use App\Models\Property;
 
 class SuperAdminController extends Controller
 {
     public function dashboard()
     {
+        // Ambil owner dengan status pending
+        $pendingOwners = DB::table('users')
+            ->where('user_role_id', 2) // Owner
+            ->where('status', 'pending') // Hanya yang statusnya 'pending'
+            ->get();
+
         $user_id = Auth::id();
         $bookings = Booking::with('user', 'property')->latest()->get();
         $totalProperties = Property::count();
@@ -21,8 +28,9 @@ class SuperAdminController extends Controller
         $latestProperties = Property::where('user_id', $user_id)->latest()->take(5)->get();
         $totalViews = 120;
         $totalMessages = 50;
+        $pendingOwnerCount = $pendingOwners->count();
 
-        return view('super_admin.dashboard', compact('totalProperties', 'totalBookings', 'latestProperties', 'totalViews', 'totalMessages', 'bookings'));
+        return view('super_admin.dashboard', compact('totalProperties', 'totalBookings', 'latestProperties', 'totalViews', 'totalMessages', 'bookings', 'pendingOwners', 'pendingOwnerCount'));
     }
 
     public function manageEntrepreneurs()
@@ -38,12 +46,10 @@ class SuperAdminController extends Controller
 
     public function managePlatformAdmins()
     {
-        // Ambil data admin platform dari database
         $platformAdmins = DB::table('users')->where('user_role_id', 3)->get();
-
-        // Tampilkan view dengan data admin platform
         return view('super_admin.platform_admins.index', compact('platformAdmins'));
     }
+
     public function createPlatformAdmin()
     {
         return view('super_admin.platform_admins.create');
@@ -54,7 +60,7 @@ class SuperAdminController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => 'required|string',
             'email' => 'required|email|unique:users,email',
-            'username' => 'required|string|unique:users,username', // Validasi untuk username
+            'username' => 'required|string|unique:users,username',
             'password' => 'required|string|min:6',
         ]);
 
@@ -62,6 +68,7 @@ class SuperAdminController extends Controller
             return redirect()->back()->withErrors($validator)->withInput();
         }
 
+        // Insert entrepreneur ke database
         DB::statement('CALL storeEntrepreneur(?, ?, ?, ?)', [
             $request->name,
             $request->email,
@@ -69,19 +76,29 @@ class SuperAdminController extends Controller
             bcrypt($request->password),
         ]);
 
-        return redirect()->route('super_admin.entrepreneurs.index')->with('success', 'Entrepreneur added successfully.');
+        // Ambil id user yang baru saja disimpan
+        $user = DB::table('users')
+            ->where('email', $request->email)
+            ->first();
+
+        // Update status menjadi 'approved' setelah ditambahkan
+        if ($user) {
+            DB::table('users')
+                ->where('id', $user->id)
+                ->update(['status' => 'approved']);
+        }
+
+        return redirect()->route('super_admin.entrepreneurs.approved')->with('success', 'Entrepreneur added and approved successfully.');
     }
+
     public function editEntrepreneur($id)
     {
-        // Panggil stored procedure untuk mendapatkan data entrepreneur berdasarkan ID
         $entrepreneur = DB::select('CALL getEntrepreneurById(?)', [$id]);
 
-        // Periksa apakah data ditemukan
         if (empty($entrepreneur)) {
             return redirect()->route('super_admin.entrepreneurs.index')->with('error', 'Entrepreneur not found.');
         }
 
-        // Tampilkan view edit dengan data entrepreneur
         return view('super_admin.entrepreneurs.edit', ['entrepreneur' => $entrepreneur[0]]);
     }
 
@@ -96,17 +113,8 @@ class SuperAdminController extends Controller
             return redirect()->back()->withErrors($validator)->withInput();
         }
 
-        // Kamu sudah siapkan JSON tapi tidak dipakai di bawah
-        $dataEntrepreneur = json_encode([
-            'id' => $id,
-            'name' => $request->name,
-            'email' => $request->email,
-        ]);
-
         try {
-            // Panggil stored procedure
             DB::statement('CALL updateEntrepreneur(?, ?, ?)', [$id, $request->name, $request->email]);
-
             return redirect()->route('super_admin.entrepreneurs.index')->with('success', 'Entrepreneur updated successfully.');
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Failed to update entrepreneur: ' . $e->getMessage());
@@ -115,7 +123,6 @@ class SuperAdminController extends Controller
 
     public function destroyEntrepreneur($id)
     {
-        // Panggil stored procedure untuk menghapus entrepreneur berdasarkan ID
         try {
             DB::statement('CALL deleteEntrepreneur(?)', [$id]);
             return redirect()->route('super_admin.entrepreneurs.index')->with('success', 'Entrepreneur deleted successfully.');
@@ -124,13 +131,8 @@ class SuperAdminController extends Controller
         }
     }
 
-
-    // ADMIN PLATFORM
-
-    //Menambah
     public function storePlatformAdmin(Request $request)
     {
-        // Validasi input
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
@@ -138,7 +140,6 @@ class SuperAdminController extends Controller
             'password' => 'required|string|min:6|confirmed',
         ]);
 
-        // Simpan admin platform ke database
         DB::table('users')->insert([
             'name' => $request->name,
             'email' => $request->email,
@@ -149,36 +150,29 @@ class SuperAdminController extends Controller
             'updated_at' => now(),
         ]);
 
-        // Redirect ke halaman daftar admin platform dengan pesan sukses
         return redirect()->route('super_admin.platform_admins.index')->with('success', 'Admin Platform berhasil ditambahkan.');
     }
 
-    // Mengedit
     public function editPlatformAdmin($id)
     {
-        // Ambil data admin platform berdasarkan ID
         $admin = DB::table('users')->where('id', $id)->where('user_role_id', 3)->first();
 
-        // Jika admin tidak ditemukan, redirect dengan pesan error
         if (!$admin) {
             return redirect()->route('super_admin.platform_admins.index')->with('error', 'Admin Platform tidak ditemukan.');
         }
 
-        // Tampilkan view edit dengan data admin
         return view('super_admin.platform_admins.edit', compact('admin'));
     }
 
     public function updatePlatformAdmin(Request $request, $id)
     {
-        // Validasi input
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $id,
             'username' => 'required|string|unique:users,username,' . $id,
-            'password' => 'nullable|string|min:6|confirmed', // Password opsional
+            'password' => 'nullable|string|min:6|confirmed',
         ]);
 
-        // Data yang akan diperbarui
         $data = [
             'name' => $request->name,
             'email' => $request->email,
@@ -186,53 +180,38 @@ class SuperAdminController extends Controller
             'updated_at' => now(),
         ];
 
-        // Jika password diisi, tambahkan ke data yang akan diperbarui
         if ($request->filled('password')) {
             $data['password'] = bcrypt($request->password);
         }
 
-        // Update data admin platform di database
         DB::table('users')->where('id', $id)->update($data);
 
-        // Redirect ke halaman daftar admin platform dengan pesan sukses
         return redirect()->route('super_admin.platform_admins.index')->with('success', 'Admin Platform berhasil diperbarui.');
     }
 
-
-
-    // EDIT PROFIL
     public function showProfile()
     {
-        // Ambil data Super Admin yang sedang login
         $admin = Auth::user();
-
-        // Tampilkan view profil dengan data admin
         return view('super_admin.profiles.index', compact('admin'));
     }
 
     public function editProfile()
     {
-        // Ambil data Super Admin yang sedang login
         $admin = Auth::user();
-
-        // Tampilkan view edit profil dengan data admin
         return view('super_admin.profiles.edit', compact('admin'));
     }
 
     public function updateProfile(Request $request)
     {
-        // Ambil data Super Admin yang sedang login
         $admin = Auth::user();
 
-        // Validasi input
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $admin->id,
             'username' => 'required|string|unique:users,username,' . $admin->id,
-            'password' => 'nullable|string|min:6|confirmed', // Password opsional
+            'password' => 'nullable|string|min:6|confirmed',
         ]);
 
-        // Data yang akan diperbarui
         $data = [
             'name' => $request->name,
             'email' => $request->email,
@@ -240,20 +219,62 @@ class SuperAdminController extends Controller
             'updated_at' => now(),
         ];
 
-        // Jika password diisi, tambahkan ke data yang akan diperbarui
         if ($request->filled('password')) {
             $data['password'] = Hash::make($request->password);
         }
 
         try {
-            // Update data Super Admin di database
             $admin->update($data);
-
-            // Redirect dengan pesan sukses
             return redirect()->route('super_admin.profiles.edit')->with('success', 'Profil berhasil diperbarui.');
         } catch (\Exception $e) {
-            // Redirect dengan pesan error jika terjadi kesalahan
             return redirect()->route('super_admin.profiles.edit')->with('error', 'Terjadi kesalahan saat memperbarui profil: ' . $e->getMessage());
+        }
+    }
+
+    // Controller method untuk mengambil data owner yang sedang pending
+    public function managePendingOwners()
+    {
+        // Ambil data owner dengan status 'pending' hanya untuk user_role_id 2 (owner)
+        $pendingOwners = DB::table('users')
+            ->where('user_role_id', 2)  // Hanya untuk Owner
+            ->where('status', 'pending')  // Status harus 'pending'
+            ->get();
+
+        return view('super_admin.entrepreneurs.pending', compact('pendingOwners'));
+    }
+
+
+    public function manageApprovedOwners()
+    {
+        $approvedOwners = DB::table('users')
+            ->where('user_role_id', 2) // Hanya owner
+            ->where('status', 'approved') // Hanya yang sudah disetujui
+            ->get();
+
+        return view('super_admin.entrepreneurs.approved', compact('approvedOwners'));
+    }
+
+    // Controller (SuperAdminController.php)
+
+    public function approveOwner($id)
+    {
+        try {
+            // Cek apakah owner dengan ID tersebut ada
+            $owner = DB::table('users')->where('id', $id)->where('user_role_id', 2)->first();
+
+            // Jika tidak ditemukan, tampilkan error
+            if (!$owner) {
+                return redirect()->route('super_admin.entrepreneurs.pending')->with('error', 'Owner tidak ditemukan');
+            }
+
+            // Update status pengguna menjadi 'approved'
+            DB::table('users')->where('id', $id)->update(['status' => 'approved']);
+
+            // Redirect dengan pesan sukses
+            return redirect()->route('super_admin.entrepreneurs.pending')->with('success', 'Owner telah disetujui');
+        } catch (\Exception $e) {
+            // Tangani kesalahan lainnya
+            return redirect()->route('super_admin.entrepreneurs.pending')->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
     }
 }

@@ -47,7 +47,7 @@
                         <!-- Tombol Aksi -->
                         <div class="d-grid gap-2">
                             <button type="submit" class="btn btn-primary btn-lg"><i class="fas fa-save"></i> Simpan</button>
-                            <a href="{{ route('super_admin.entrepreneurs.index') }}" class="btn btn-outline-secondary btn-lg"><i class="fas fa-arrow-left"></i> Kembali</a>
+                            <a href="{{ route('super_admin.entrepreneurs.approved') }}" class="btn btn-outline-secondary btn-lg"><i class="fas fa-arrow-left"></i> Kembali</a>
                         </div>
                     </form>
                 </div>

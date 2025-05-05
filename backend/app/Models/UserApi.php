@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -8,7 +7,7 @@ use Laravel\Sanctum\HasApiTokens;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Hash;
 
-class User extends Authenticatable
+class UserApi extends Authenticatable
 {
     use HasApiTokens, HasFactory;
 
@@ -21,7 +20,6 @@ class User extends Authenticatable
         'email',
         'password',
         'is_banned',
-        'status',
         'user_type_id',
         'user_role_id',
     ];
@@ -49,12 +47,10 @@ class User extends Authenticatable
     // }
 
     // // Mutator untuk hashing password
-    // Mutator untuk hashing password
     // public function setPasswordAttribute($password)
     // {
     //     $this->attributes['password'] = Hash::make($password);
     // }
-
 
     // // Mutator untuk email_verified_at
     // public function setEmailVerifiedAtAttribute($value)

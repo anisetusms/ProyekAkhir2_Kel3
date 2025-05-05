@@ -99,6 +99,12 @@ Route::prefix('super-admin')->name('super_admin.')->group(function () {
         Route::get('/edit/{id}', [SuperAdminController::class, 'editEntrepreneur'])->name('edit');
         Route::post('/update/{id}', [SuperAdminController::class, 'updateEntrepreneur'])->name('update');
         Route::get('/destroy/{id}', [SuperAdminController::class, 'destroyEntrepreneur'])->name('destroy');
+        // Route untuk halaman Pending dan Approved
+        Route::get('/pending', [SuperAdminController::class, 'managePendingOwners'])->name('pending');
+        Route::get('/approved', [SuperAdminController::class, 'manageApprovedOwners'])->name('approved');
+
+        // Route untuk persetujuan Owner
+        Route::put('/approve/{id}', [SuperAdminController::class, 'approveOwner'])->name('approve');
     });
 
     // Manage Platform Admins

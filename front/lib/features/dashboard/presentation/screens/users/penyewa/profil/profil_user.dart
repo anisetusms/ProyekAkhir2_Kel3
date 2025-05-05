@@ -6,6 +6,7 @@ import 'package:front/core/network/api_client.dart';
 import 'package:front/core/utils/constants.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:front/features/dashboard/presentation/screens/users/penyewa/profil/profile_edit_screen.dart';
+import 'package:front/features/dashboard/presentation/screens/users/penyewa/profil/password_edit_screen.dart';
 import 'package:dio/dio.dart' as dio;
 
 class ProfileUser extends StatefulWidget {
@@ -223,6 +224,14 @@ class _ProfileUserState extends State<ProfileUser> {
     });
   }
 
+  void _navigateToChangePassword() {
+    Get.to(() => const PasswordEditScreen())?.then((value) {
+      if (value == true) {
+        _showSnackbar('Success', 'Password updated successfully', Colors.green);
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -328,7 +337,7 @@ class _ProfileUserState extends State<ProfileUser> {
         _buildActionTile(
           icon: Icons.lock,
           text: "Change Password",
-          onTap: () => Get.toNamed('/changePassword'),
+          onTap: _navigateToChangePassword,
         ),
         _buildDivider(),
         _buildActionTile(

@@ -5,10 +5,8 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="">
-    <meta name="author" content="">
-    <title>HomMie-SuperAdmin</title>
-
+    <meta name="description" content="Dashboard Super Admin Hommie">
+    <meta name="author" content="Hommie Team">
     <title>@yield('title') - {{ config('app.name') }}</title>
 
     <!-- Favicon -->
@@ -17,13 +15,94 @@
     <!-- Font Awesome -->
     <link href="{{ asset('vendor/fontawesome-free/css/all.min.css') }}" rel="stylesheet" type="text/css">
 
-    <!-- Google Fonts - Nunito -->
+    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
 
-    <!-- Custom styles for this template-->
+    <!-- SB Admin 2 CSS -->
     <link href="{{ asset('css/sb-admin-2.min.css') }}" rel="stylesheet">
 
-    <!-- Custom styles for this page -->
+    <!-- Custom Styles -->
+    <style>
+        /* Improved Dropdown Styles */
+        .dropdown-menu {
+            border: none;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+            border-radius: 0.35rem;
+            padding: 0.5rem 0;
+        }
+
+        .dropdown-item {
+            padding: 0.5rem 1.5rem;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+
+        .dropdown-item:hover {
+            background-color: #f8f9fa;
+            color: #4e73df;
+        }
+
+        .dropdown-divider {
+            margin: 0.25rem 0;
+            border-color: #eaecf4;
+        }
+
+        /* Navbar Improvements */
+        .nav-item {
+            margin-right: 0.25rem;
+        }
+
+        .nav-link {
+            transition: all 0.2s;
+        }
+
+        .nav-link:hover {
+            transform: translateX(3px);
+        }
+
+        /* Notification Badge */
+        .badge-counter {
+            position: absolute;
+            transform: scale(0.7);
+            transform-origin: top right;
+            right: 0.25rem;
+            top: 0.25rem;
+        }
+
+        /* Profile Image */
+        .img-profile {
+            width: 40px;
+            height: 40px;
+            object-fit: cover;
+            border: 2px solid #e3e6f0;
+        }
+
+        /* Sidebar Improvements */
+        .sidebar {
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+        }
+
+        .sidebar-brand {
+            height: 4.375rem;
+        }
+
+        .sidebar-brand-icon {
+            font-size: 1.5rem;
+        }
+
+        .sidebar-brand-text {
+            font-weight: 800;
+            letter-spacing: 0.05rem;
+        }
+
+        /* Content Header */
+        .content-header {
+            border-bottom: 1px solid #e3e6f0;
+            padding-bottom: 1rem;
+            margin-bottom: 1.5rem;
+        }
+    </style>
+
     @stack('styles')
 </head>
 
@@ -35,12 +114,12 @@
         <!-- Sidebar -->
         <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
 
-            <!-- Sidebar - Brand -->
+            <!-- Sidebar Brand -->
             <a class="sidebar-brand d-flex align-items-center justify-content-center" href="{{ route('super_admin.dashboard') }}">
                 <div class="sidebar-brand-icon">
                     <i class="fas fa-home"></i>
                 </div>
-                <div class="sidebar-brand-text mx-3"> HOMMIE </div>
+                <div class="sidebar-brand-text mx-3">HOMMIE</div>
             </a>
 
             <!-- Divider -->
@@ -61,19 +140,38 @@
             <div class="sidebar-heading">
                 Manajemen Pengguna
             </div>
-
-            <!-- Nav Item - Properties -->
-            <li class="nav-item {{ request()->routeIs('super_admin.entrepreneurs.index') ? 'active' : '' }}">
-                <a class="nav-link" href="{{ route('super_admin.entrepreneurs.index') }}">
+            <!-- Nav Item - Owner Dropdown -->
+            <li class="nav-item dropdown {{ request()->routeIs('super_admin.entrepreneurs.*') ? 'active' : '' }}">
+                <a class="nav-link dropdown-toggle" href="#" id="ownerDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     <i class="fas fa-fw fa-building"></i>
                     <span>Owner</span>
                 </a>
+                <!-- Dropdown - Owner Menu -->
+                <div class="dropdown-menu shadow animated--grow-in" aria-labelledby="ownerDropdown">
+                    <h6 class="dropdown-header">Manajemen Owner:</h6>
+                    <a class="dropdown-item" href="{{ route('super_admin.entrepreneurs.pending') }}">
+                        <i class="fas fa-user-clock mr-2 text-gray-400"></i>
+                        Menunggu Persetujuan
+                        @if($pendingOwnerCount ?? '0'>0)
+                            <span class="badge badge-danger badge-pill float-right">{{ $pendingOwnerCount }}</span>
+                        @endif
+                    </a>
+                    <a class="dropdown-item" href="{{ route('super_admin.entrepreneurs.approved') }}">
+                        <i class="fas fa-users mr-2 text-gray-400"></i>
+                        Daftar Owner
+                    </a>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" href="{{ route('super_admin.entrepreneurs.create') }}">
+                        <i class="fas fa-plus-circle mr-2 text-success"></i>
+                        Tambah Owner Baru
+                    </a>
+                </div>
             </li>
 
-            <!-- Nav Item - Bookings -->
-            <li class="nav-item {{ request()->routeIs('super_admin.platform_admins.index*') ? 'active' : '' }}">
+            <!-- Nav Item - Platform Admins -->
+            <li class="nav-item {{ request()->routeIs('super_admin.platform_admins.*') ? 'active' : '' }}">
                 <a class="nav-link" href="{{ route('super_admin.platform_admins.index') }}">
-                    <i class="fas fa-fw fa-calendar-check"></i>
+                    <i class="fas fa-fw fa-user-shield"></i>
                     <span>Admin Platform</span>
                 </a>
             </li>
@@ -86,10 +184,10 @@
                 Manajemen Sistem
             </div>
 
-            <!-- Nav Item - Users -->
-            <li class="nav-item {{ request()->routeIs('super_admin.profiles.index') ? 'active' : '' }}">
+            <!-- Nav Item - Profile -->
+            <li class="nav-item {{ request()->routeIs('super_admin.profiles.*') ? 'active' : '' }}">
                 <a class="nav-link" href="{{ route('super_admin.profiles.index') }}">
-                    <i class="fas fa-fw fa-users"></i>
+                    <i class="fas fa-fw fa-user-cog"></i>
                     <span>Profil</span>
                 </a>
             </li>
@@ -97,7 +195,7 @@
             <!-- Nav Item - Settings -->
             <li class="nav-item {{ request()->routeIs('super_admin.settings') ? 'active' : '' }}">
                 <a class="nav-link" href="{{ route('super_admin.settings') }}">
-                    <i class="fas fa-cog me-2"></i>
+                    <i class="fas fa-fw fa-cogs"></i>
                     <span>Pengaturan</span>
                 </a>
             </li>
@@ -130,9 +228,9 @@
                     <!-- Topbar Search -->
                     <form class="d-none d-sm-inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search">
                         <div class="input-group">
-                            <input type="text" class="form-control bg-light border-0 small" placeholder="Search for..." aria-label="Search" aria-describedby="basic-addon2">
+                            <input type="text" class="form-control bg-light border-0 small" placeholder="Search for..." aria-label="Search">
                             <div class="input-group-append">
-                                <button class="btn btn-primary" type="button">
+                                <button class="btn btn-primary" type="submit">
                                     <i class="fas fa-search fa-sm"></i>
                                 </button>
                             </div>
@@ -142,76 +240,38 @@
                     <!-- Topbar Navbar -->
                     <ul class="navbar-nav ml-auto">
 
-                        <!-- Nav Item - Search Dropdown (Visible Only XS) -->
-                        <li class="nav-item dropdown no-arrow d-sm-none">
-                            <a class="nav-link dropdown-toggle" href="#" id="searchDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <i class="fas fa-search fa-fw"></i>
-                            </a>
-                            <!-- Dropdown - Messages -->
-                            <div class="dropdown-menu dropdown-menu-right p-3 shadow animated--grow-in" aria-labelledby="searchDropdown">
-                                <form class="form-inline mr-auto w-100 navbar-search">
-                                    <div class="input-group">
-                                        <input type="text" class="form-control bg-light border-0 small" placeholder="Search for..." aria-label="Search" aria-describedby="basic-addon2">
-                                        <div class="input-group-append">
-                                            <button class="btn btn-primary" type="button">
-                                                <i class="fas fa-search fa-sm"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </form>
-                            </div>
-                        </li>
-
                         <!-- Nav Item - Alerts -->
                         <li class="nav-item dropdown no-arrow mx-1">
                             <a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 <i class="fas fa-bell fa-fw"></i>
                                 <!-- Counter - Alerts -->
-                                <span class="badge badge-danger badge-counter">3+</span>
+                                @if($pendingOwnerCount ?? '0'>0)
+                                    <span class="badge badge-danger badge-counter">{{ $pendingOwnerCount }}</span>
+                                @endif
                             </a>
                             <!-- Dropdown - Alerts -->
                             <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="alertsDropdown">
                                 <h6 class="dropdown-header">
-                                    Notifikasi
+                                    Notifikasi Terbaru
                                 </h6>
-                                <a class="dropdown-item d-flex align-items-center" href="#">
-                                    <div class="mr-3">
-                                        <div class="icon-circle bg-primary">
-                                            <i class="fas fa-file-alt text-white"></i>
+                                @if($pendingOwnerCount ?? '0'>0 )
+                                    <a class="dropdown-item d-flex align-items-center" href="{{ route('super_admin.entrepreneurs.pending') }}">
+                                        <div class="mr-3">
+                                            <div class="icon-circle bg-primary">
+                                                <i class="fas fa-user-clock text-white"></i>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div>
-                                        <div class="small text-gray-500">April 12, 2025</div>
-                                        <span class="font-weight-bold">Pemesanan baru telah dibuat!</span>
-                                    </div>
-                                </a>
-                                <a class="dropdown-item text-center small text-gray-500" href="#">Lihat Semua Notifikasi</a>
-                            </div>
-                        </li>
-
-                        <!-- Nav Item - Messages -->
-                        <li class="nav-item dropdown no-arrow mx-1">
-                            <a class="nav-link dropdown-toggle" href="#" id="messagesDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <i class="fas fa-envelope fa-fw"></i>
-                                <!-- Counter - Messages -->
-                                <span class="badge badge-danger badge-counter">7</span>
-                            </a>
-                            <!-- Dropdown - Messages -->
-                            <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="messagesDropdown">
-                                <h6 class="dropdown-header">
-                                    Pesan
-                                </h6>
-                                <a class="dropdown-item d-flex align-items-center" href="#">
-                                    <div class="dropdown-list-image mr-3">
-                                        <img class="rounded-circle" src="https://source.unsplash.com/Mv9hjnEUHR4/60x60" alt="">
-                                        <div class="status-indicator bg-success"></div>
-                                    </div>
-                                    <div>
-                                        <div class="text-truncate">Hi there! I am wondering if you can help me with a problem I've been having.</div>
-                                        <div class="small text-gray-500">Emily Fowler · 58m</div>
-                                    </div>
-                                </a>
-                                <a class="dropdown-item text-center small text-gray-500" href="#">Lihat Semua Pesan</a>
+                                        <div>
+                                            <span class="font-weight-bold">Ada {{ $pendingOwnerCount }} owner menunggu persetujuan</span>
+                                        </div>
+                                    </a>
+                                @else
+                                    <a class="dropdown-item text-center py-3">
+                                        <i class="fas fa-bell-slash text-gray-400 fa-2x mb-2"></i>
+                                        <div>Tidak ada notifikasi baru</div>
+                                    </a>
+                                @endif
+                                <a class="dropdown-item text-center small text-gray-500" href="{{ route('super_admin.entrepreneurs.pending') }}">Lihat Semua Notifikasi</a>
                             </div>
                         </li>
 
@@ -221,13 +281,11 @@
                         <li class="nav-item dropdown no-arrow">
                             <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 <span class="mr-2 d-none d-lg-inline text-gray-600 small">{{ Auth::user()->name }}</span>
-                                <img class="img-profile rounded-circle"
-                                    src="{{ Auth::user()->profile_picture ? asset('storage/profile_pictures/' . Auth::user()->profile_picture) : asset('img/undraw_profile.svg') }}"
-                                    alt="Profile Picture">
-                            </a>    
+                                <img class="img-profile rounded-circle" src="{{ Auth::user()->profile_picture ? asset('storage/profile_pictures/' . Auth::user()->profile_picture) : asset('img/undraw_profile.svg') }}" alt="Profile Picture">
+                            </a>
                             <!-- Dropdown - User Information -->
                             <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
-                                <a class="dropdown-item" href="#">
+                                <a class="dropdown-item" href="{{ route('super_admin.profiles.index') }}">
                                     <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
                                     Profil
                                 </a>
@@ -252,14 +310,14 @@
                 <div class="container-fluid">
 
                     <!-- Page Heading -->
-                    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+                    <div class="d-sm-flex align-items-center justify-content-between mb-4 content-header">
                         <h1 class="h3 mb-0 text-gray-800">@yield('title')</h1>
                         @hasSection('action_button')
-                        @yield('action_button')
+                            @yield('action_button')
                         @endif
                     </div>
 
-                    <!-- Content Row -->
+                    <!-- Alert Messages -->
                     <div class="row">
                         <div class="col-12">
                             @include('layouts.partials.alerts')
@@ -328,12 +386,23 @@
     <!-- Custom scripts for all pages-->
     <script src="{{ asset('js/sb-admin-2.min.js') }}"></script>
 
-    <!-- Page level plugins -->
+    <!-- Custom Scripts -->
+    <script>
+        // Enhanced dropdown functionality
+        $(document).ready(function() {
+            // Better dropdown hover effect
+            $('.dropdown').hover(function() {
+                $(this).find('.dropdown-menu').stop(true, true).delay(100).fadeIn(200);
+            }, function() {
+                $(this).find('.dropdown-menu').stop(true, true).delay(100).fadeOut(200);
+            });
+
+            // Initialize tooltips
+            $('[data-toggle="tooltip"]').tooltip();
+        });
+    </script>
+
     @stack('scripts')
-
-    <!-- Livewire Scripts -->
-    @Hommie
-
 </body>
 
 </html>
