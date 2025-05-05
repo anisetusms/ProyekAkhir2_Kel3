@@ -42,23 +42,8 @@ class User extends Authenticatable
         return $this->belongsTo(UserRole::class, 'user_role_id');
     }
 
-    // // Relasi ke UserType (user_type_id)
-    // public function userType()
-    // {
-    //     return $this->belongsTo(UserType::class, 'user_type_id');
-    // }
-
-    // // Mutator untuk hashing password
-    // Mutator untuk hashing password
-    // public function setPasswordAttribute($password)
-    // {
-    //     $this->attributes['password'] = Hash::make($password);
-    // }
-
-
-    // // Mutator untuk email_verified_at
-    // public function setEmailVerifiedAtAttribute($value)
-    // {
-    //     $this->attributes['email_verified_at'] = $value ? Carbon::now() : null;
-    // }
+    public function properties()
+    {
+        return $this->hasMany(Property::class, 'user_id');
+    }
 }

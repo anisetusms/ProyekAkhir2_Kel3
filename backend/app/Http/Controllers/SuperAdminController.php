@@ -201,6 +201,28 @@ class SuperAdminController extends Controller
         return view('super_admin.profiles.edit', compact('admin'));
     }
 
+    public function showOwnerDetail($id)
+    {
+        // Ambil data owner berdasarkan ID
+        $owner = DB::table('users')->where('id', $id)->where('user_role_id', 2)->first();
+
+        if (!$owner) {
+            return redirect()->route('super_admin.entrepreneurs.approved')->with('error', 'Owner tidak ditemukan');
+        }
+
+        // Ambil jumlah properti yang dimiliki oleh owner
+        $totalProperties = Property::where('user_id', $id)->count();
+
+        // Ambil daftar properti yang dimiliki oleh owner
+        $properties = Property::with(['kostDetail', 'homestayDetail', 'province', 'city', 'district', 'subdistrict'])
+            ->where('user_id', $id)
+            ->where('isDeleted', false)
+            ->get();
+
+        // Kirim data ke tampilan
+        return view('super_admin.entrepreneurs.show', compact('owner', 'totalProperties', 'properties'));
+    }
+
     public function updateProfile(Request $request)
     {
         $admin = Auth::user();
@@ -244,15 +266,32 @@ class SuperAdminController extends Controller
     }
 
 
+    // public function manageApprovedOwners()
+    // {
+    //     $approvedOwners = DB::table('users')
+    //         ->where('user_role_id', 2) // Hanya owner
+    //         ->where('status', 'approved') // Hanya yang sudah disetujui
+    //         ->get();
+
+    //     return view('super_admin.entrepreneurs.approved', compact('approvedOwners'));
+    // }
+
     public function manageApprovedOwners()
     {
+        // Ambil data owner yang sudah disetujui
         $approvedOwners = DB::table('users')
             ->where('user_role_id', 2) // Hanya owner
             ->where('status', 'approved') // Hanya yang sudah disetujui
             ->get();
 
+        // Menambahkan jumlah properti untuk setiap owner
+        foreach ($approvedOwners as $owner) {
+            $owner->properties_count = Property::where('user_id', $owner->id)->count(); // Hitung jumlah properti
+        }
+
         return view('super_admin.entrepreneurs.approved', compact('approvedOwners'));
     }
+
 
     // Controller (SuperAdminController.php)
 
