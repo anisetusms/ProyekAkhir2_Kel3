@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:front/core/utils/constants.dart';
-import 'dart:io'; 
+import 'dart:io';
 import 'package:flutter/foundation.dart';
 
 class ApiClient {
@@ -30,6 +30,7 @@ class ApiClient {
   }
 
   // Tambahkan ini di class ApiClient
+  // Fungsi untuk meng-upload file (gambar profil)
   Future<dynamic> uploadFile(
     String endpoint,
     File file, {
@@ -116,7 +117,7 @@ class ApiClient {
     }
   }
 
-  // Fungsi untuk menangani error
+   // Fungsi untuk menangani error
   void _handleError(DioException error) {
     String errorMessage = 'Terjadi kesalahan yang tidak diketahui.';
 

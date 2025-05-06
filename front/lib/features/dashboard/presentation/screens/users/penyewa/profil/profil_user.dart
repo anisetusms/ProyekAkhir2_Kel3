@@ -6,8 +6,7 @@ import 'package:front/core/network/api_client.dart';
 import 'package:front/core/utils/constants.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:front/features/dashboard/presentation/screens/users/penyewa/profil/profile_edit_screen.dart';
-import 'package:front/features/dashboard/presentation/screens/users/penyewa/profil/password_edit_screen.dart';
-import 'package:dio/dio.dart' as dio;
+import 'package:front/features/dashboard/presentation/screens/users/penyewa/profil/password_edit_screen.dart';  
 
 class ProfileUser extends StatefulWidget {
   const ProfileUser({super.key});
@@ -43,7 +42,7 @@ class _ProfileUserState extends State<ProfileUser> {
       }
 
       final response = await ApiClient().get(
-        '${Constants.baseUrl}/profile', // Pastikan API backend menyediakan endpoint untuk mengambil data pengguna
+        '${Constants.baseUrl}/profile',
         queryParameters: {},
       );
 
@@ -52,9 +51,7 @@ class _ProfileUserState extends State<ProfileUser> {
           _userProfile = response['data'];
         });
       } else {
-        throw Exception(
-          response['message']?.toString() ?? 'Failed to fetch profile',
-        );
+        throw Exception(response['message']?.toString() ?? 'Failed to fetch profile');
       }
     } catch (e) {
       _handleError(e);
@@ -92,29 +89,17 @@ class _ProfileUserState extends State<ProfileUser> {
         throw Exception('No authentication token found');
       }
 
-      final formData = dio.FormData.fromMap({
-        'profile_picture': await dio.MultipartFile.fromFile(
-          _selectedImage!.path,
-          filename: 'profile_${DateTime.now().millisecondsSinceEpoch}.jpg',
-        ),
-      });
-
-      final response = await ApiClient().post(
-        '${Constants.baseUrl}/update-profile',
-        formData: formData,
+      // Menggunakan fungsi uploadFile dari ApiClient untuk mengirim gambar
+      final response = await ApiClient().uploadFile(
+        '${Constants.baseUrl}/profile/upload-picture',
+        _selectedImage!,
       );
 
       if (response['success'] == true) {
-        await _fetchProfile();
-        _showSnackbar(
-          'Success',
-          'Profile picture updated successfully',
-          Colors.green,
-        );
+        await _fetchProfile(); // Refresh profile setelah update
+        _showSnackbar('Success', 'Profile picture updated successfully', Colors.green);
       } else {
-        throw Exception(
-          response['message'] ?? 'Failed to update profile picture',
-        );
+        throw Exception(response['message'] ?? 'Failed to update profile picture');
       }
     } catch (e) {
       _handleError(e);
@@ -147,24 +132,23 @@ class _ProfileUserState extends State<ProfileUser> {
   Future<void> _logout() async {
     final confirmed = await showDialog<bool>(
       context: context,
-      builder:
-          (context) => AlertDialog(
-            title: const Text("Logout"),
-            content: const Text("Are you sure you want to logout?"),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context, false),
-                child: const Text("Cancel"),
-              ),
-              TextButton(
-                onPressed: () => Navigator.pop(context, true),
-                child: const Text(
-                  "Logout",
-                  style: TextStyle(color: Colors.red),
-                ),
-              ),
-            ],
+      builder: (context) => AlertDialog(
+        title: const Text("Logout"),
+        content: const Text("Are you sure you want to logout?"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text("Cancel"),
           ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text(
+              "Logout",
+              style: TextStyle(color: Colors.red),
+            ),
+          ),
+        ],
+      ),
     );
 
     if (confirmed == true) {
@@ -178,26 +162,25 @@ class _ProfileUserState extends State<ProfileUser> {
   Future<void> _showImageOptions() async {
     await showModalBottomSheet(
       context: context,
-      builder:
-          (context) => SafeArea(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                _buildImageOptionTile(
-                  text: "Gallery",
-                  icon: Icons.photo_library,
-                  source: ImageSource.gallery,
-                ),
-                const Divider(height: 1),
-                _buildImageOptionTile(
-                  text: "Camera",
-                  icon: Icons.camera_alt,
-                  source: ImageSource.camera,
-                ),
-                const SizedBox(height: 8),
-              ],
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _buildImageOptionTile(
+              text: "Gallery",
+              icon: Icons.photo_library,
+              source: ImageSource.gallery,
             ),
-          ),
+            const Divider(height: 1),
+            _buildImageOptionTile(
+              text: "Camera",
+              icon: Icons.camera_alt,
+              source: ImageSource.camera,
+            ),
+            const SizedBox(height: 8),
+          ],
+        ),
+      ),
     );
   }
 
@@ -322,7 +305,8 @@ class _ProfileUserState extends State<ProfileUser> {
   }
 
   ImageProvider? _getProfileImage() {
-    if (_userProfile['profile_picture'] != null) {
+    if (_userProfile['profile_picture'] is String &&
+        _userProfile['profile_picture'] != null) {
       return NetworkImage(
         '${Constants.baseUrlImage}/storage/profile_pictures/${_userProfile['profile_picture']}',
       );

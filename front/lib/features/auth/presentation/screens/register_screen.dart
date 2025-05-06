@@ -97,7 +97,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
             'email': _emailController.text,
             'password': _passwordController.text,
             'password_confirmation': _confirmPasswordController.text,
-            'user_role_id': _selectedRoleId, // Kirim sebagai integer ke API
+            'user_role_id':
+                _selectedRoleId, // Kirim sebagai integer, tanpa toString()
             'status': status, // Menambahkan status 'pending' jika role Owner
           },
         );

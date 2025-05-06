@@ -137,16 +137,11 @@
                                             @endif
                                         </td>
                                         <td class="text-end pe-4">
-                                            <a href="#" class="btn btn-sm btn-outline-info shadow-sm" data-bs-toggle="tooltip" title="Detail Properti">
-                                                <i class="fas fa-eye fa-sm"></i>
-                                            </a>
-                                            <a href="#" class="btn btn-sm btn-outline-warning shadow-sm ms-2" data-bs-toggle="tooltip" title="Edit Properti">
-                                                <i class="fas fa-edit fa-sm"></i>
-                                            </a>
-                                            <button class="btn btn-sm btn-outline-danger shadow-sm ms-2" data-bs-toggle="tooltip" title="Hapus Properti">
-                                                <i class="fas fa-trash-alt fa-sm"></i>
-                                            </button>
-                                        </td>
+                                        <a href="{{ route('super_admin.entrepreneurs.properties.details', $property->id) }}" class="btn btn-sm btn-outline-info" data-bs-toggle="tooltip" title="Detail Property">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                    </td>
+
                                     </tr>
                                 @endforeach
                             </tbody>

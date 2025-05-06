@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+import 'package:get/get.dart';
 import 'package:front/core/network/api_client.dart';
 import 'package:front/core/utils/constants.dart';
 import 'package:dio/dio.dart' as dio;
-
 
 class ProfileEditScreen extends StatefulWidget {
   final Map<String, dynamic> userProfile;
@@ -24,7 +23,6 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
   late TextEditingController _phoneController;
   late TextEditingController _addressController;
   bool _isLoading = false;
-  bool _isImageLoading = false;
 
   @override
   void initState() {
@@ -80,7 +78,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
         throw Exception('Username cannot be empty');
       }
 
-      // Buat form data
+      // Buat form data untuk mengirimkan profil
       final formData = dio.FormData.fromMap({
         'name': _nameController.text,
         'username': _usernameController.text,
@@ -94,15 +92,15 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
           ),
       });
 
-      // Kirim request
+      // Kirim permintaan untuk mengupdate profil
       final response = await ApiClient().post(
         '${Constants.baseUrl}/update-profile',
         formData: formData,
       );
 
       if (response['success'] == true) {
-        Get.back(result: true); // Return true to indicate success
-        _showSnackbar('Success', 'Profile updated successfully');
+        Get.back(result: true); // Kembali dengan hasil true jika berhasil
+        _showSnackbar('Success', 'Profile updated successfully', Colors.green);
       } else {
         throw Exception(response['message'] ?? 'Failed to update profile');
       }
@@ -126,34 +124,43 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
     );
   }
 
-  Future<void> _showImagePickerOptions() async {
+  Future<void> _showImageOptions() async {
     await showModalBottomSheet(
       context: context,
       builder: (context) => SafeArea(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            ListTile(
-              leading: const Icon(Icons.photo_library),
-              title: const Text('Gallery'),
-              onTap: () {
-                Navigator.pop(context);
-                _selectImage(ImageSource.gallery);
-              },
+            _buildImageOptionTile(
+              text: "Gallery",
+              icon: Icons.photo_library,
+              source: ImageSource.gallery,
             ),
             const Divider(height: 1),
-            ListTile(
-              leading: const Icon(Icons.camera_alt),
-              title: const Text('Camera'),
-              onTap: () {
-                Navigator.pop(context);
-                _selectImage(ImageSource.camera);
-              },
+            _buildImageOptionTile(
+              text: "Camera",
+              icon: Icons.camera_alt,
+              source: ImageSource.camera,
             ),
             const SizedBox(height: 8),
           ],
         ),
       ),
+    );
+  }
+
+  ListTile _buildImageOptionTile({
+    required String text,
+    required IconData icon,
+    required ImageSource source,
+  }) {
+    return ListTile(
+      leading: Icon(icon),
+      title: Text(text),
+      onTap: () {
+        Navigator.pop(context);
+        _selectImage(source);
+      },
     );
   }
 
@@ -179,7 +186,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
         child: Column(
           children: [
             GestureDetector(
-              onTap: _showImagePickerOptions,
+              onTap: _showImageOptions,
               child: Stack(
                 alignment: Alignment.center,
                 children: [
@@ -187,15 +194,10 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                     radius: 50,
                     backgroundColor: Colors.grey.shade300,
                     backgroundImage: _getProfileImage(),
-                    child: _selectedImage == null && 
-                           widget.userProfile['profile_picture'] == null
+                    child: _selectedImage == null && widget.userProfile['profile_picture'] == null
                         ? const Icon(Icons.person, size: 40, color: Colors.grey)
                         : null,
                   ),
-                  if (_isImageLoading)
-                    const CircularProgressIndicator(
-                      valueColor: AlwaysStoppedAnimation(Colors.white),
-                    ),
                   const Positioned(
                     bottom: 0,
                     right: 0,

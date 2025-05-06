@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 
 <head>
     <meta charset="utf-8">
@@ -23,62 +23,10 @@
 
     <!-- Custom Styles -->
     <style>
-        /* Improved Dropdown Styles */
-        .dropdown-menu {
-            border: none;
-            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
-            border-radius: 0.35rem;
-            padding: 0.5rem 0;
-        }
-
-        .dropdown-item {
-            padding: 0.5rem 1.5rem;
-            font-size: 0.85rem;
-            transition: all 0.2s;
-        }
-
-        .dropdown-item:hover {
-            background-color: #f8f9fa;
-            color: #4e73df;
-        }
-
-        .dropdown-divider {
-            margin: 0.25rem 0;
-            border-color: #eaecf4;
-        }
-
-        /* Navbar Improvements */
-        .nav-item {
-            margin-right: 0.25rem;
-        }
-
-        .nav-link {
-            transition: all 0.2s;
-        }
-
-        .nav-link:hover {
-            transform: translateX(3px);
-        }
-
-        /* Notification Badge */
-        .badge-counter {
-            position: absolute;
-            transform: scale(0.7);
-            transform-origin: top right;
-            right: 0.25rem;
-            top: 0.25rem;
-        }
-
-        /* Profile Image */
-        .img-profile {
-            width: 40px;
-            height: 40px;
-            object-fit: cover;
-            border: 2px solid #e3e6f0;
-        }
-
-        /* Sidebar Improvements */
+        /* Improved Sidebar Styles */
         .sidebar {
+            background-color: #4e73df;
+            color: white;
             box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
         }
 
@@ -86,20 +34,59 @@
             height: 4.375rem;
         }
 
-        .sidebar-brand-icon {
-            font-size: 1.5rem;
-        }
-
         .sidebar-brand-text {
             font-weight: 800;
             letter-spacing: 0.05rem;
         }
 
-        /* Content Header */
-        .content-header {
-            border-bottom: 1px solid #e3e6f0;
-            padding-bottom: 1rem;
-            margin-bottom: 1.5rem;
+        .sidebar-nav-link {
+            font-size: 1rem;
+            padding: 0.75rem 1.25rem;
+            color: #ffffff;
+            transition: background-color 0.2s;
+        }
+
+        .sidebar-nav-link:hover {
+            background-color: #575fcf;
+            color: #ffffff;
+        }
+
+        .dropdown-item {
+            font-size: 0.85rem;
+            padding: 0.5rem 1.5rem;
+            color: #4e73df;
+            transition: background-color 0.2s;
+        }
+
+        .dropdown-item:hover {
+            background-color: #f8f9fa;
+        }
+
+        .badge-counter {
+            position: absolute;
+            transform: scale(0.7);
+            transform-origin: top right;
+            right: 0.25rem;
+            top: 0.25rem;
+            background-color: red;
+            color: white;
+        }
+
+        /* Enhanced Navbar */
+        .topbar .navbar-nav .nav-link {
+            color: #4e73df;
+            transition: all 0.2s ease-in-out;
+        }
+
+        .topbar .navbar-nav .nav-link:hover {
+            color: #2e59d9;
+        }
+
+        .img-profile {
+            width: 40px;
+            height: 40px;
+            object-fit: cover;
+            border: 2px solid #e3e6f0;
         }
     </style>
 
@@ -140,6 +127,7 @@
             <div class="sidebar-heading">
                 Manajemen Pengguna
             </div>
+
             <!-- Nav Item - Owner Dropdown -->
             <li class="nav-item dropdown {{ request()->routeIs('super_admin.entrepreneurs.*') ? 'active' : '' }}">
                 <a class="nav-link dropdown-toggle" href="#" id="ownerDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -152,7 +140,7 @@
                     <a class="dropdown-item" href="{{ route('super_admin.entrepreneurs.pending') }}">
                         <i class="fas fa-user-clock mr-2 text-gray-400"></i>
                         Menunggu Persetujuan
-                        @if($pendingOwnerCount ?? '0'>0)
+                        @if($pendingOwnerCount ?? '0' > 0)
                             <span class="badge badge-danger badge-pill float-right">{{ $pendingOwnerCount }}</span>
                         @endif
                     </a>
@@ -245,7 +233,7 @@
                             <a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 <i class="fas fa-bell fa-fw"></i>
                                 <!-- Counter - Alerts -->
-                                @if($pendingOwnerCount ?? '0'>0)
+                                @if($pendingOwnerCount ?? '0' > 0)
                                     <span class="badge badge-danger badge-counter">{{ $pendingOwnerCount }}</span>
                                 @endif
                             </a>
@@ -254,7 +242,7 @@
                                 <h6 class="dropdown-header">
                                     Notifikasi Terbaru
                                 </h6>
-                                @if($pendingOwnerCount ?? '0'>0 )
+                                @if($pendingOwnerCount ?? '0' > 0 )
                                     <a class="dropdown-item d-flex align-items-center" href="{{ route('super_admin.entrepreneurs.pending') }}">
                                         <div class="mr-3">
                                             <div class="icon-circle bg-primary">

@@ -292,6 +292,18 @@ class SuperAdminController extends Controller
         return view('super_admin.entrepreneurs.approved', compact('approvedOwners'));
     }
 
+    public function showPropertyDetails($id)
+    {
+        $property = Property::with(['kostDetail', 'homestayDetail', 'province', 'city', 'district', 'subdistrict'])->findOrFail($id);
+
+        // Calculate available rooms, total rooms, and availability percentage
+        $totalRooms = $property->rooms->count();
+        $availableRooms = $property->rooms->where('is_available', true)->count();
+        $availablePercentage = ($totalRooms > 0) ? ($availableRooms / $totalRooms) * 100 : 0;
+
+        return view('super_admin.entrepreneurs.properties.details', compact('property', 'totalRooms', 'availableRooms', 'availablePercentage'));
+    }
+
 
     // Controller (SuperAdminController.php)
 

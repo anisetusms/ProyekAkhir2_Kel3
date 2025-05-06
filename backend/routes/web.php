@@ -100,6 +100,7 @@ Route::prefix('super-admin')->name('super_admin.')->group(function () {
         Route::post('/update/{id}', [SuperAdminController::class, 'updateEntrepreneur'])->name('update');
         Route::get('/destroy/{id}', [SuperAdminController::class, 'destroyEntrepreneur'])->name('destroy');
         Route::get('/entrepreneurs/{id}', [SuperAdminController::class, 'showOwnerDetail'])->name('show');
+        Route::get('/properties/details/{id}', [SuperAdminController::class, 'showPropertyDetails'])->name('properties.details');
         // Route untuk halaman Pending dan Approved
         Route::get('/pending', [SuperAdminController::class, 'managePendingOwners'])->name('pending');
         Route::get('/approved', [SuperAdminController::class, 'manageApprovedOwners'])->name('approved');

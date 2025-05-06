@@ -4,10 +4,9 @@ import 'dart:io';
 import 'package:get/get.dart';
 import 'package:front/core/network/api_client.dart';
 import 'package:front/core/utils/constants.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:front/features/dashboard/presentation/screens/users/owner/screens/profile/password_edit_screen.dart';
 import 'package:front/features/dashboard/presentation/screens/users/owner/screens/profile/profile_edit_screen.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:dio/dio.dart' as dio;
 
 class ProfileOwner extends StatefulWidget {
   const ProfileOwner({super.key});
@@ -52,7 +51,9 @@ class _ProfileOwnerState extends State<ProfileOwner> {
           _userProfile = response['data'];
         });
       } else {
-        throw Exception(response['message']?.toString() ?? 'Failed to fetch profile');
+        throw Exception(
+          response['message']?.toString() ?? 'Failed to fetch profile',
+        );
       }
     } catch (e) {
       _handleError(e);
@@ -79,7 +80,7 @@ class _ProfileOwnerState extends State<ProfileOwner> {
     }
   }
 
-  Future<void> _updateProfilePicture() async {
+ Future<void> _updateProfilePicture() async {
     if (_selectedImage == null) return;
 
     try {
@@ -90,21 +91,15 @@ class _ProfileOwnerState extends State<ProfileOwner> {
         throw Exception('No authentication token found');
       }
 
-      final formData = dio.FormData.fromMap({
-        'profile_picture': await dio.MultipartFile.fromFile(
-          _selectedImage!.path,
-          filename: 'profile_${DateTime.now().millisecondsSinceEpoch}.jpg',
-        ),
-      });
-
-      final response = await ApiClient().post(
-        '${Constants.baseUrl}/update-profile',
-        formData: formData,
+      // Menggunakan fungsi uploadFile dari ApiClient untuk mengirim gambar
+      final response = await ApiClient().uploadFile(
+        '${Constants.baseUrl}/profile/upload-picture',
+        _selectedImage!,
       );
 
       if (response['success'] == true) {
-        await _fetchProfile();
-        _showSnackbar('Success', 'Profile picture updated successfully', Colors.green);
+        await _fetchProfile(); // Refresh profile setelah update
+        _showSnackbar('Success', 'Foto Profil berhasil di perbaharui', Colors.green);
       } else {
         throw Exception(response['message'] ?? 'Failed to update profile picture');
       }
@@ -115,7 +110,7 @@ class _ProfileOwnerState extends State<ProfileOwner> {
 
   void _handleError(dynamic error, {String? customMessage}) {
     final errorMessage = customMessage ?? error.toString();
-    
+
     if (mounted) {
       setState(() {
         _errorMessage = errorMessage;
@@ -139,25 +134,26 @@ class _ProfileOwnerState extends State<ProfileOwner> {
   Future<void> _showImageOptions() async {
     await showModalBottomSheet(
       context: context,
-      builder: (context) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _buildImageOptionTile(
-              text: "Gallery",
-              icon: Icons.photo_library,
-              source: ImageSource.gallery,
+      builder:
+          (context) => SafeArea(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _buildImageOptionTile(
+                  text: "Gallery",
+                  icon: Icons.photo_library,
+                  source: ImageSource.gallery,
+                ),
+                const Divider(height: 1),
+                _buildImageOptionTile(
+                  text: "Camera",
+                  icon: Icons.camera_alt,
+                  source: ImageSource.camera,
+                ),
+                const SizedBox(height: 8),
+              ],
             ),
-            const Divider(height: 1),
-            _buildImageOptionTile(
-              text: "Camera",
-              icon: Icons.camera_alt,
-              source: ImageSource.camera,
-            ),
-            const SizedBox(height: 8),
-          ],
-        ),
-      ),
+          ),
     );
   }
 
@@ -195,23 +191,24 @@ class _ProfileOwnerState extends State<ProfileOwner> {
   Future<void> _logout() async {
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text("Logout"),
-        content: const Text("Are you sure you want to logout?"),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text("Cancel"),
+      builder:
+          (context) => AlertDialog(
+            title: const Text("Logout"),
+            content: const Text("Are you sure you want to logout?"),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text("Cancel"),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(context, true),
+                child: const Text(
+                  "Logout",
+                  style: TextStyle(color: Colors.red),
+                ),
+              ),
+            ],
           ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text(
-              "Logout",
-              style: TextStyle(color: Colors.red),
-            ),
-          ),
-        ],
-      ),
     );
 
     if (confirmed == true) {
@@ -267,10 +264,7 @@ class _ProfileOwnerState extends State<ProfileOwner> {
         const SizedBox(height: 16),
         Text(
           _userProfile['name'] ?? 'No Name',
-          style: const TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 20,
-          ),
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
         ),
         const SizedBox(height: 4),
         Text(
@@ -303,15 +297,12 @@ class _ProfileOwnerState extends State<ProfileOwner> {
             radius: 70,
             backgroundColor: Colors.grey.shade300,
             backgroundImage: _getProfileImage(),
-            child: _userProfile['profile_picture'] == null
-                ? const Icon(Icons.person, size: 50)
-                : null,
+            child:
+                _userProfile['profile_picture'] == null
+                    ? const Icon(Icons.person, size: 50)
+                    : null,
           ),
-          const Positioned(
-            bottom: 2,
-            right: 2,
-            child: _EditProfileIcon(),
-          ),
+          const Positioned(bottom: 2, right: 2, child: _EditProfileIcon()),
         ],
       ),
     );
@@ -387,10 +378,7 @@ class _ProfileOwnerState extends State<ProfileOwner> {
   }) {
     return ListTile(
       leading: Icon(icon, color: color),
-      title: Text(
-        text,
-        style: TextStyle(color: color),
-      ),
+      title: Text(text, style: TextStyle(color: color)),
       onTap: onTap,
     );
   }
