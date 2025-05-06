@@ -2,6 +2,7 @@ import 'package:front/features/room/data/models/new_room_model.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'dart:convert';
+import 'package:front/features/dashboard/presentation/screens/users/penyewa/booking/create_booking.dart';
 class RoomListScreen extends StatefulWidget {
   final int propertyId;
 
@@ -204,27 +205,55 @@ class _RoomListScreenState extends State<RoomListScreen> {
                   ),
                 ],
                 SizedBox(height: 12),
+                // SizedBox(
+                //   width: double.infinity,
+                //   child: ElevatedButton(
+                //     onPressed: room.isAvailable
+                //         ? () {
+                //             // Navigasi ke booking screen
+                //           }
+                //         : null,
+                //     style: ElevatedButton.styleFrom(
+                //       backgroundColor:
+                //           room.isAvailable ? Colors.green : Colors.grey,
+                //       shape: RoundedRectangleBorder(
+                //         borderRadius: BorderRadius.circular(8),
+                //       ),
+                //     ),
+                //     child: Text(
+                //       room.isAvailable ? 'Pesan Sekarang' : 'Tidak Tersedia',
+                //       style: TextStyle(color: Colors.white),
+                //     ),
+                //   ),
+                // ),
                 SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: room.isAvailable
-                        ? () {
-                            // Navigasi ke booking screen
-                          }
-                        : null,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor:
-                          room.isAvailable ? Colors.green : Colors.grey,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                    child: Text(
-                      room.isAvailable ? 'Pesan Sekarang' : 'Tidak Tersedia',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                  ),
+  width: double.infinity,
+  child: ElevatedButton(
+    onPressed: room.isAvailable
+        ? () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => CreateBookingScreen(
+                  propertyId: widget.propertyId,
+                  room: room, // Kirim data kamar yang dipilih
                 ),
+              ),
+            );
+          }
+        : null,
+    style: ElevatedButton.styleFrom(
+      backgroundColor: room.isAvailable ? Colors.green : Colors.grey,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(8),
+      ),
+    ),
+    child: Text(
+      room.isAvailable ? 'Pesan Sekarang' : 'Tidak Tersedia',
+      style: TextStyle(color: Colors.white),
+    ),
+  ),
+),
               ],
             ),
           ),

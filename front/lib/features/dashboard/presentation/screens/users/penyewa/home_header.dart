@@ -1,7 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:front/features/dashboard/presentation/screens/users/penyewa/search_result_screen.dart';
 
-class DashboardHeader extends StatelessWidget {
+class DashboardHeader extends StatefulWidget {
   const DashboardHeader({super.key});
+
+  @override
+  State<DashboardHeader> createState() => _DashboardHeaderState();
+}
+
+class _DashboardHeaderState extends State<DashboardHeader> {
+  final TextEditingController _searchController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -35,14 +43,15 @@ class DashboardHeader extends StatelessWidget {
                       ),
                     )
                   ],
-                )
+                ),
               ],
             ),
           ],
         ),
-        // Tambahkan TextField pencarian di sini
         const SizedBox(height: 20),
+        // TextField untuk pencarian
         TextField(
+          controller: _searchController,
           decoration: InputDecoration(
             hintText: 'Cari',
             prefixIcon: const Icon(Icons.search),
@@ -53,6 +62,17 @@ class DashboardHeader extends StatelessWidget {
             filled: true,
             fillColor: Colors.grey.shade200,
           ),
+          onSubmitted: (value) {
+            // Ketika tombol Enter ditekan, kirim pencarian ke halaman hasil pencarian
+            if (value.isNotEmpty) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => SearchResultScreen(searchKeyword: value),
+                ),
+              );
+            }
+          },
         ),
       ],
     );

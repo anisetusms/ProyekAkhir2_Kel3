@@ -3,10 +3,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:front/features/dashboard/presentation/screens/users/owner/homeowner.dart';
 import 'package:front/features/dashboard/presentation/screens/users/penyewa/HomePenyewa.dart';
+import 'package:front/features/dashboard/presentation/screens/users/penyewa/Search_screen.dart';
 import 'package:front/features/property/presentation/screens/property_list.dart';
 import 'package:front/features/dashboard/presentation/screens/users/penyewa/profil/profil_user.dart';
 import 'package:front/features/dashboard/presentation/screens/users/owner/profil.dart';
-
+import 'package:front/features/dashboard/presentation/screens/users/penyewa/booking/Daftar_booking_screen.dart';
 class BottomBar extends StatefulWidget {
   const BottomBar({super.key});
 
@@ -125,9 +126,9 @@ class _BottomBarState extends State<BottomBar> {
         case 0:
           return const DashboardPage();
         case 1:
-          return const Search();
+          return const SearchScreen();
         case 2:
-          return const BookingCustomer();
+          return  const  BookingListScreen();
         case 3:
           return const ProfileUser();
         default:
@@ -146,13 +147,13 @@ class BookingOwner extends StatelessWidget {
   }
 }
 
-class Search extends StatelessWidget {
-  const Search({super.key});
-  @override
-  Widget build(BuildContext context) {
-    return const Center(child: Text('Search Owner'));
-  }
-}
+// class Search extends StatelessWidget {
+//   const Search({super.key});
+//   @override
+//   Widget build(BuildContext context) {
+//     return const Center(child: Text('Search Owner'));
+//   }
+// }
 
 class Ulasan extends StatelessWidget {
   const Ulasan({super.key});
@@ -162,11 +163,3 @@ class Ulasan extends StatelessWidget {
   }
 }
 
-// Dummy halaman untuk Customer
-class BookingCustomer extends StatelessWidget {
-  const BookingCustomer({super.key});
-  @override
-  Widget build(BuildContext context) {
-    return const Center(child: Text('Booking Customer'));
-  }
-}

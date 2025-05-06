@@ -5,6 +5,7 @@ import 'package:front/features/dashboard/presentation/screens/users/penyewa/home
 import 'package:front/features/dashboard/presentation/screens/users/penyewa/service/wishlist_service.dart';
 import 'package:front/features/dashboard/presentation/screens/users/penyewa/wishlist_manager.dart';
 import 'package:front/features/dashboard/presentation/screens/users/penyewa/property_detail_screen.dart';
+import 'package:front/features/dashboard/presentation/screens/users/penyewa/all_properties_screen.dart';
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
 
@@ -399,13 +400,25 @@ class _DashboardPageState extends State<DashboardPage> {
                                 color: Colors.black87,
                               ),
                             ),
-                            Text(
-                              "Lihat Semua",
-                              style: TextStyle(
-                                color: Theme.of(context).primaryColor,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
+                            TextButton(
+  onPressed: () {
+    // Aksi yang akan dijalankan ketika tombol ditekan
+    // Misalnya, Anda bisa menavigasi ke layar lain
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => AllPropertiesScreen(),
+      ),
+    );
+  },
+  child: Text(
+    "Lihat Semua",
+    style: TextStyle(
+      color: Theme.of(context).primaryColor,
+      fontWeight: FontWeight.w500,
+    ),
+  ),
+)
                           ],
                         ),
                         const SizedBox(height: 16),
@@ -443,13 +456,25 @@ class _DashboardPageState extends State<DashboardPage> {
                                 color: Colors.black87,
                               ),
                             ),
-                            Text(
-                              "Lihat Semua",
-                              style: TextStyle(
-                                color: Theme.of(context).primaryColor,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
+                            TextButton(
+  onPressed: () {
+    // Aksi yang akan dijalankan ketika tombol ditekan
+    // Misalnya, Anda bisa menavigasi ke layar lain
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => AllPropertiesScreen(),
+      ),
+    );
+  },
+  child: Text(
+    "Lihat Semua",
+    style: TextStyle(
+      color: Theme.of(context).primaryColor,
+      fontWeight: FontWeight.w500,
+    ),
+  ),
+)
                           ],
                         ),
                         const SizedBox(height: 16),

@@ -7,6 +7,7 @@ use App\Models\Property;
 use App\Models\KostDetail;
 use App\Models\HomestayDetail;
 use App\Models\Province;
+use App\Models\RecentSearch;
 use App\Models\City;
 use App\Models\District;
 use App\Models\Subdistrict;
@@ -27,12 +28,43 @@ class PropertyPenywaApiController extends Controller
         $user_id = Auth::id();
 
         $properties = Property::with(['kostDetail', 'homestayDetail', 'province', 'city', 'district', 'subdistrict'])
-            ->where('user_id', $user_id)
             ->where('isDeleted', false)
             ->latest()
-            ->paginate(10);
+            ->get();
 
         return response()->json($properties);
+    }
+
+    public function search(Request $request)
+    {
+        $keyword = $request->query('keyword');
+        
+        if (!$keyword) {
+            return response()->json(['message' => 'Keyword is required'], 400);
+        }
+    
+        // Simpan keyword ke recent search
+        RecentSearch::create([
+            'user_id' => auth()->check() ? auth()->id() : null,
+            'keyword' => $keyword
+        ]);
+    
+        // Pencarian properti + relasi lokasi
+        $result = Property::with(['kostDetail', 'homestayDetail', 'province', 'city', 'district', 'subdistrict', 'propertyType'])
+            ->where('isDeleted', false)
+            ->where(function ($query) use ($keyword) {
+                $query->where('name', 'like', "%{$keyword}%")
+                      ->orWhereHas('province', fn($q) => $q->where('prov_name', 'like', "%{$keyword}%"))
+                      ->orWhereHas('city', fn($q) => $q->where('city_name', 'like', "%{$keyword}%"))
+                      ->orWhereHas('district', fn($q) => $q->where('dis_name', 'like', "%{$keyword}%"))
+                      ->orWhereHas('subdistrict', fn($q) => $q->where('subdis_name', 'like', "%{$keyword}%"))
+                      ->orWhereHas('propertytype', fn($q) => $q->where('name', 'like', "%{$keyword}%"));
+            })
+            ->get();
+    
+            return response()->json([
+                'data' => $result
+            ]);
     }
 
     /**
