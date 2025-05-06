@@ -7,7 +7,7 @@ use App\Http\Controllers\Api\PropertyApiController;
 use App\Http\Controllers\Api\PropertyPenywaApiController;
 use App\Http\Controllers\Api\RoomPenywaApiController;
 use App\Http\Controllers\Api\RoomApiController;
-use App\Http\Controllers\Api\DashboardApiController;
+use App\Http\Controllers\Api\BookingController;
 use App\Http\Controllers\Api\CustomerDashboardController;
 use App\Http\Controllers\Api\WishlistController;
 use Illuminate\Support\Facades\Storage;
@@ -24,9 +24,18 @@ use App\Http\Controllers\Api\SettingController;
 | which is assigned the "api" middleware group. Enjoy building your API!
 |
 */
+Route::get('/propertiescustomer', [PropertyPenywaApiController::class, 'index']);
+Route::get('/properties/{propertyId}/rooms', [RoomPenywaApiController::class, 'index']);
+Route::get('/propertiesdetail/{id}', [PropertyPenywaApiController::class, 'show'])->name('api.properties.show');
+Route::get('/roles', [RoleController::class, 'index']);
+
+Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+    return $request->user();
+});
 
 // Authentication Routes
-Route::post('/register', [AuthController::class, 'register']);
+Route::post('/
+ster', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
 // Route to serve images from storage
@@ -57,13 +66,23 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/me', [AuthController::class, 'me']); // Endpoint for logged-in user info
 
-    // Property Routes
+    Route::get('/me', [AuthController::class, 'me']); // Endpoint untuk mendapatkan informasi user yang login
+    // Untuk memperbarui profil tanpa autentikasi (jika dibutuhkan)
+    Route::post('/profile', [SettingController::class, 'updateProfile'])->name('api.profile.update');
+    Route::get('/profile', [SettingController::class, 'profile']);
+    Route::post('/profile', [SettingController::class, 'updateProfile']);
+    Route::post('/update-password', [SettingController::class, 'updatePassword']);
+    // Untuk mendapatkan profil (akses publik jika perlu)
+    Route::get('/profile', [SettingController::class, 'profile'])->name('api.profile');
+    
+    // Property Routes'
     Route::get('properties/available', [PropertyApiController::class, 'getAvailableProperties']);
     Route::get('/properties', [PropertyApiController::class, 'index'])->name('api.properties.index');
     Route::post('/properties', [PropertyApiController::class, 'store'])->name('api.properties.store');
     Route::get('/properties/{id}', [PropertyApiController::class, 'show'])->name('api.properties.show');
     Route::post('/properties/{id}', [PropertyApiController::class, 'update'])->name('api.properties.update');
     Route::delete('/properties/{id}', [PropertyApiController::class, 'destroy'])->name('api.properties.destroy');
+    Route::get('/property/search', [PropertyPenywaApiController::class, 'search']);
 
     // Location Routes
     Route::get('/provinces', [PropertyApiController::class, 'getProvinces'])->name('api.provinces');
@@ -83,6 +102,12 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/{room}', [RoomApiController::class, 'update'])->name('update');
         Route::delete('/{room}', [RoomApiController::class, 'destroy'])->name('destroy');
         Route::post('/{room}/facilities', [RoomApiController::class, 'addFacility'])->name('facilities.store');
+    });
+    Route::prefix('bookings')->group(function () {
+        Route::get('/', [BookingController::class, 'index']);
+        Route::post('/', [BookingController::class, 'store']);
+        Route::get('/{id}', [BookingController::class, 'show']);
+        Route::put('/{id}/cancel', [BookingController::class, 'cancel']);
     });
 
     // Wishlist Routes

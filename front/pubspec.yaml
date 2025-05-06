@@ -42,6 +42,7 @@ dependencies:
   mime: ^1.0.4
   path: ^1.8.3
   http_parser: ^4.0.2
+  flutter_launcher_icons: ^0.14.3
 
 dev_dependencies:
   flutter_test:
@@ -55,3 +56,9 @@ flutter:
   assets:
     - assets/image/
     - assets/icons/
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/icons/logo.jpg"
+
