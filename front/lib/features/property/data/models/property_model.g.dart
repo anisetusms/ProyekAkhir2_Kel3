@@ -6,27 +6,55 @@ part of 'property_model.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-PropertyModel _$PropertyModelFromJson(Map<String, dynamic> json) => PropertyModel(
+PropertyModel _$PropertyModelFromJson(Map<String, dynamic> json) =>
+    PropertyModel(
       id: (json['id'] as num).toInt(),
       name: json['name'] as String,
       image: json['image'] as String?,
-      price: double.parse(json['price'] as String), // Handle string price
+      price: _parsePrice(json['price']),
       address: json['address'] as String,
       description: json['description'] as String,
-      propertyTypeId: (json['property_type_id'] as num).toInt(), // snake_case
-      provinceId: (json['province_id'] as num).toInt(), // snake_case
-      cityId: (json['city_id'] as num).toInt(), // snake_case
-      districtId: (json['district_id'] as num).toInt(), // snake_case
-      subdistrictId: (json['subdistrict_id'] as num).toInt(), // snake_case
-      latitude: double.tryParse(json['latitude'] as String) ?? 0.0, // Handle string
-      longitude: double.tryParse(json['longitude'] as String) ?? 0.0, // Handle string
+      propertyTypeId: (json['property_type_id'] as num).toInt(),
+      provinceId: (json['province_id'] as num).toInt(),
+      cityId: (json['city_id'] as num).toInt(),
+      districtId: (json['district_id'] as num).toInt(),
+      subdistrictId: (json['subdistrict_id'] as num).toInt(),
+      latitude: _parseLatitude(json['latitude']),
+      longitude: _parseLongitude(json['longitude']),
       capacity: (json['capacity'] as num).toInt(),
-      availableRooms: (json['available_rooms'] as num).toInt(), // snake_case
+      availableRooms: (json['available_rooms'] as num).toInt(),
       rules: json['rules'] as String?,
       isDeleted: json['isDeleted'] as bool,
-      createdAt: DateTime.parse(json['created_at'] as String), // snake_case
-      updatedAt: DateTime.parse(json['updated_at'] as String), // snake_case // Add this field
+      createdAt: DateTime.parse(json['created_at'] as String),
+      updatedAt: DateTime.parse(json['updated_at'] as String),
     );
+
+double _parsePrice(dynamic price) {
+  if (price is String) {
+    return double.tryParse(price) ?? 0.0;
+  } else if (price is num) {
+    return price.toDouble();
+  }
+  return 0.0;
+}
+
+double? _parseLatitude(dynamic latitude) {
+  if (latitude is String) {
+    return double.tryParse(latitude);
+  } else if (latitude is num) {
+    return latitude.toDouble();
+  }
+  return null;
+}
+
+double? _parseLongitude(dynamic longitude) {
+  if (longitude is String) {
+    return double.tryParse(longitude);
+  } else if (longitude is num) {
+    return longitude.toDouble();
+  }
+  return null;
+}
 
 Map<String, dynamic> _$PropertyModelToJson(PropertyModel instance) =>
     <String, dynamic>{
@@ -36,17 +64,17 @@ Map<String, dynamic> _$PropertyModelToJson(PropertyModel instance) =>
       'price': instance.price,
       'address': instance.address,
       'description': instance.description,
-      'propertyTypeId': instance.propertyTypeId,
-      'provinceId': instance.provinceId,
-      'cityId': instance.cityId,
-      'districtId': instance.districtId,
-      'subdistrictId': instance.subdistrictId,
+      'property_type_id': instance.propertyTypeId,
+      'province_id': instance.provinceId,
+      'city_id': instance.cityId,
+      'district_id': instance.districtId,
+      'subdistrict_id': instance.subdistrictId,
       'latitude': instance.latitude,
       'longitude': instance.longitude,
       'capacity': instance.capacity,
-      'availableRooms': instance.availableRooms,
+      'available_rooms': instance.availableRooms,
       'rules': instance.rules,
       'isDeleted': instance.isDeleted,
-      'createdAt': instance.createdAt.toIso8601String(),
-      'updatedAt': instance.updatedAt.toIso8601String(),
+      'created_at': instance.createdAt.toIso8601String(),
+      'updated_at': instance.updatedAt.toIso8601String(),
     };

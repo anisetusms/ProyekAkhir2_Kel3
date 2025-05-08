@@ -1,80 +1,71 @@
-// lib/features/booking/data/repositories/booking_repository.dart
-
-
-import 'package:front/features/dashboard/presentation/screens/users/penyewa/service/booking_service.dart';
+import 'dart:io';
+import 'package:front/core/network/api_client.dart';
 import 'package:front/features/dashboard/presentation/screens/users/penyewa/models/booking_model.dart';
-import 'package:front/features/dashboard/presentation/screens/users/penyewa/booking/exceptions.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:http/http.dart' as http;
-
+import 'package:front/features/dashboard/presentation/screens/users/penyewa/service/booking_service.dart';
+import 'package:front/features/property/data/models/property_model.dart';
 class BookingRepository {
-  final BookingApiService _apiService;
-
-  BookingRepository()
-      : _apiService = BookingApiService(
-          client: http.Client(),
-          prefs: SharedPreferences.getInstance() as SharedPreferences,
-        );
-
-  Future<BookingModel> createBooking({
+  final BookingService _bookingService;
+  
+  BookingRepository({ApiClient? apiClient}) 
+      : _bookingService = BookingService(apiClient ?? ApiClient());
+  
+  // Create a new booking
+  Future<Booking> createBooking({
     required int propertyId,
-    required String checkIn,
-    required String checkOut,
+    required List<int>? roomIds,
+    required DateTime checkIn,
+    required DateTime checkOut,
     required bool isForOthers,
-    required String identityNumber,
-    required String ktpImagePath,
-    List<int>? roomIds,
     String? guestName,
     String? guestPhone,
+    required File ktpImage,
+    required String identityNumber,
     String? specialRequests,
   }) async {
-    try {
-      return await _apiService.createBooking(
-        propertyId: propertyId,
-        checkIn: checkIn,
-        checkOut: checkOut,
-        isForOthers: isForOthers,
-        identityNumber: identityNumber,
-        ktpImagePath: ktpImagePath,
-        roomIds: roomIds,
-        guestName: guestName,
-        guestPhone: guestPhone,
-        specialRequests: specialRequests,
-      );
-    } on ApiException {
-      rethrow;
-    } catch (e) {
-      throw RepositoryException('Gagal membuat booking: $e');
-    }
+    return await _bookingService.createBooking(
+      propertyId: propertyId,
+      roomIds: roomIds,
+      checkIn: checkIn,
+      checkOut: checkOut,
+      isForOthers: isForOthers,
+      guestName: guestName,
+      guestPhone: guestPhone,
+      ktpImage: ktpImage,
+      identityNumber: identityNumber,
+      specialRequests: specialRequests,
+    );
   }
-
-  Future<List<BookingModel>> getUserBookings() async {
-    try {
-      return await _apiService.getUserBookings();
-    } on ApiException {
-      rethrow;
-    } catch (e) {
-      throw RepositoryException('Gagal memuat data booking: $e');
-    }
+  
+  // Get all bookings for the current user
+  Future<List<Booking>> getUserBookings() async {
+    return await _bookingService.getUserBookings();
   }
-
-  Future<BookingModel> getBookingDetail(String bookingId) async {
-    try {
-      return await _apiService.getBookingDetail(bookingId);
-    } on ApiException {
-      rethrow;
-    } catch (e) {
-      throw RepositoryException('Gagal memuat detail booking: $e');
-    }
+  
+  // Get details of a specific booking
+  Future<Booking> getBookingDetail(int id) async {
+    return await _bookingService.getBookingDetail(id);
   }
-
-  Future<void> cancelBooking(String bookingId) async {
-    try {
-      await _apiService.cancelBooking(bookingId);
-    } on ApiException {
-      rethrow;
-    } catch (e) {
-      throw RepositoryException('Gagal membatalkan booking: $e');
-    }
+  
+  // Cancel a booking
+  Future<void> cancelBooking(int id) async {
+    await _bookingService.cancelBooking(id);
+  }
+  
+  // Check property availability
+  Future<Map<String, dynamic>> checkAvailability(
+    int propertyId, 
+    DateTime checkIn, 
+    DateTime checkOut
+  ) async {
+    return await _bookingService.checkAvailability(
+  propertyId: propertyId,
+  checkIn: checkIn,
+  checkOut: checkOut,
+);
+  }
+  
+  // Get property details
+  Future<PropertyModel> getPropertyDetails(int propertyId) async {
+    return await _bookingService.getPropertyDetails(propertyId);
   }
 }

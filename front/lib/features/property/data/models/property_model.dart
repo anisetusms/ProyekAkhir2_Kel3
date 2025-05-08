@@ -1,6 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
-import 'package:dotenv/dotenv.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
 part 'property_model.g.dart';
 
 @JsonSerializable()
@@ -11,18 +12,27 @@ class PropertyModel extends Equatable {
   final double price;
   final String address;
   final String description;
+  @JsonKey(name: 'property_type_id')
   final int propertyTypeId;
+  @JsonKey(name: 'province_id')
   final int provinceId;
+  @JsonKey(name: 'city_id')
   final int cityId;
+  @JsonKey(name: 'district_id')
   final int districtId;
+  @JsonKey(name: 'subdistrict_id')
   final int subdistrictId;
   final double? latitude;
   final double? longitude;
   final int capacity;
+  @JsonKey(name: 'available_rooms')
   final int availableRooms;
   final String? rules;
+  @JsonKey(name: 'isDeleted')
   final bool isDeleted;
+  @JsonKey(name: 'created_at')
   final DateTime createdAt;
+  @JsonKey(name: 'updated_at')
   final DateTime updatedAt;
 
   const PropertyModel({
@@ -55,9 +65,9 @@ class PropertyModel extends Equatable {
 
   Map<String, dynamic> toJson() => _$PropertyModelToJson(this);
 
-  // String get imageUrl => image != null 
-  //     ? '${dotenv.get('API_BASE_URL')}/storage/$image'
-  //     : 'https://via.placeholder.com/150';
+  String get imageUrl => image != null 
+      ? '${dotenv.env['API_BASE_URL']}/storage/$image'
+      : 'https://via.placeholder.com/150';
 
   @override
   List<Object?> get props => [id];

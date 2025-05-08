@@ -28,22 +28,22 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   // Text Styles
   TextStyle get _appBarTitleStyle => const TextStyle(
-        fontSize: 22,
-        fontWeight: FontWeight.w600,
-        color: Colors.white,
-      );
-  
+    fontSize: 22,
+    fontWeight: FontWeight.w600,
+    color: Colors.white,
+  );
+
   TextStyle get _headlineStyle => TextStyle(
-        fontSize: 20,
-        fontWeight: FontWeight.w600,
-        color: _textPrimaryColor,
-      );
-  
+    fontSize: 20,
+    fontWeight: FontWeight.w600,
+    color: _textPrimaryColor,
+  );
+
   TextStyle get _bodyStyle => TextStyle(
-        fontSize: 16,
-        fontWeight: FontWeight.w400,
-        color: _textSecondaryColor,
-      );
+    fontSize: 16,
+    fontWeight: FontWeight.w400,
+    color: _textSecondaryColor,
+  );
 
   // State variables
   Future<Map<String, dynamic>>? _dashboardDataFuture;
@@ -104,7 +104,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
           _userProfile = response['data'];
         });
       } else {
-        throw Exception(response['message']?.toString() ?? 'Failed to fetch profile');
+        throw Exception(
+          response['message']?.toString() ?? 'Failed to fetch profile',
+        );
       }
     } catch (e) {
       setState(() {
@@ -183,9 +185,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }) {
     return Card(
       elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Container(
         decoration: BoxDecoration(
           color: _cardBackground,
@@ -199,7 +199,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             return DashboardCard(
               icon: icon,
               title: title,
-              value: FormatUtils.formatNumber(value),
+              value: FormatUtils.formatPrice(value), // Menggunakan format harga
               color: color,
             );
           },
@@ -267,9 +267,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         backgroundColor: color.withOpacity(0.1),
         foregroundColor: color,
         elevation: 0,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
       ),
       child: Row(
@@ -328,7 +326,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
             child: FutureBuilder<Map<String, dynamic>>(
               future: _dashboardDataFuture,
               builder: (context, snapshot) {
-                if (!snapshot.hasData || snapshot.data!['recent_activities'] == null) {
+                if (!snapshot.hasData ||
+                    snapshot.data!['recent_activities'] == null) {
                   return Center(
                     child: Text(
                       'No recent activities',
@@ -385,10 +384,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                activity['description'] ?? 'Activity',
-                style: _bodyStyle,
-              ),
+              Text(activity['description'] ?? 'Activity', style: _bodyStyle),
               const SizedBox(height: 4),
               Text(
                 FormatUtils.formatDateTime(activity['created_at']),
@@ -438,64 +434,59 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: _backgroundColor,
-      body: _isLoading
-          ? const LoadingIndicator()
-          : _errorMessage != null
-              ? ErrorState(
-                  message: _errorMessage!,
-                  onRetry: _loadDashboardData,
-                )
+      body:
+          _isLoading
+              ? const LoadingIndicator()
+              : _errorMessage != null
+              ? ErrorState(message: _errorMessage!, onRetry: _loadDashboardData)
               : LiquidPullToRefresh(
-                  color: _primaryColor,
-                  backgroundColor: _backgroundColor,
-                  onRefresh: _loadDashboardData,
-                  child: CustomScrollView(
-                    controller: _scrollController,
-                    slivers: [
-                      SliverAppBar(
-                        title: Text(
-                          'Dashboard',
-                          style: _appBarTitleStyle,
-                        ),
-                        centerTitle: false,
-                        floating: true,
-                        snap: true,
-                        elevation: 0,
-                        backgroundColor: Colors.transparent,
-                        flexibleSpace: Container(
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [_primaryColor, _primaryDarkColor],
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                            ),
+                color: _primaryColor,
+                backgroundColor: _backgroundColor,
+                onRefresh: _loadDashboardData,
+                child: CustomScrollView(
+                  controller: _scrollController,
+                  slivers: [
+                    SliverAppBar(
+                      title: Text('Dashboard', style: _appBarTitleStyle),
+                      centerTitle: false,
+                      floating: true,
+                      snap: true,
+                      elevation: 0,
+                      backgroundColor: Colors.transparent,
+                      flexibleSpace: Container(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [_primaryColor, _primaryDarkColor],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
                           ),
                         ),
-                        actions: [
-                          IconButton(
-                            icon: const Icon(Icons.refresh, color: Colors.white),
-                            onPressed: _loadDashboardData,
-                            tooltip: 'Refresh',
-                          ),
-                        ],
                       ),
-                      SliverPadding(
-                        padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
-                        sliver: SliverList(
-                          delegate: SliverChildListDelegate([
-                            _buildHeader(),
-                            const SizedBox(height: 24),
-                            _buildStatsGrid(),
-                            const SizedBox(height: 24),
-                            _buildQuickActions(),
-                            const SizedBox(height: 24),
-                            _buildRecentActivities(),
-                          ]),
+                      actions: [
+                        IconButton(
+                          icon: const Icon(Icons.refresh, color: Colors.white),
+                          onPressed: _loadDashboardData,
+                          tooltip: 'Refresh',
                         ),
+                      ],
+                    ),
+                    SliverPadding(
+                      padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
+                      sliver: SliverList(
+                        delegate: SliverChildListDelegate([
+                          _buildHeader(),
+                          const SizedBox(height: 24),
+                          _buildStatsGrid(),
+                          const SizedBox(height: 24),
+                          _buildQuickActions(),
+                          const SizedBox(height: 24),
+                          _buildRecentActivities(),
+                        ]),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
+              ),
     );
   }
 }

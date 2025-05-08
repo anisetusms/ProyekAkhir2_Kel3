@@ -4,8 +4,9 @@ import 'package:front/features/dashboard/presentation/screens/users/penyewa/mode
 import 'package:front/features/dashboard/presentation/screens/users/penyewa/booking/booking_repository.dart';
 import 'package:intl/intl.dart';
 import 'package:front/core/utils/constants.dart';
+
 class BookingDetailScreen extends StatefulWidget {
-  final String bookingId;
+  final int bookingId;
 
   const BookingDetailScreen({super.key, required this.bookingId});
 
@@ -14,7 +15,7 @@ class BookingDetailScreen extends StatefulWidget {
 }
 
 class _BookingDetailScreenState extends State<BookingDetailScreen> {
-  late Future<BookingModel> _bookingFuture;
+  late Future<Booking> _bookingFuture;
   final BookingRepository _bookingRepository = BookingRepository();
   bool _isCancelling = false;
 
@@ -69,7 +70,7 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
       appBar: AppBar(
         title: const Text('Detail Booking'),
       ),
-      body: FutureBuilder<BookingModel>(
+      body: FutureBuilder<Booking>(
         future: _bookingFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -103,6 +104,8 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
           }
 
           final booking = snapshot.data!;
+          final dateFormat = DateFormat('dd MMM yyyy');
+          final days = booking.checkOut.difference(booking.checkIn).inDays;
 
           return SingleChildScrollView(
             padding: const EdgeInsets.all(16),
@@ -155,10 +158,10 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    booking.propertyName,
+                                    booking.propertyName ?? 'Properti #${booking.propertyId}',
                                     style: const TextStyle(fontWeight: FontWeight.bold),
                                   ),
-                                  Text(booking.propertyAddress),
+                                  Text(booking.propertyAddress ?? 'Alamat tidak tersedia'),
                                 ],
                               ),
                             ),
@@ -182,16 +185,18 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                           style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                         ),
                         const SizedBox(height: 16),
-                        _buildDetailRow('ID Booking', booking.bookingCode),
-                        _buildDetailRow('Tanggal Booking', booking.createdAt),
-                        _buildDetailRow('Check-in', booking.checkIn),
-                        _buildDetailRow('Check-out', booking.checkOut),
-                        _buildDetailRow('Durasi', '${booking.totalDays} ${booking.isKost ? 'Bulan' : 'Malam'}'),
-                        if (booking.roomNames.isNotEmpty)
-                          _buildDetailRow('Kamar', booking.roomNames.join(', ')),
+                        _buildDetailRow('ID Booking', '#${booking.id}'),
+                        _buildDetailRow('Tanggal Booking', dateFormat.format(booking.createdAt)),
+                        _buildDetailRow('Check-in', dateFormat.format(booking.checkIn)),
+                        _buildDetailRow('Check-out', dateFormat.format(booking.checkOut)),
+                        _buildDetailRow('Durasi', '$days ${booking.isHomestay ? 'Bulan' : 'Malam'}'),
+                        if (booking.bookingRooms != null && booking.bookingRooms!.isNotEmpty)
+                          _buildDetailRow('Kamar', booking.bookingRooms!.map((br) => 
+                            br.room != null ? br.room!['room_number'] : 'Kamar #${br.roomId}'
+                          ).join(', ')),
                         _buildDetailRow('Total Harga', 'Rp ${NumberFormat('#,###').format(booking.totalPrice)}'),
-                        if (booking.specialRequests.isNotEmpty)
-                          _buildDetailRow('Permintaan Khusus', booking.specialRequests),
+                        if (booking.specialRequests != null && booking.specialRequests!.isNotEmpty)
+                          _buildDetailRow('Permintaan Khusus', booking.specialRequests!),
                       ],
                     ),
                   ),
@@ -210,10 +215,10 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                           style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                         ),
                         const SizedBox(height: 16),
-                        _buildDetailRow('Nama Tamu', booking.guestName),
-                        _buildDetailRow('Nomor Telepon', booking.guestPhone),
-                        _buildDetailRow('Nomor KTP', booking.identityNumber),
-                        if (booking.ktpImage.isNotEmpty)
+                        _buildDetailRow('Nama Tamu', booking.guestName ?? 'Pemesan Sendiri'),
+                        _buildDetailRow('Nomor Telepon', booking.guestPhone ?? 'Tidak tersedia'),
+                        _buildDetailRow('Nomor KTP', booking.identityNumber ?? 'Tidak tersedia'),
+                        if (booking.ktpImage != null)
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [

@@ -1,70 +1,71 @@
-import 'package:equatable/equatable.dart';
+import 'package:front/features/room/data/models/facility.dart';
+import 'package:front/features/room/data/models/room_image.dart';
 
-class Room extends Equatable {
+class Room {
   final int id;
-  final int propertyId;
   final String roomType;
   final String roomNumber;
-  final num price;
+  final double price;
   final String? size;
   final int? capacity;
-  final bool isAvailable;
   final String? description;
-  final List<RoomFacility>? facilities;
+  final bool isAvailable;
+  final List<RoomImage> images;
+  final List<Facility> facilities;
 
-  const Room({
+  Room({
     required this.id,
-    required this.propertyId,
     required this.roomType,
     required this.roomNumber,
     required this.price,
     this.size,
     this.capacity,
-    required this.isAvailable,
     this.description,
-    this.facilities,
+    required this.isAvailable,
+    required this.images,
+    required this.facilities,
   });
 
   factory Room.fromJson(Map<String, dynamic> json) {
+    // Handle price conversion
+    double price = 0.0;
+    if (json['price'] != null) {
+      if (json['price'] is int) {
+        price = json['price'].toDouble();
+      } else if (json['price'] is double) {
+        price = json['price'];
+      } else if (json['price'] is String) {
+        price = double.tryParse(json['price']) ?? 0.0;
+      }
+    }
+
+    // Handle images - return empty list if not provided
+    List<RoomImage> images = [];
+    if (json['images'] != null && json['images'] is List) {
+      images = (json['images'] as List)
+          .map((image) => RoomImage.fromJson(image))
+          .toList();
+    }
+
+    // Handle facilities
+    List<Facility> facilities = [];
+    if (json['facilities'] != null && json['facilities'] is List) {
+      facilities = (json['facilities'] as List)
+          .map((facility) => Facility.fromJson(facility))
+          .toList();
+    }
+
     return Room(
-      id: int.tryParse(json['id'].toString()) ?? 0,
-      propertyId: int.tryParse(json['property_id'].toString()) ?? 0,
-      roomType: json['room_type'] as String,
-      roomNumber: json['room_number'] as String,
-      price: num.tryParse(json['price'].toString()) ?? 0,
-      size: json['size'] as String?,
-      capacity: json['capacity'] != null ? int.tryParse(json['capacity'].toString()) : null,
-      isAvailable: json['is_available'] as bool,
-      description: json['description'] as String?,
-      facilities: (json['facilities'] as List<dynamic>?)
-          ?.map((e) => RoomFacility.fromJson(e as Map<String, dynamic>))
-          .toList(),
+      id: json['id'] ?? 0,
+      roomType: json['room_type'] ?? 'Kamar',
+      roomNumber: json['room_number'] ?? '',
+      price: price,
+      size: json['size'],
+      capacity: json['capacity'],
+      description: json['description'],
+      isAvailable: json['is_available'] ?? true,
+      images: images,
+      facilities: facilities,
     );
   }
-
-  @override
-  List<Object?> get props => [id];
-}
-
-class RoomFacility extends Equatable {
-  final int id;
-  final int roomId;
-  final String facilityName;
-
-  const RoomFacility({
-    required this.id,
-    required this.roomId,
-    required this.facilityName,
-  });
-
-  factory RoomFacility.fromJson(Map<String, dynamic> json) {
-    return RoomFacility(
-      id: json['id'] as int,
-      roomId: json['room_id'] as int,
-      facilityName: json['facility_name'] as String,
-    );
-  }
-
-  @override
-  List<Object?> get props => [id];
 }

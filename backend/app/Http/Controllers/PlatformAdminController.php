@@ -6,6 +6,9 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
+use App\Models\Property;
+
 
 class PlatformAdminController extends Controller
 {
@@ -146,5 +149,39 @@ class PlatformAdminController extends Controller
         }
 
         return redirect()->back()->with('error', 'Role pengguna tidak valid.');
+    }
+
+    public function showOwnerDetail($id)
+    {
+        // Ambil data owner berdasarkan ID
+        $owner = DB::table('users')->where('id', $id)->where('user_role_id', 2)->first();
+
+        if (!$owner) {
+            return redirect()->route('super_admin.entrepreneurs.approved')->with('error', 'Owner tidak ditemukan');
+        }
+
+        // Ambil jumlah properti yang dimiliki oleh owner
+        $totalProperties = Property::where('user_id', $id)->count();
+
+        // Ambil daftar properti yang dimiliki oleh owner
+        $properties = Property::with(['kostDetail', 'homestayDetail', 'province', 'city', 'district', 'subdistrict'])
+            ->where('user_id', $id)
+            ->where('isDeleted', false)
+            ->get();
+
+        // Kirim data ke tampilan
+        return view('platform_admin.show', compact('owner', 'totalProperties', 'properties'));
+    }
+
+    public function showPropertyDetails($id)
+    {
+        $property = Property::with(['kostDetail', 'homestayDetail', 'province', 'city', 'district', 'subdistrict'])->findOrFail($id);
+
+        // Calculate available rooms, total rooms, and availability percentage
+        $totalRooms = $property->rooms->count();
+        $availableRooms = $property->rooms->where('is_available', true)->count();
+        $availablePercentage = ($totalRooms > 0) ? ($availableRooms / $totalRooms) * 100 : 0;
+
+        return view('platform_admin.properties.details', compact('property', 'totalRooms', 'availableRooms', 'availablePercentage'));
     }
 }

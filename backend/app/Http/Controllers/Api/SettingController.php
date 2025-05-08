@@ -115,7 +115,7 @@ class SettingController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Profile picture uploaded successfully',
+                'message' => 'Foto profil berhasil diperbarui',
                 'data' => $user
             ]);
         }

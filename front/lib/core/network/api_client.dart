@@ -1,20 +1,20 @@
+import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:front/core/utils/constants.dart';
-import 'dart:io';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 
 class ApiClient {
   final Dio _dio = Dio();
-
-  // Getter untuk mengakses instance Dio
   Dio get dio => _dio;
 
   ApiClient() {
+    // Set base URL and content type
     _dio.options.baseUrl = Constants.baseUrl;
     _dio.options.headers['Content-Type'] = 'application/json';
 
-    // Interceptor untuk menambahkan token secara otomatis jika tersedia
+    // Interceptor for adding the Authorization header
     _dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) async {
@@ -23,18 +23,17 @@ class ApiClient {
           if (token != null) {
             options.headers['Authorization'] = 'Bearer $token';
           }
-          return handler.next(options);
+          return handler.next(options);  // Continue the request
         },
       ),
     );
   }
 
-  // Tambahkan ini di class ApiClient
-  // Fungsi untuk meng-upload file (gambar profil)
+  /// Upload file to the server
   Future<dynamic> uploadFile(
     String endpoint,
     File file, {
-    String fieldName = 'profile_picture',
+    String fieldName = 'profile_picture', // Default field name for the file
   }) async {
     try {
       FormData formData = FormData.fromMap({
@@ -50,14 +49,15 @@ class ApiClient {
         options: Options(contentType: 'multipart/form-data'),
       );
 
-      return response.data;
+      return response.data; // Return the response data
     } on DioException catch (e) {
       debugPrint('Upload Error: ${e.response?.data}');
+      _handleError(e);
       rethrow;
     }
   }
 
-  // POST request dengan body berupa form-data
+  /// POST request with body as form-data
   Future<dynamic> post(
     String endpoint, {
     Map<String, dynamic>? body,
@@ -66,19 +66,24 @@ class ApiClient {
     try {
       Response response;
       if (formData != null) {
-        // Jika formData disertakan, gunakan formData untuk upload
         response = await _dio.post(endpoint, data: formData);
       } else {
         response = await _dio.post(endpoint, data: body);
       }
-      return response.data;
+
+      // Pastikan response data yang diterima berupa Map
+      if (response.data is Map<String, dynamic>) {
+        return response.data; // Kembalikan data dalam bentuk Map
+      } else {
+        throw Exception('Response tidak valid');
+      }
     } catch (e) {
       _handleError(e as DioException);
       return null;
     }
   }
 
-  // Untuk permintaan GET
+  /// GET request
   Future<dynamic> get(
     String endpoint, {
     Map<String, dynamic>? queryParameters,
@@ -88,36 +93,55 @@ class ApiClient {
         endpoint,
         queryParameters: queryParameters,
       );
-      return response.data;
+      return response.data;  // Return the response data
     } catch (e) {
       _handleError(e as DioException);
       return null;
     }
   }
 
-  // PUT request
-  Future<dynamic> put(String endpoint, {Map<String, dynamic>? body}) async {
+  /// PUT request
+  Future<dynamic> put(
+    String endpoint, {
+    Map<String, dynamic>? body,
+    FormData? formData,
+  }) async {
     try {
-      final response = await _dio.put(endpoint, data: body);
-      return response.data;
-    } catch (e) {
-      _handleError(e as DioException);
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('token');
+
+      Options options = Options(
+        headers: {
+          'Authorization': 'Bearer $token',
+          if (formData != null) 'Content-Type': 'multipart/form-data',
+        },
+      );
+
+      final response = await _dio.put(
+        endpoint,
+        data: formData ?? body,
+        options: options,
+      );
+
+      return response.data; // Return the response data
+    } on DioException catch (e) {
+      _handleError(e);
       return null;
     }
   }
 
-  // DELETE request
+  /// DELETE request
   Future<dynamic> delete(String endpoint) async {
     try {
       final response = await _dio.delete(endpoint);
-      return response.data;
+      return response.data;  // Return the response data
     } catch (e) {
       _handleError(e as DioException);
       return null;
     }
   }
 
-   // Fungsi untuk menangani error
+  /// Handle error response from Dio
   void _handleError(DioException error) {
     String errorMessage = 'Terjadi kesalahan yang tidak diketahui.';
 
@@ -139,6 +163,6 @@ class ApiClient {
           error.message ?? 'Terjadi kesalahan pada koneksi atau request.';
     }
 
-    throw Exception(errorMessage);
+    throw Exception(errorMessage);  // Throwing the exception with the error message
   }
 }

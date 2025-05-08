@@ -64,11 +64,12 @@ class PropertyController extends Controller
         $user_id = Auth::id();
 
         $totalProperties = Property::where('user_id', $user_id)->count();
-        $activeProperties = Property::where('user_id', $user_id)->count(); // Ganti ini
+        $activeProperties = Property::where('user_id', $user_id)->where('isDeleted', false)->count(); 
+        $inactiveProperties = Property::where('user_id', $user_id)->where('isDeleted', true)->count();
         $pendingProperties = Property::where('user_id', $user_id)->count(); // Ganti ini
         $latestProperties = Property::where('user_id', $user_id)->latest()->take(5)->get();
-        $totalViews = 120; 
-        $totalMessages = 50; 
+        $totalViews = 120;
+        $totalMessages = 50;
 
         return view('admin.properties.dashboard', compact('totalProperties', 'activeProperties', 'pendingProperties', 'latestProperties', 'totalViews', 'totalMessages'));
     }
@@ -98,7 +99,7 @@ class PropertyController extends Controller
                 'longitude' => $request->longitude,
                 'image' => $imagePath,
                 'capacity' => $request->capacity,
-                'available_rooms' => $request->property_type_id == 1 ? $request->available_rooms : 0, 
+                'available_rooms' => $request->property_type_id == 1 ? $request->available_rooms : 0,
                 'rules' => $request->rules,
                 'isDeleted' => false
             ]);
@@ -295,6 +296,22 @@ class PropertyController extends Controller
                 ->with('error', 'Gagal menonaktifkan properti: ' . $e->getMessage());
         }
     }
+
+    public function reactivate($id)
+    {
+        $property = Property::where('isDeleted', true)->findOrFail($id);
+
+        try {
+            $property->update(['isDeleted' => false]);
+
+            return redirect()->route('admin.properties.index')
+                ->with('success', 'Properti berhasil diaktifkan kembali');
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with('error', 'Gagal mengaktifkan properti: ' . $e->getMessage());
+        }
+    }
+
 
     public function getCities($provinceId): JsonResponse
     {

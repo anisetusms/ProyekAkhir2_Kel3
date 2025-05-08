@@ -133,6 +133,8 @@ Route::prefix('platform-admin')->name('platform_admin.')->group(function () {
     Route::post('/unban/{id}', [PlatformAdminController::class, 'unban'])->name('unban');
     Route::get('/profil', [PlatformAdminController::class, 'profil'])->name('profil');
     Route::put('/profil', [PlatformAdminController::class, 'updateProfil'])->name('update_profil');
+    Route::get('/entrepreneurs/{id}', [PlatformAdminController::class, 'showOwnerDetail'])->name('show');
+    Route::get('/properties/details/{id}', [PlatformAdminController::class, 'showPropertyDetails'])->name('properties.details');
 });
 
 Route::prefix('admin')->name('admin.')->group(function () {
@@ -149,6 +151,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('/properties/{id}/edit', [PropertyController::class, 'edit'])->name('properties.edit');
     Route::put('/properties/{id}', [PropertyController::class, 'update'])->name('properties.update');
     Route::delete('/properties/{id}', [PropertyController::class, 'destroy'])->name('properties.destroy');
+    Route::put('properties/reactivate/{id}', [PropertyController::class, 'reactivate'])->name('properties.reactivate');
     // Route::post('/provinces', [OwnerController::class, 'storeProvinces']);
     // Route::post('/cities', [OwnerController::class, 'storeCities']);
     // Route::post('/districts', [OwnerController::class, 'storeDistricts']);

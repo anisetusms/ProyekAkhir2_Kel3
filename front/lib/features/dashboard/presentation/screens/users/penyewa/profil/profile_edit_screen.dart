@@ -27,11 +27,19 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
   @override
   void initState() {
     super.initState();
-    _nameController = TextEditingController(text: widget.userProfile['name'] ?? '');
-    _usernameController = TextEditingController(text: widget.userProfile['username'] ?? '');
+    _nameController = TextEditingController(
+      text: widget.userProfile['name'] ?? '',
+    );
+    _usernameController = TextEditingController(
+      text: widget.userProfile['username'] ?? '',
+    );
     _selectedGender = widget.userProfile['gender'] ?? 'Pria';
-    _phoneController = TextEditingController(text: widget.userProfile['phone'] ?? '');
-    _addressController = TextEditingController(text: widget.userProfile['address'] ?? '');
+    _phoneController = TextEditingController(
+      text: widget.userProfile['phone'] ?? '',
+    );
+    _addressController = TextEditingController(
+      text: widget.userProfile['address'] ?? '',
+    );
   }
 
   @override
@@ -51,7 +59,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
         maxHeight: 800,
         imageQuality: 85,
       );
-      
+
       if (pickedFile != null) {
         setState(() {
           _selectedImage = File(pickedFile.path);
@@ -127,25 +135,26 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
   Future<void> _showImageOptions() async {
     await showModalBottomSheet(
       context: context,
-      builder: (context) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _buildImageOptionTile(
-              text: "Gallery",
-              icon: Icons.photo_library,
-              source: ImageSource.gallery,
+      builder:
+          (context) => SafeArea(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _buildImageOptionTile(
+                  text: "Gallery",
+                  icon: Icons.photo_library,
+                  source: ImageSource.gallery,
+                ),
+                const Divider(height: 1),
+                _buildImageOptionTile(
+                  text: "Camera",
+                  icon: Icons.camera_alt,
+                  source: ImageSource.camera,
+                ),
+                const SizedBox(height: 8),
+              ],
             ),
-            const Divider(height: 1),
-            _buildImageOptionTile(
-              text: "Camera",
-              icon: Icons.camera_alt,
-              source: ImageSource.camera,
-            ),
-            const SizedBox(height: 8),
-          ],
-        ),
-      ),
+          ),
     );
   }
 
@@ -171,12 +180,13 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
         title: const Text('Edit Profile'),
         actions: [
           IconButton(
-            icon: _isLoading
-                ? const CircularProgressIndicator(
-                    valueColor: AlwaysStoppedAnimation(Colors.white),
-                    strokeWidth: 2,
-                  )
-                : const Icon(Icons.save),
+            icon:
+                _isLoading
+                    ? const CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation(Colors.white),
+                      strokeWidth: 2,
+                    )
+                    : const Icon(Icons.save),
             onPressed: _isLoading ? null : _updateProfile,
           ),
         ],
@@ -194,9 +204,15 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                     radius: 50,
                     backgroundColor: Colors.grey.shade300,
                     backgroundImage: _getProfileImage(),
-                    child: _selectedImage == null && widget.userProfile['profile_picture'] == null
-                        ? const Icon(Icons.person, size: 40, color: Colors.grey)
-                        : null,
+                    child:
+                        _selectedImage == null &&
+                                widget.userProfile['profile_picture'] == null
+                            ? const Icon(
+                              Icons.person,
+                              size: 40,
+                              color: Colors.grey,
+                            )
+                            : null,
                   ),
                   const Positioned(
                     bottom: 0,
@@ -262,12 +278,10 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
         labelText: 'Gender',
         border: OutlineInputBorder(),
       ),
-      items: ['Pria', 'Wanita'].map((String value) {
-        return DropdownMenuItem<String>(
-          value: value,
-          child: Text(value),
-        );
-      }).toList(),
+      items:
+          ['Pria', 'Wanita'].map((String value) {
+            return DropdownMenuItem<String>(value: value, child: Text(value));
+          }).toList(),
       onChanged: (String? newValue) {
         if (newValue != null) {
           setState(() {

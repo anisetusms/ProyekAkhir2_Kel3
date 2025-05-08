@@ -5,7 +5,7 @@ import 'package:front/features/dashboard/presentation/screens/users/penyewa/serv
 import 'package:front/features/dashboard/presentation/screens/users/penyewa/models/booking_model.dart';
 
 class BookingListScreen extends StatefulWidget {
-  const BookingListScreen({Key? key}) : super(key: key); // Gunakan const constructor
+  const BookingListScreen({Key? key}) : super(key: key);
 
   @override
   _BookingListScreenState createState() => _BookingListScreenState();
