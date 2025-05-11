@@ -21,6 +21,7 @@ class _SearchScreenState extends State<SearchScreen> {
   bool _isLoading = true;
   Position? _currentPosition;
   String _currentAddress = 'Mendeteksi lokasi...';
+  double _distance = 0.0; // In meters, this will store the distance from the user to the property
 
   @override
   void initState() {
@@ -29,6 +30,7 @@ class _SearchScreenState extends State<SearchScreen> {
     _fetchNearbyProperties();
   }
 
+  // Get current location using geolocator
   Future<void> _getCurrentLocation() async {
     try {
       bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
@@ -41,7 +43,6 @@ class _SearchScreenState extends State<SearchScreen> {
 
       LocationPermission permission = await Geolocator.checkPermission();
       if (permission == LocationPermission.denied) {
-        // Meminta izin lokasi
         permission = await Geolocator.requestPermission();
         if (permission == LocationPermission.denied) {
           _showPermissionDialog(
@@ -75,7 +76,7 @@ class _SearchScreenState extends State<SearchScreen> {
     }
   }
 
-  // Menampilkan dialog pemberitahuan izin lokasi
+  // Show permission dialog
   void _showPermissionDialog(String title, String message) {
     showDialog(
       context: context,
@@ -94,7 +95,7 @@ class _SearchScreenState extends State<SearchScreen> {
               child: const Text('Pengaturan'),
               onPressed: () async {
                 Navigator.of(context).pop();
-                await Geolocator.openLocationSettings(); // Mengarahkan ke pengaturan lokasi
+                await Geolocator.openLocationSettings();
               },
             ),
           ],
@@ -103,6 +104,7 @@ class _SearchScreenState extends State<SearchScreen> {
     );
   }
 
+  // Fetch properties and sort by distance
   Future<void> _fetchNearbyProperties() async {
     try {
       setState(() {
@@ -110,7 +112,6 @@ class _SearchScreenState extends State<SearchScreen> {
         _nearbyProperties = [];
       });
 
-      // 1. Ambil semua properti dari API
       final response = await ApiClient().get('/properties');
 
       if (response != null && response['data'] != null) {
@@ -119,7 +120,7 @@ class _SearchScreenState extends State<SearchScreen> {
                 .map((item) => PropertyModel.fromJson(item))
                 .toList();
 
-        // 2. Filter dan urutkan berdasarkan jarak jika ada lokasi pengguna
+        // Filter and sort by distance if current position is available
         if (_currentPosition != null) {
           allProperties.sort((a, b) {
             if (a.latitude == null || a.longitude == null) return 1;
@@ -143,7 +144,7 @@ class _SearchScreenState extends State<SearchScreen> {
           });
         }
 
-        // 3. Filter berdasarkan tipe properti jika dipilih
+        // Filter properties by property type
         if (_selectedPropertyType != 'Semua') {
           allProperties =
               allProperties.where((property) {
@@ -175,7 +176,7 @@ class _SearchScreenState extends State<SearchScreen> {
           padding: const EdgeInsets.all(16),
           child: Column(
             children: [
-              // Search Bar dengan tombol filter
+              // Search Bar with filter button
               Row(
                 children: [
                   Expanded(
@@ -228,7 +229,7 @@ class _SearchScreenState extends State<SearchScreen> {
 
               const SizedBox(height: 20),
 
-              // Lokasi
+              // Current Location
               Row(
                 children: [
                   const Icon(
@@ -252,72 +253,7 @@ class _SearchScreenState extends State<SearchScreen> {
 
               const SizedBox(height: 16),
 
-              // Filter buttons
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  children: [
-                    _buildFilterButton(
-                      "Semua",
-                      _selectedPropertyType == "Semua",
-                      () {
-                        setState(() {
-                          _selectedPropertyType = "Semua";
-                          _fetchNearbyProperties();
-                        });
-                      },
-                    ),
-                    const SizedBox(width: 8),
-                    _buildFilterButton(
-                      "Kost",
-                      _selectedPropertyType == "Kost",
-                      () {
-                        setState(() {
-                          _selectedPropertyType = "Kost";
-                          _fetchNearbyProperties();
-                        });
-                      },
-                    ),
-                    const SizedBox(width: 8),
-                    _buildFilterButton(
-                      "Homestay",
-                      _selectedPropertyType == "Homestay",
-                      () {
-                        setState(() {
-                          _selectedPropertyType = "Homestay";
-                          _fetchNearbyProperties();
-                        });
-                      },
-                    ),
-                    const SizedBox(width: 8),
-                    _buildFilterButton(
-                      "< Rp1jt",
-                      _selectedPriceRange == "< Rp1jt",
-                      () {
-                        setState(() {
-                          _selectedPriceRange = "< Rp1jt";
-                          _fetchNearbyProperties();
-                        });
-                      },
-                    ),
-                    const SizedBox(width: 8),
-                    _buildFilterButton(
-                      "Rp1jt - Rp3jt",
-                      _selectedPriceRange == "Rp1jt - Rp3jt",
-                      () {
-                        setState(() {
-                          _selectedPriceRange = "Rp1jt - Rp3jt";
-                          _fetchNearbyProperties();
-                        });
-                      },
-                    ),
-                  ],
-                ),
-              ),
-
-              const SizedBox(height: 24),
-
-              // Daftar Properti Terdekat
+              // Nearby Properties List
               Expanded(
                 child:
                     _isLoading
@@ -331,7 +267,13 @@ class _SearchScreenState extends State<SearchScreen> {
                           itemCount: _nearbyProperties.length,
                           itemBuilder: (context, index) {
                             final property = _nearbyProperties[index];
-                            return _buildPropertyCard(property);
+                            double distance = Geolocator.distanceBetween(
+                              _currentPosition!.latitude,
+                              _currentPosition!.longitude,
+                              property.latitude!,
+                              property.longitude!,
+                            );
+                            return _buildPropertyCard(property, distance);
                           },
                         ),
               ),
@@ -342,39 +284,19 @@ class _SearchScreenState extends State<SearchScreen> {
     );
   }
 
-  Widget _buildFilterButton(String label, bool selected, VoidCallback onTap) {
-    return InkWell(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-        decoration: BoxDecoration(
-          color: selected ? Colors.deepOrange : Colors.grey.shade200,
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            color: selected ? Colors.white : Colors.black87,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildPropertyCard(PropertyModel property) {
+  Widget _buildPropertyCard(PropertyModel property, double distance) {
     return Card(
       elevation: 2,
       margin: const EdgeInsets.only(bottom: 16),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: InkWell(
         onTap: () {
-          // Navigasi ke detail properti
+          // Navigate to property detail
         },
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Gambar properti
+            // Property Image
             Container(
               height: 180,
               decoration: BoxDecoration(
@@ -442,6 +364,12 @@ class _SearchScreenState extends State<SearchScreen> {
                         ),
                       ),
                     ],
+                  ),
+                  const SizedBox(height: 8),
+                  // Display distance to the property
+                  Text(
+                    'Jarak: ${distance.toStringAsFixed(2)} meter',
+                    style: const TextStyle(fontSize: 14, color: Colors.black54),
                   ),
                 ],
               ),

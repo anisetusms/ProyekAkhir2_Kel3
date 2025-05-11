@@ -6,6 +6,7 @@ import 'package:front/features/dashboard/presentation/screens/users/penyewa/serv
 import 'package:front/features/dashboard/presentation/screens/users/penyewa/wishlist_manager.dart';
 import 'package:front/features/dashboard/presentation/screens/users/penyewa/property_detail_screen.dart';
 import 'package:front/features/dashboard/presentation/screens/users/penyewa/all_properties_screen.dart';
+
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
 
@@ -16,7 +17,7 @@ class DashboardPage extends StatefulWidget {
 class _DashboardPageState extends State<DashboardPage> {
   late final WishlistManager _wishlistManager;
   List<PropertyModel> homestayList = [];
-  String _errorMessage = '';  
+  String _errorMessage = '';
   bool _isLoading = true;
 
   @override
@@ -47,11 +48,15 @@ class _DashboardPageState extends State<DashboardPage> {
       final response = await ApiClient().get('/dashboardc');
       if (response != null && response['latest_properties'] != null) {
         setState(() {
-          homestayList = (response['latest_properties'] as List)
-              .where((property) =>
-                  property['propertytype'] == 'Kos' || property['propertytype'] == 'Homestay')
-              .map((property) => PropertyModel.fromJson(property))
-              .toList();
+          homestayList =
+              (response['latest_properties'] as List)
+                  .where(
+                    (property) =>
+                        property['propertytype'] == 'Kos' ||
+                        property['propertytype'] == 'Homestay',
+                  )
+                  .map((property) => PropertyModel.fromJson(property))
+                  .toList();
         });
       } else {
         setState(() {
@@ -85,16 +90,17 @@ class _DashboardPageState extends State<DashboardPage> {
       future: _wishlistManager.isWishlisted(property.id),
       builder: (context, snapshot) {
         final isWishlisted = snapshot.data ?? false;
-        
+
         return GestureDetector(
           onTap: () {
             // Navigasi ke detail properti jika diperlukan
             Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => PropertyDetailScreen(propertyId: property.id),
-            ),
-          );
+              context,
+              MaterialPageRoute(
+                builder:
+                    (context) => PropertyDetailScreen(propertyId: property.id),
+              ),
+            );
           },
           child: Container(
             width: 160,
@@ -127,11 +133,12 @@ class _DashboardPageState extends State<DashboardPage> {
                         height: 120,
                         width: double.infinity,
                         fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) => Container(
-                          height: 120,
-                          color: Colors.grey[200],
-                          child: const Icon(Icons.broken_image),
-                        ),
+                        errorBuilder:
+                            (context, error, stackTrace) => Container(
+                              height: 120,
+                              color: Colors.grey[200],
+                              child: const Icon(Icons.broken_image),
+                            ),
                       ),
                     ),
                     Positioned(
@@ -153,7 +160,9 @@ class _DashboardPageState extends State<DashboardPage> {
                             ],
                           ),
                           child: Icon(
-                            isWishlisted ? Icons.favorite : Icons.favorite_border,
+                            isWishlisted
+                                ? Icons.favorite
+                                : Icons.favorite_border,
                             size: 20,
                             color: isWishlisted ? Colors.red : Colors.grey[600],
                           ),
@@ -179,10 +188,7 @@ class _DashboardPageState extends State<DashboardPage> {
                       const SizedBox(height: 4),
                       Text(
                         property.district,
-                        style: TextStyle(
-                          color: Colors.grey[600],
-                          fontSize: 12,
-                        ),
+                        style: TextStyle(color: Colors.grey[600], fontSize: 12),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -191,7 +197,7 @@ class _DashboardPageState extends State<DashboardPage> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            'Rp ${property.price}',
+                            'Rp ${property.price.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.')}',
                             style: TextStyle(
                               color: Theme.of(context).primaryColor,
                               fontWeight: FontWeight.bold,
@@ -233,16 +239,17 @@ class _DashboardPageState extends State<DashboardPage> {
       future: _wishlistManager.isWishlisted(property.id),
       builder: (context, snapshot) {
         final isWishlisted = snapshot.data ?? false;
-        
+
         return GestureDetector(
           onTap: () {
             // Navigasi ke detail properti jika diperlukan
             Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => PropertyDetailScreen(propertyId: property.id),
-            ),
-          );
+              context,
+              MaterialPageRoute(
+                builder:
+                    (context) => PropertyDetailScreen(propertyId: property.id),
+              ),
+            );
           },
           child: Container(
             margin: const EdgeInsets.only(bottom: 20),
@@ -272,11 +279,12 @@ class _DashboardPageState extends State<DashboardPage> {
                         height: 160,
                         width: double.infinity,
                         fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) => Container(
-                          height: 160,
-                          color: Colors.grey[200],
-                          child: const Icon(Icons.broken_image, size: 40),
-                        ),
+                        errorBuilder:
+                            (context, error, stackTrace) => Container(
+                              height: 160,
+                              color: Colors.grey[200],
+                              child: const Icon(Icons.broken_image, size: 40),
+                            ),
                       ),
                     ),
                     Positioned(
@@ -298,7 +306,9 @@ class _DashboardPageState extends State<DashboardPage> {
                             ],
                           ),
                           child: Icon(
-                            isWishlisted ? Icons.favorite : Icons.favorite_border,
+                            isWishlisted
+                                ? Icons.favorite
+                                : Icons.favorite_border,
                             size: 22,
                             color: isWishlisted ? Colors.red : Colors.grey[600],
                           ),
@@ -324,20 +334,18 @@ class _DashboardPageState extends State<DashboardPage> {
                       const SizedBox(height: 6),
                       Text(
                         '${property.district}, ${property.subdistrict}',
-                        style: TextStyle(
-                          color: Colors.grey[600],
-                          fontSize: 14,
-                        ),
+                        style: TextStyle(color: Colors.grey[600], fontSize: 14),
                       ),
                       const SizedBox(height: 12),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            'Rp ${property.price} / Bulan',
+                            'Rp ${property.price.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.')} / Bulan',
                             style: TextStyle(
                               color: Theme.of(context).primaryColor,
                               fontWeight: FontWeight.bold,
+                              fontSize: 14,
                             ),
                           ),
                           Row(
@@ -350,9 +358,7 @@ class _DashboardPageState extends State<DashboardPage> {
                               const SizedBox(width: 4),
                               Text(
                                 '5.0',
-                                style: TextStyle(
-                                  color: Colors.grey[600],
-                                ),
+                                style: TextStyle(color: Colors.grey[600]),
                               ),
                             ],
                           ),
@@ -381,113 +387,121 @@ class _DashboardPageState extends State<DashboardPage> {
               child: DashboardHeader(),
             ),
             Expanded(
-              child: _isLoading
-                  ? const Center(child: CircularProgressIndicator())
-                  : ListView(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      children: [
-                        const SizedBox(height: 20),
-                        
-                        // Horizontal Scroll - New Properties
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const Text(
-                              "Kost / Homestay Terbaru",
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black87,
+              child:
+                  _isLoading
+                      ? const Center(child: CircularProgressIndicator())
+                      : ListView(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        children: [
+                          const SizedBox(height: 20),
+
+                          // Horizontal Scroll - New Properties
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Text(
+                                "Kost / Homestay Terbaru",
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black87,
+                                ),
                               ),
-                            ),
-                            TextButton(
-  onPressed: () {
-    // Aksi yang akan dijalankan ketika tombol ditekan
-    // Misalnya, Anda bisa menavigasi ke layar lain
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => AllPropertiesScreen(),
-      ),
-    );
-  },
-  child: Text(
-    "Lihat Semua",
-    style: TextStyle(
-      color: Theme.of(context).primaryColor,
-      fontWeight: FontWeight.w500,
-    ),
-  ),
-)
-                          ],
-                        ),
-                        const SizedBox(height: 16),
-                        SizedBox(
-                          height: 220,
-                          child: ListView.builder(
-                            scrollDirection: Axis.horizontal,
-                            itemCount: homestayList.length,
-                            itemBuilder: (context, index) {
-                              return _buildHorizontalPropertyCard(homestayList[index]);
-                            },
+                              TextButton(
+                                onPressed: () {
+                                  // Aksi yang akan dijalankan ketika tombol ditekan
+                                  // Misalnya, Anda bisa menavigasi ke layar lain
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder:
+                                          (context) => AllPropertiesScreen(),
+                                    ),
+                                  );
+                                },
+                                child: Text(
+                                  "Lihat Semua",
+                                  style: TextStyle(
+                                    color: Theme.of(context).primaryColor,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
-                        ),
-                        const SizedBox(height: 20),
-                        
-                        // Error Message
-                        if (_errorMessage.isNotEmpty)
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Text(
-                              _errorMessage,
-                              style: const TextStyle(color: Colors.red),
+                          const SizedBox(height: 16),
+                          SizedBox(
+                            height: 220,
+                            child: ListView.builder(
+                              scrollDirection: Axis.horizontal,
+                              itemCount: homestayList.length,
+                              itemBuilder: (context, index) {
+                                return _buildHorizontalPropertyCard(
+                                  homestayList[index],
+                                );
+                              },
                             ),
                           ),
-                        
-                        // Vertical List - Recommendations
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const Text(
-                              "Rekomendasi Untuk Anda",
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black87,
+                          const SizedBox(height: 20),
+
+                          // Error Message
+                          if (_errorMessage.isNotEmpty)
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text(
+                                _errorMessage,
+                                style: const TextStyle(color: Colors.red),
                               ),
                             ),
-                            TextButton(
-  onPressed: () {
-    // Aksi yang akan dijalankan ketika tombol ditekan
-    // Misalnya, Anda bisa menavigasi ke layar lain
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => AllPropertiesScreen(),
-      ),
-    );
-  },
-  child: Text(
-    "Lihat Semua",
-    style: TextStyle(
-      color: Theme.of(context).primaryColor,
-      fontWeight: FontWeight.w500,
-    ),
-  ),
-)
-                          ],
-                        ),
-                        const SizedBox(height: 16),
-                        homestayList.isEmpty
-                            ? const Center(child: Text('Tidak ada data'))
-                            : Column(
-                                children: homestayList.map((property) {
-                                  return _buildVerticalPropertyCard(property);
-                                }).toList(),
+
+                          // Vertical List - Recommendations
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Text(
+                                "Rekomendasi Untuk Anda",
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black87,
+                                ),
                               ),
-                        const SizedBox(height: 24),
-                      ],
-                    ),
+                              TextButton(
+                                onPressed: () {
+                                  // Aksi yang akan dijalankan ketika tombol ditekan
+                                  // Misalnya, Anda bisa menavigasi ke layar lain
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder:
+                                          (context) => AllPropertiesScreen(),
+                                    ),
+                                  );
+                                },
+                                child: Text(
+                                  "Lihat Semua",
+                                  style: TextStyle(
+                                    color: Theme.of(context).primaryColor,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 16),
+                          homestayList.isEmpty
+                              ? const Center(child: Text('Tidak ada data'))
+                              : Column(
+                                children:
+                                    homestayList.map((property) {
+                                      return _buildVerticalPropertyCard(
+                                        property,
+                                      );
+                                    }).toList(),
+                              ),
+                          const SizedBox(height: 24),
+                        ],
+                      ),
             ),
           ],
         ),

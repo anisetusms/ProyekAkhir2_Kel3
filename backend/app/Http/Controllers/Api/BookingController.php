@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use App\Models\Customer;
+use App\Models\Notification;    
 use Illuminate\Support\Facades\Auth;
 
 class BookingController extends Controller
@@ -27,6 +28,7 @@ class BookingController extends Controller
      */
     public function store(Request $request)
     {
+        // Validasi input
         $validator = Validator::make($request->all(), [
             'property_id' => 'required|exists:properties,id',
             'room_ids' => 'nullable|array',
@@ -52,24 +54,18 @@ class BookingController extends Controller
             ], 422);
         }
 
+        // Mulai transaksi database
         try {
             DB::beginTransaction();
 
-            // Get property and its type with proper validation
-            $property = Property::with('propertyType')->findOrFail($request->property_id);
+            // Ambil data properti berdasarkan ID
+            $property = Property::findOrFail($request->property_id);
 
-            // Check if propertyType is valid
-            if (!$property->propertyType) {
-                return response()->json([
-                    'status' => 'error',
-                    'message' => 'Tipe properti tidak ditemukan'
-                ], 422);
-            }
+            // Validasi tipe properti jika perlu
+            $isKost = $property->type === 'kost';
+            $isHomestay = $property->type === 'homestay';
 
-            $isKost = $property->propertyType->type == PropertyType::TYPE_KOST;
-            $isHomestay = $property->propertyType->type == PropertyType::TYPE_HOMESTAY;
-
-            // Validation specific to kost
+            // Validasi kamar untuk kost
             if ($isKost && empty($request->room_ids)) {
                 return response()->json([
                     'status' => 'error',
@@ -77,21 +73,20 @@ class BookingController extends Controller
                 ], 422);
             }
 
-            // Validate dates
+            // Parse tanggal check-in dan check-out
             $checkIn = Carbon::parse($request->check_in);
             $checkOut = Carbon::parse($request->check_out);
-            $days = $checkOut->diffInDays($checkIn);
 
-            if ($days < 1) {
+            // Validasi durasi pemesanan minimal 1 hari
+            if ($checkOut->lte($checkIn)) {
                 return response()->json([
                     'status' => 'error',
                     'message' => 'Durasi minimal pemesanan adalah 1 hari'
                 ], 422);
             }
 
-            // Validate availability
+            // Validasi ketersediaan kamar jika homestay
             if ($isHomestay && empty($request->room_ids)) {
-                // Booking entire homestay
                 $unavailableDates = PropertyAvailability::where('property_id', $property->id)
                     ->whereBetween('date', [$checkIn->format('Y-m-d'), $checkOut->copy()->subDay()->format('Y-m-d')])
                     ->where('status', 'booked')
@@ -104,7 +99,7 @@ class BookingController extends Controller
                     ], 422);
                 }
             } else {
-                // Booking specific rooms (either kost or homestay)
+                // Validasi kamar yang dipilih tidak tersedia
                 $unavailableRooms = DB::table('booking_rooms')
                     ->join('bookings', 'booking_rooms.booking_id', '=', 'bookings.id')
                     ->whereIn('booking_rooms.room_id', $request->room_ids)
@@ -122,18 +117,17 @@ class BookingController extends Controller
                 if ($unavailableRooms) {
                     return response()->json([
                         'status' => 'error',
-                        'message' => 'Salah satu kamar yang dipilih sudah tidak tersedia untuk tanggal tersebut'
+                        'message' => 'Salah satu kamar yang dipilih sudah tidak tersedia'
                     ], 422);
                 }
             }
 
-            // Handle customer if booking for others
+            // Simpan customer jika pesanan untuk orang lain
             $customer = null;
             if ($request->is_for_others) {
                 $customer = Customer::updateOrCreate(
                     ['identity_number' => $request->identity_number],
                     [
-                        'user_id' => auth()->id(),
                         'name' => $request->guest_name,
                         'phone' => $request->guest_phone,
                         'identity_number' => $request->identity_number
@@ -141,91 +135,108 @@ class BookingController extends Controller
                 );
             }
 
-            // Upload KTP
+            // Upload file KTP
             $ktpPath = $request->file('ktp_image')->store('public/ktp');
             $ktpPath = str_replace('public/', '', $ktpPath);
 
-            // Calculate total price
+            // Hitung total harga
             $totalPrice = 0;
             $rooms = collect();
 
             if (!empty($request->room_ids)) {
                 $rooms = Room::whereIn('id', $request->room_ids)->get();
                 foreach ($rooms as $room) {
-                    $totalPrice += $room->price * $days;
+                    $totalPrice += $room->price * $checkIn->diffInDays($checkOut);
                 }
             } else {
-                $totalPrice = $property->price * $days;
+                $totalPrice = $property->price * $checkIn->diffInDays($checkOut);
             }
 
-            // Generate booking group
-            $bookingGroup = $request->booking_group ?? Str::uuid();
+            // Membuat booking ID unik
+            $bookingGroup = Str::uuid();
 
+            // Simpan pemesanan utama
             $booking = Booking::create([
-                'user_id' => auth()->id(),  // Menggunakan Auth::id() untuk mendapatkan ID pengguna
+                'user_id' => auth()->id(),
                 'property_id' => $property->id,
-                'customer_id' => $request->is_for_others ? $customer->id : null,
-                'check_in' => $request->check_in,
-                'check_out' => $request->check_out,
+                'customer_id' => $customer?->id,
+                'check_in' => $checkIn->format('Y-m-d'),
+                'check_out' => $checkOut->format('Y-m-d'),
                 'total_price' => $totalPrice,
                 'status' => 'pending',
-                'guest_name' => $request->is_for_others
-                    ? $request->guest_name
-                    : (auth()->check() ? auth()->user()->name : null), // Menggunakan Auth::user() untuk mengakses data pengguna
-                'guest_phone' => $request->is_for_others
-                    ? $request->guest_phone
-                    : (auth()->check() ? auth()->user()->phone : null), // Menggunakan Auth::user() untuk mengakses data pengguna
+                'guest_name' => $request->is_for_others ? $request->guest_name : auth()->user()->name,
+                'guest_phone' => $request->is_for_others ? $request->guest_phone : auth()->user()->phone,
                 'ktp_image' => $ktpPath,
                 'identity_number' => $request->identity_number,
                 'booking_group' => $bookingGroup,
-                'special_requests' => $request->special_requests
+                'special_requests' => $request->special_requests,
             ]);
-
-
-            // Create booking_room entries if booking specific rooms
+            // Simpan detail kamar
             if (!empty($request->room_ids)) {
                 foreach ($rooms as $room) {
+                    // Buat relasi booking_room
                     BookingRoom::create([
                         'booking_id' => $booking->id,
                         'room_id' => $room->id,
                         'price' => $room->price
                     ]);
 
-                    // Update room status
+                    // Tandai kamar tidak tersedia
                     $room->update(['is_available' => false]);
                 }
             }
 
-            // Update property availability
-            $currentDate = $checkIn->copy();
-            while ($currentDate < $checkOut) {
+
+            // Simpan ketersediaan harian properti
+            $date = $checkIn->copy();
+            while ($date < $checkOut) {
                 PropertyAvailability::updateOrCreate(
-                    [
-                        'property_id' => $property->id,
-                        'date' => $currentDate->format('Y-m-d')
-                    ],
-                    [
-                        'status' => 'booked',
-                        'booking_id' => $booking->id
-                    ]
+                    ['property_id' => $property->id, 'date' => $date->format('Y-m-d')],
+                    ['status' => 'booked', 'booking_id' => $booking->id]
                 );
-                $currentDate->addDay();
+                $date->addDay();
             }
+
+            // Buat notifikasi untuk pemilik properti
+            $this->createBookingNotification($property->user_id, $booking, $property);
 
             DB::commit();
 
             return response()->json([
                 'status' => 'success',
-                'message' => 'Booking berhasil dibuat',
+                'message' => 'Pemesanan berhasil dibuat',
                 'data' => $booking->load('property', 'rooms', 'customer')
             ], 201);
         } catch (\Exception $e) {
             DB::rollBack();
+            \Log::error('Error Booking: ' . $e->getMessage());
             return response()->json([
                 'status' => 'error',
                 'message' => 'Terjadi kesalahan server',
                 'error' => $e->getMessage()
             ], 500);
+        }
+    }
+
+
+    private function createBookingNotification($ownerId, $booking, $property)
+    {
+        try {
+            $guestName = $booking->guest_name;
+            $propertyName = $property->name;
+            $checkIn = Carbon::parse($booking->check_in)->format('d M Y');
+            $checkOut = Carbon::parse($booking->check_out)->format('d M Y');
+            
+            Notification::create([
+                'user_id' => $ownerId,
+                'type' => 'booking_new',
+                'title' => 'Pemesanan Baru',
+                'message' => "$guestName telah memesan $propertyName dari $checkIn hingga $checkOut",
+                'reference_id' => $booking->id,
+                'is_read' => false
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Error creating notification: ' . $e->getMessage());
         }
     }
 

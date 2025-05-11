@@ -10,6 +10,7 @@ use App\Models\Province;
 use App\Models\City;
 use App\Models\District;
 use App\Models\Subdistrict;
+use App\Models\Booking;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
@@ -61,18 +62,31 @@ class PropertyController extends Controller
 
     public function dashboard()
     {
+        // Mendapatkan ID pengguna yang sedang login
         $user_id = Auth::id();
 
+        // Statistik properti
         $totalProperties = Property::where('user_id', $user_id)->count();
-        $activeProperties = Property::where('user_id', $user_id)->where('isDeleted', false)->count(); 
+        $activeProperties = Property::where('user_id', $user_id)->where('isDeleted', false)->count();
         $inactiveProperties = Property::where('user_id', $user_id)->where('isDeleted', true)->count();
-        $pendingProperties = Property::where('user_id', $user_id)->count(); // Ganti ini
-        $latestProperties = Property::where('user_id', $user_id)->latest()->take(5)->get();
+        $pendingProperties = Property::where('user_id', $user_id)->count(); // Bisa menyesuaikan jika dibutuhkan
+
+        // Mengambil pemesanan terbaru berdasarkan user_id
+        // Hanya mengambil pemesanan yang terkait dengan properti yang dimiliki oleh pengguna
+        $latestBookings = Booking::whereIn('property_id', Property::where('user_id', $user_id)->pluck('id'))
+            ->latest() // Urutkan berdasarkan tanggal pembuatan pemesanan terbaru
+            ->take(5) // Ambil hanya 5 pemesanan terbaru
+            ->get();
+
+        // Statistik tambahan (bisa disesuaikan dengan data yang ada)
         $totalViews = 120;
         $totalMessages = 50;
 
-        return view('admin.properties.dashboard', compact('totalProperties', 'activeProperties', 'pendingProperties', 'latestProperties', 'totalViews', 'totalMessages'));
+        // Mengirim data ke tampilan (view)
+        return view('admin.properties.dashboard', compact('totalProperties', 'activeProperties', 'pendingProperties', 'latestBookings', 'totalViews', 'totalMessages'));
     }
+
+
 
     public function store(StorePropertyRequest $request)
     {

@@ -18,7 +18,7 @@ class AuthController extends Controller
         set_time_limit(300);
 
         $properties = DB::select("CALL viewAll_Properties()");
-        return view('welcome', compact('properties'));
+        return view('login', compact('properties'));
     }
 
     public function showLoginForm()

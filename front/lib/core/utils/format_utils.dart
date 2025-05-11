@@ -1,57 +1,90 @@
 import 'package:intl/intl.dart';
 
 class FormatUtils {
-  // static String formatNumber(dynamic number) {
-  //   final formatter = NumberFormat('#,###');
-  //   if (number is int || number is double) {
-  //     return formatter.format(number);
-  //   } else if (number is String) {
-  //     final parsed = int.tryParse(number) ?? double.tryParse(number);
-  //     if (parsed != null) {
-  //       return formatter.format(parsed);
-  //     }
-  //   }
-  //   return number.toString();
-  // }
-
-  static String formatDateTime(String? dateString) {
-    if (dateString == null) return '-';
-    try {
-      final dateTime = DateTime.parse(dateString);
-      return DateFormat('dd MMM yyyy, HH:mm').format(dateTime);
-    } catch (e) {
-      return dateString;
-    }
-  }
-  // Memformat harga dengan format Indonesia (Rp 1.000.000)
-  static String formatPrice(double price) {
-    final formatter = NumberFormat('#,###', 'id_ID'); // Format Indonesia
-    return 'Rp ${formatter.format(price)}'; // Menggunakan simbol Rp
-  }
-
-  // Format nomor umum
-  static String formatNumber(dynamic value) {
-    if (value is int || value is double) {
-      final formatter = NumberFormat('#,###', 'id_ID');
-      return formatter.format(value);
-    }
-    return '0';
-  }
-
-  static String formatCurrency(dynamic amount) {
+  static String formatCurrency(dynamic value) {
+    if (value == null) return 'Rp 0';
+    
     final formatter = NumberFormat.currency(
       locale: 'id_ID',
-      symbol: 'Rp',
+      symbol: 'Rp ',
       decimalDigits: 0,
     );
-    if (amount is int || amount is double) {
-      return formatter.format(amount);
-    } else if (amount is String) {
-      final parsed = int.tryParse(amount) ?? double.tryParse(amount);
-      if (parsed != null) {
-        return formatter.format(parsed);
-      }
+    
+    try {
+      final numValue = value is String ? double.parse(value) : value;
+      return formatter.format(numValue);
+    } catch (e) {
+      return 'Rp 0';
     }
-    return amount.toString();
+  }
+
+  static String formatNumber(dynamic value) {
+    if (value == null) return '0';
+    
+    final formatter = NumberFormat.decimalPattern('id_ID');
+    
+    try {
+      final numValue = value is String ? int.parse(value) : value;
+      return formatter.format(numValue);
+    } catch (e) {
+      return '0';
+    }
+  }
+
+  static String formatDateTime(dynamic dateTime) {
+    if (dateTime == null) return '';
+    
+    try {
+      final date = dateTime is String 
+          ? DateTime.parse(dateTime) 
+          : dateTime;
+      
+      return DateFormat('dd MMM yyyy, HH:mm').format(date);
+    } catch (e) {
+      return '';
+    }
+  }
+
+  static String formatDate(dynamic date) {
+    if (date == null) return '';
+    
+    try {
+      final dateObj = date is String 
+          ? DateTime.parse(date) 
+          : date;
+      
+      return DateFormat('dd MMM yyyy').format(dateObj);
+    } catch (e) {
+      return '';
+    }
+  }
+
+  static String getTimeAgo(dynamic dateTime) {
+    if (dateTime == null) return '';
+    
+    try {
+      final date = dateTime is String 
+          ? DateTime.parse(dateTime) 
+          : dateTime;
+      
+      final now = DateTime.now();
+      final difference = now.difference(date);
+      
+      if (difference.inDays > 365) {
+        return '${(difference.inDays / 365).floor()} tahun yang lalu';
+      } else if (difference.inDays > 30) {
+        return '${(difference.inDays / 30).floor()} bulan yang lalu';
+      } else if (difference.inDays > 0) {
+        return '${difference.inDays} hari yang lalu';
+      } else if (difference.inHours > 0) {
+        return '${difference.inHours} jam yang lalu';
+      } else if (difference.inMinutes > 0) {
+        return '${difference.inMinutes} menit yang lalu';
+      } else {
+        return 'Baru saja';
+      }
+    } catch (e) {
+      return '';
+    }
   }
 }

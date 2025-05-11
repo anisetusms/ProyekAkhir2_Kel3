@@ -7,7 +7,7 @@ import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:front/features/property/presentation/widgets/location_input.dart';
 import 'package:front/core/utils/constants.dart';
-
+import 'package:front/features/property/presentation/screens/property_list.dart'; // Impor PropertyListScreen
 
 class AddPropertyScreen extends StatefulWidget {
   static const routeName = '/add_property';
@@ -19,8 +19,11 @@ class AddPropertyScreen extends StatefulWidget {
 class _AddPropertyScreenState extends State<AddPropertyScreen> {
   final _formKey = GlobalKey<FormState>();
   final _scrollController = ScrollController();
-  final List<TextEditingController> _controllers = List.generate(13, (index) => TextEditingController());
-  
+  final List<TextEditingController> _controllers = List.generate(
+    13,
+    (index) => TextEditingController(),
+  );
+
   // Controllers mapping for better readability
   TextEditingController get _nameController => _controllers[0];
   TextEditingController get _descriptionController => _controllers[1];
@@ -85,35 +88,46 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
       final token = prefs.getString('token');
 
       if (token == null) {
-        setState(() => _errorMessage = 'Token tidak ditemukan. Silakan login ulang.');
+        setState(
+          () => _errorMessage = 'Token tidak ditemukan. Silakan login ulang.',
+        );
         return;
       }
 
-      var request = http.MultipartRequest('POST', Uri.parse('${Constants.baseUrl}/properties'))
-        ..headers.addAll({
-          'Authorization': 'Bearer $token',
-          'Accept': 'application/json',
-        })
-        ..fields.addAll({
-          'name': _nameController.text,
-          'description': _descriptionController.text,
-          'property_type_id': _propertyTypeId.toString(),
-          'price': _priceController.text,
-          'address': _addressController.text,
-          if (_provinceId != null) 'province_id': _provinceId.toString(),
-          if (_cityId != null) 'city_id': _cityId.toString(),
-          if (_districtId != null) 'district_id': _districtId.toString(),
-          if (_subdistrictId != null) 'subdistrict_id': _subdistrictId.toString(),
-          if (_latitude != null) 'latitude': _latitude.toString(),
-          if (_longitude != null) 'longitude': _longitude.toString(),
-          if (_capacityController.text.isNotEmpty) 'capacity': _capacityController.text,
-          if (_rulesController.text.isNotEmpty) 'rules': _rulesController.text,
-        });
+      var request =
+          http.MultipartRequest(
+              'POST',
+              Uri.parse('${Constants.baseUrl}/properties'),
+            )
+            ..headers.addAll({
+              'Authorization': 'Bearer $token',
+              'Accept': 'application/json',
+            })
+            ..fields.addAll({
+              'name': _nameController.text,
+              'description': _descriptionController.text,
+              'property_type_id': _propertyTypeId.toString(),
+              'price': _priceController.text,
+              'address': _addressController.text,
+              if (_provinceId != null) 'province_id': _provinceId.toString(),
+              if (_cityId != null) 'city_id': _cityId.toString(),
+              if (_districtId != null) 'district_id': _districtId.toString(),
+              if (_subdistrictId != null)
+                'subdistrict_id': _subdistrictId.toString(),
+              if (_latitude != null) 'latitude': _latitude.toString(),
+              if (_longitude != null) 'longitude': _longitude.toString(),
+              if (_capacityController.text.isNotEmpty)
+                'capacity': _capacityController.text,
+              if (_rulesController.text.isNotEmpty)
+                'rules': _rulesController.text,
+            });
 
       if (_propertyTypeId == 1) {
         request.fields.addAll({
-          if (_availableRoomsController.text.isNotEmpty) 'available_rooms': _availableRoomsController.text,
-          if (_totalRoomsController.text.isNotEmpty) 'total_rooms': _totalRoomsController.text,
+          if (_availableRoomsController.text.isNotEmpty)
+            'available_rooms': _availableRoomsController.text,
+          if (_totalRoomsController.text.isNotEmpty)
+            'total_rooms': _totalRoomsController.text,
           if (_kostType != null) 'kost_type': _kostType!,
           'meal_included': _mealIncluded ? '1' : '0',
           'laundry_included': _laundryIncluded ? '1' : '0',
@@ -122,27 +136,45 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
 
       if (_propertyTypeId == 2) {
         request.fields.addAll({
-          if (_totalUnitsController.text.isNotEmpty) 'total_units': _totalUnitsController.text,
-          if (_availableUnitsController.text.isNotEmpty) 'available_units': _availableUnitsController.text,
-          if (_minimumStayController.text.isNotEmpty) 'minimum_stay': _minimumStayController.text,
-          if (_maximumGuestController.text.isNotEmpty) 'maximum_guest': _maximumGuestController.text,
-          if (_checkinTimeController.text.isNotEmpty) 'checkin_time': _checkinTimeController.text,
-          if (_checkoutTimeController.text.isNotEmpty) 'checkout_time': _checkoutTimeController.text,
+          if (_totalUnitsController.text.isNotEmpty)
+            'total_units': _totalUnitsController.text,
+          if (_availableUnitsController.text.isNotEmpty)
+            'available_units': _availableUnitsController.text,
+          if (_minimumStayController.text.isNotEmpty)
+            'minimum_stay': _minimumStayController.text,
+          if (_maximumGuestController.text.isNotEmpty)
+            'maximum_guest': _maximumGuestController.text,
+          if (_checkinTimeController.text.isNotEmpty)
+            'checkin_time': _checkinTimeController.text,
+          if (_checkoutTimeController.text.isNotEmpty)
+            'checkout_time': _checkoutTimeController.text,
         });
       }
 
       if (_imageFile != null) {
-        request.files.add(await http.MultipartFile.fromPath('image', _imageFile!.path));
+        request.files.add(
+          await http.MultipartFile.fromPath('image', _imageFile!.path),
+        );
       }
 
       var response = await request.send();
       var responseBody = await response.stream.bytesToString();
       var parsedResponse = jsonDecode(responseBody);
-
-      if (response.statusCode == 200 && parsedResponse['message'] == 'Properti berhasil dibuat') {
-        Navigator.pop(context);
+if (response.statusCode == 200 &&
+          parsedResponse['message'] == 'Properti berhasil dibuat') {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => PropertyListScreen(),
+          ), // Ganti ke layar daftar properti setelah sukses
+        );
+      
       } else {
-        setState(() => _errorMessage = parsedResponse['message'] ?? 'Gagal menambahkan properti.');
+        setState(
+          () =>
+              _errorMessage =
+                  parsedResponse['message'] ?? 'Gagal menambahkan properti.',
+        );
       }
     } catch (e) {
       setState(() => _errorMessage = 'Terjadi kesalahan: $e');
@@ -170,28 +202,27 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
               color: Colors.grey[100],
               border: Border.all(color: Colors.grey[300]!),
             ),
-            child: _imageFile != null
-                ? ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    child: kIsWeb
-                        ? FutureBuilder<Uint8List>(
-                            future: _imageFile!.readAsBytes(),
-                            builder: (context, snapshot) {
-                              if (snapshot.hasData) {
-                                return Image.memory(
-                                  snapshot.data!,
-                                  fit: BoxFit.cover,
-                                );
-                              }
-                              return _buildPlaceholder();
-                            },
-                          )
-                        : Image.file(
-                            _imageFile!,
-                            fit: BoxFit.cover,
-                          ),
-                  )
-                : _buildPlaceholder(),
+            child:
+                _imageFile != null
+                    ? ClipRRect(
+                      borderRadius: BorderRadius.circular(12),
+                      child:
+                          kIsWeb
+                              ? FutureBuilder<Uint8List>(
+                                future: _imageFile!.readAsBytes(),
+                                builder: (context, snapshot) {
+                                  if (snapshot.hasData) {
+                                    return Image.memory(
+                                      snapshot.data!,
+                                      fit: BoxFit.cover,
+                                    );
+                                  }
+                                  return _buildPlaceholder();
+                                },
+                              )
+                              : Image.file(_imageFile!, fit: BoxFit.cover),
+                    )
+                    : _buildPlaceholder(),
           ),
         ),
         SizedBox(height: 8),
@@ -243,7 +274,10 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
             maxLines: maxLines,
             keyboardType: keyboardType,
             decoration: InputDecoration(
-              contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              contentPadding: EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 12,
+              ),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
                 borderSide: BorderSide(color: Colors.grey[300]!),
@@ -251,7 +285,11 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
               filled: true,
               fillColor: Colors.grey[50],
             ),
-            validator: validator ?? (required ? (v) => v!.isEmpty ? '$label wajib diisi' : null : null),
+            validator:
+                validator ??
+                (required
+                    ? (v) => v!.isEmpty ? '$label wajib diisi' : null
+                    : null),
           ),
         ],
       ),
@@ -295,15 +333,23 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                 SizedBox(height: 4),
                 DropdownButtonFormField<String>(
                   value: _kostType,
-                  items: ['putra', 'putri', 'campur']
-                      .map((type) => DropdownMenuItem(
-                            value: type,
-                            child: Text(type[0].toUpperCase() + type.substring(1)),
-                          ))
-                      .toList(),
+                  items:
+                      ['putra', 'putri', 'campur']
+                          .map(
+                            (type) => DropdownMenuItem(
+                              value: type,
+                              child: Text(
+                                type[0].toUpperCase() + type.substring(1),
+                              ),
+                            ),
+                          )
+                          .toList(),
                   onChanged: (value) => setState(() => _kostType = value),
                   decoration: InputDecoration(
-                    contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    contentPadding: EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
                       borderSide: BorderSide(color: Colors.grey[300]!),
@@ -440,24 +486,25 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                   children: [
                     Text(
                       'Jenis Properti *',
-                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
                     SizedBox(height: 4),
                     DropdownButtonFormField<int>(
                       value: _propertyTypeId,
                       items: [
-                        DropdownMenuItem(
-                          value: 1,
-                          child: Text('Kost'),
-                        ),
-                        DropdownMenuItem(
-                          value: 2,
-                          child: Text('Homestay'),
-                        ),
+                        DropdownMenuItem(value: 1, child: Text('Kost')),
+                        DropdownMenuItem(value: 2, child: Text('Homestay')),
                       ],
-                      onChanged: (value) => setState(() => _propertyTypeId = value),
+                      onChanged:
+                          (value) => setState(() => _propertyTypeId = value),
                       decoration: InputDecoration(
-                        contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        contentPadding: EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 12,
+                        ),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8),
                           borderSide: BorderSide(color: Colors.grey[300]!),
@@ -465,7 +512,9 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                         filled: true,
                         fillColor: Colors.grey[50],
                       ),
-                      validator: (value) => value == null ? 'Pilih jenis properti' : null,
+                      validator:
+                          (value) =>
+                              value == null ? 'Pilih jenis properti' : null,
                     ),
                   ],
                 ),
@@ -490,19 +539,20 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
-                  child: _isLoading
-                      ? SizedBox(
-                          height: 20,
-                          width: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            valueColor: AlwaysStoppedAnimation(Colors.white),
+                  child:
+                      _isLoading
+                          ? SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: AlwaysStoppedAnimation(Colors.white),
+                            ),
+                          )
+                          : Text(
+                            'Simpan Properti',
+                            style: TextStyle(fontSize: 16),
                           ),
-                        )
-                      : Text(
-                          'Simpan Properti',
-                          style: TextStyle(fontSize: 16),
-                        ),
                 ),
               ),
               SizedBox(height: 24),
@@ -511,5 +561,5 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
         ),
       ),
     );
-  } 
+  }
 }

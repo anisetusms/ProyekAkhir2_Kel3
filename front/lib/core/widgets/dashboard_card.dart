@@ -7,12 +7,12 @@ class DashboardCard extends StatelessWidget {
   final Color color;
 
   const DashboardCard({
-    super.key,
+    Key? key,
     required this.icon,
     required this.title,
     required this.value,
     required this.color,
-  });
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -21,38 +21,51 @@ class DashboardCard extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
       ),
-      child: Padding(
+      child: Container(
         padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Colors.white,
+              color.withOpacity(0.1),
+            ],
+          ),
+        ),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Container(
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
                 color: color.withOpacity(0.1),
-                shape: BoxShape.circle,
+                borderRadius: BorderRadius.circular(8),
               ),
               child: Icon(
                 icon,
-                size: 24,
                 color: color,
+                size: 24,
               ),
             ),
             const SizedBox(height: 12),
             Text(
               title,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Colors.grey[600],
-                  ),
-              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.grey[700],
+              ),
             ),
             const SizedBox(height: 4),
             Text(
               value,
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: color,
-                  ),
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: color,
+              ),
             ),
           ],
         ),

@@ -8,14 +8,13 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:front/features/property/presentation/widgets/location_input.dart';
 import 'package:front/core/utils/constants.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:front/features/property/presentation/screens/property_list.dart';
 
 class EditPropertyScreen extends StatefulWidget {
   static const routeName = '/edit_property';
   final Map<String, dynamic> property;
-
   const EditPropertyScreen({Key? key, required this.property})
-    : super(key: key);
-
+      : super(key: key);
   @override
   _EditPropertyScreenState createState() => _EditPropertyScreenState();
 }
@@ -109,10 +108,9 @@ class _EditPropertyScreenState extends State<EditPropertyScreen> {
     _laundryIncluded = widget.property['laundry_included'] == 1;
     _latitude = _parseDouble(widget.property['latitude']);
     _longitude = _parseDouble(widget.property['longitude']);
-    _currentImageUrl =
-        widget.property['image'] != null
-            ? '${Constants.baseUrl}/storage/properties/${widget.property['image']}'
-            : null;
+    _currentImageUrl = widget.property['image'] != null
+        ? '${Constants.baseUrl}/storage/properties/${widget.property['image']}'
+        : null;
   }
 
   double? _parseDouble(dynamic value) {
@@ -143,7 +141,6 @@ class _EditPropertyScreenState extends State<EditPropertyScreen> {
 
   Future<void> _updateProperty() async {
     if (!_formKey.currentState!.validate()) return;
-
     setState(() {
       _isLoading = true;
       _errorMessage = null;
@@ -160,35 +157,30 @@ class _EditPropertyScreenState extends State<EditPropertyScreen> {
         return;
       }
 
-      var request =
-          http.MultipartRequest(
-              'POST', // Gunakan 'POST' untuk permintaan ini
-              Uri.parse(
-                '${Constants.baseUrl}/properties/${widget.property['id']}',
-              ),
-            )
-            ..headers.addAll({
-              'Authorization': 'Bearer $token',
-              'Accept': 'application/json',
-            })
-            ..fields.addAll({
-              'name': _nameController.text,
-              'description': _descriptionController.text,
-              'property_type_id': _propertyTypeId.toString(),
-              'price': _priceController.text,
-              'address': _addressController.text,
-              if (_provinceId != null) 'province_id': _provinceId.toString(),
-              if (_cityId != null) 'city_id': _cityId.toString(),
-              if (_districtId != null) 'district_id': _districtId.toString(),
-              if (_subdistrictId != null)
-                'subdistrict_id': _subdistrictId.toString(),
-              if (_latitude != null) 'latitude': _latitude.toString(),
-              if (_longitude != null) 'longitude': _longitude.toString(),
-              if (_capacityController.text.isNotEmpty)
-                'capacity': _capacityController.text,
-              if (_rulesController.text.isNotEmpty)
-                'rules': _rulesController.text,
-            });
+      var request = http.MultipartRequest(
+        'POST', // Menggunakan POST karena server mungkin mengharapkan _method=PUT
+        Uri.parse('${Constants.baseUrl}/properties/${widget.property['id']}'),
+      )..headers.addAll({
+          'Authorization': 'Bearer $token',
+          'Accept': 'application/json',
+        })
+        ..fields.addAll({
+          '_method': 'POST', // Tambahkan field untuk method PUT
+          'name': _nameController.text,
+          'description': _descriptionController.text,
+          'property_type_id': _propertyTypeId.toString(),
+          'price': _priceController.text,
+          'address': _addressController.text,
+          if (_provinceId != null) 'province_id': _provinceId.toString(),
+          if (_cityId != null) 'city_id': _cityId.toString(),
+          if (_districtId != null) 'district_id': _districtId.toString(),
+          if (_subdistrictId != null) 'subdistrict_id': _subdistrictId.toString(),
+          if (_latitude != null) 'latitude': _latitude.toString(),
+          if (_longitude != null) 'longitude': _longitude.toString(),
+          if (_capacityController.text.isNotEmpty)
+            'capacity': _capacityController.text,
+          if (_rulesController.text.isNotEmpty) 'rules': _rulesController.text,
+        });
 
       if (_propertyTypeId == 1) {
         request.fields.addAll({
@@ -228,20 +220,24 @@ class _EditPropertyScreenState extends State<EditPropertyScreen> {
       var responseBody = await response.stream.bytesToString();
       var parsedResponse = jsonDecode(responseBody);
 
-      if (response.statusCode == 200 && parsedResponse['success'] == true) {
-        Navigator.pop(context, true);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Properti berhasil diperbarui')),
+      if (response.statusCode == 200 && parsedResponse['message'] != null &&
+          parsedResponse['message'].toString().toLowerCase().contains('berhasil diperbarui')) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => PropertyListScreen(),
+          ), // Langsung menuju PropertyListScreen setelah sukses
         );
       } else {
         setState(
-          () =>
-              _errorMessage =
-                  parsedResponse['message'] ?? 'Gagal memperbarui properti',
+          () => _errorMessage = parsedResponse['message'] ??
+              'Gagal memperbarui properti. Status: ${response.statusCode}',
         );
+        print('Error updating property: $responseBody');
       }
     } catch (e) {
       setState(() => _errorMessage = 'Terjadi kesalahan: $e');
+      print('Exception during update: $e');
     } finally {
       setState(() => _isLoading = false);
     }
@@ -266,39 +262,36 @@ class _EditPropertyScreenState extends State<EditPropertyScreen> {
               color: Colors.grey[100],
               border: Border.all(color: Colors.grey[300]!),
             ),
-            child:
-                _imageFile != null
+            child: _imageFile != null
+                ? ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: kIsWeb
+                        ? FutureBuilder<Uint8List>(
+                            future: _imageFile!.readAsBytes(),
+                            builder: (context, snapshot) {
+                              if (snapshot.hasData) {
+                                return Image.memory(
+                                  snapshot.data!,
+                                  fit: BoxFit.cover,
+                                );
+                              }
+                              return _buildPlaceholder();
+                            },
+                          )
+                        : Image.file(_imageFile!, fit: BoxFit.cover),
+                  )
+                : _currentImageUrl != null
                     ? ClipRRect(
-                      borderRadius: BorderRadius.circular(12),
-                      child:
-                          kIsWeb
-                              ? FutureBuilder<Uint8List>(
-                                future: _imageFile!.readAsBytes(),
-                                builder: (context, snapshot) {
-                                  if (snapshot.hasData) {
-                                    return Image.memory(
-                                      snapshot.data!,
-                                      fit: BoxFit.cover,
-                                    );
-                                  }
-                                  return _buildPlaceholder();
-                                },
-                              )
-                              : Image.file(_imageFile!, fit: BoxFit.cover),
-                    )
-                    : _currentImageUrl != null
-                    ? ClipRRect(
-                      borderRadius: BorderRadius.circular(12),
-                      child: CachedNetworkImage(
-                        imageUrl: _currentImageUrl!,
-                        fit: BoxFit.cover,
-                        placeholder:
-                            (context, url) =>
-                                Container(color: Colors.grey[200]),
-                        errorWidget:
-                            (context, url, error) => _buildPlaceholder(),
-                      ),
-                    )
+                        borderRadius: BorderRadius.circular(12),
+                        child: CachedNetworkImage(
+                          imageUrl: _currentImageUrl!,
+                          fit: BoxFit.cover,
+                          placeholder: (context, url) =>
+                              Container(color: Colors.grey[200]),
+                          errorWidget: (context, url, error) =>
+                              _buildPlaceholder(),
+                        ),
+                      )
                     : _buildPlaceholder(),
           ),
         ),
@@ -362,8 +355,7 @@ class _EditPropertyScreenState extends State<EditPropertyScreen> {
               filled: true,
               fillColor: Colors.grey[50],
             ),
-            validator:
-                validator ??
+            validator: validator ??
                 (required
                     ? (v) => v!.isEmpty ? '$label wajib diisi' : null
                     : null),
@@ -410,17 +402,16 @@ class _EditPropertyScreenState extends State<EditPropertyScreen> {
                 SizedBox(height: 4),
                 DropdownButtonFormField<String>(
                   value: _kostType,
-                  items:
-                      ['putra', 'putri', 'campur']
-                          .map(
-                            (type) => DropdownMenuItem(
-                              value: type,
-                              child: Text(
-                                type[0].toUpperCase() + type.substring(1),
-                              ),
-                            ),
-                          )
-                          .toList(),
+                  items: ['putra', 'putri', 'campur']
+                      .map(
+                        (type) => DropdownMenuItem(
+                          value: type,
+                          child: Text(
+                            type[0].toUpperCase() + type.substring(1),
+                          ),
+                        ),
+                      )
+                      .toList(),
                   onChanged: (value) => setState(() => _kostType = value),
                   decoration: InputDecoration(
                     contentPadding: EdgeInsets.symmetric(
@@ -461,8 +452,7 @@ class _EditPropertyScreenState extends State<EditPropertyScreen> {
             controller: _totalUnitsController,
             keyboardType: TextInputType.number,
           ),
-          _buildFormField(
-            label: 'Unit Tersedia',
+          _buildFormField(label: 'Unit Tersedia',
             controller: _availableUnitsController,
             keyboardType: TextInputType.number,
           ),
@@ -581,8 +571,8 @@ class _EditPropertyScreenState extends State<EditPropertyScreen> {
                         DropdownMenuItem(value: 1, child: Text('Kost')),
                         DropdownMenuItem(value: 2, child: Text('Homestay')),
                       ],
-                      onChanged:
-                          (value) => setState(() => _propertyTypeId = value),
+                      onChanged: (value) =>
+                          setState(() => _propertyTypeId = value),
                       decoration: InputDecoration(
                         contentPadding: EdgeInsets.symmetric(
                           horizontal: 16,
@@ -595,9 +585,8 @@ class _EditPropertyScreenState extends State<EditPropertyScreen> {
                         filled: true,
                         fillColor: Colors.grey[50],
                       ),
-                      validator:
-                          (value) =>
-                              value == null ? 'Pilih jenis properti' : null,
+                      validator: (value) =>
+                          value == null ? 'Pilih jenis properti' : null,
                     ),
                   ],
                 ),
@@ -622,20 +611,19 @@ class _EditPropertyScreenState extends State<EditPropertyScreen> {
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
-                  child:
-                      _isLoading
-                          ? SizedBox(
-                            height: 20,
-                            width: 20,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              valueColor: AlwaysStoppedAnimation(Colors.white),
-                            ),
-                          )
-                          : Text(
-                            'Simpan Perubahan',
-                            style: TextStyle(fontSize: 16),
+                  child: _isLoading
+                      ? SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation(Colors.white),
                           ),
+                        )
+                      : Text(
+                          'Simpan Perubahan',
+                          style: TextStyle(fontSize: 16),
+                        ),
                 ),
               ),
               SizedBox(height: 24),

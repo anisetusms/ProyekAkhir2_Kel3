@@ -7,10 +7,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="">
     <meta name="author" content="">
-    <title>HomMie-Owner</title>
+    <title>HomMie - Owner</title>
 
-    <link rel="icon" href="assets/images/logoHommie.jpg" type="image/png">
-
+    <link rel="icon" href="{{ asset('assets/images/logoHommie.jpg') }}" type="image/png">
     <title>@yield('title') - {{ config('app.name') }}</title>
 
     <!-- Favicon -->
@@ -42,14 +41,14 @@
                 <div class="sidebar-brand-icon">
                     <i class="fas fa-home"></i>
                 </div>
-                <div class="sidebar-brand-text mx-3"> HOMMIE </div>
+                <div class="sidebar-brand-text mx-3">HOMMIE</div>
             </a>
 
             <!-- Divider -->
             <hr class="sidebar-divider my-0">
 
             <!-- Nav Item - Dashboard -->
-            <li class="nav-item {{ request()->routeIs('admin.properties.dashboard') ? 'active' : '' }}">                                                                                                                                                                                                                                          
+            <li class="nav-item {{ request()->routeIs('admin.properties.dashboard') ? 'active' : '' }}">
                 <a class="nav-link" href="{{ route('admin.properties.dashboard') }}">
                     <i class="fas fa-fw fa-tachometer-alt"></i>
                     <span>Dashboard</span>
@@ -73,8 +72,8 @@
             </li>
 
             <!-- Nav Item - Bookings -->
-            <li class="nav-item {{ request()->routeIs('admin.bookings.*') ? 'active' : '' }}">
-                <a class="nav-link" href="#">
+            <li class="nav-item {{ request()->routeIs('admin.properties.bookings.*') ? 'active' : '' }}">
+                <a class="nav-link" href="{{ route('admin.properties.bookings.dashboard') }}">
                     <i class="fas fa-fw fa-calendar-check"></i>
                     <span>Pemesanan</span>
                 </a>
@@ -141,78 +140,61 @@
                     <!-- Topbar Navbar -->
                     <ul class="navbar-nav ml-auto">
 
-                        <!-- Nav Item - Search Dropdown (Visible Only XS) -->
-                        <li class="nav-item dropdown no-arrow d-sm-none">
-                            <a class="nav-link dropdown-toggle" href="#" id="searchDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <i class="fas fa-search fa-fw"></i>
+                        <!-- Nav Item - Bookings -->
+                        <li class="nav-item {{ request()->routeIs('admin.bookings.*') ? 'active' : '' }}">
+                            <a class="nav-link" href="{{ route('admin.properties.bookings.dashboard') }}">
+                                <i class="fas fa-fw fa-calendar-check"></i>
+                                <span>Pemesanan</span>
                             </a>
-                            <!-- Dropdown - Messages -->
-                            <div class="dropdown-menu dropdown-menu-right p-3 shadow animated--grow-in" aria-labelledby="searchDropdown">
-                                <form class="form-inline mr-auto w-100 navbar-search">
-                                    <div class="input-group">
-                                        <input type="text" class="form-control bg-light border-0 small" placeholder="Search for..." aria-label="Search" aria-describedby="basic-addon2">
-                                        <div class="input-group-append">
-                                            <button class="btn btn-primary" type="button">
-                                                <i class="fas fa-search fa-sm"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </form>
-                            </div>
                         </li>
 
                         <!-- Nav Item - Alerts -->
                         <li class="nav-item dropdown no-arrow mx-1">
                             <a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 <i class="fas fa-bell fa-fw"></i>
-                                <!-- Counter - Alerts -->
-                                <span class="badge badge-danger badge-counter">3+</span>
+                                <span class="badge badge-danger badge-counter" id="pendingBookingsCount">0</span>
                             </a>
-                            <!-- Dropdown - Alerts -->
                             <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="alertsDropdown">
-                                <h6 class="dropdown-header">
-                                    Notifikasi
-                                </h6>
-                                <a class="dropdown-item d-flex align-items-center" href="#">
-                                    <div class="mr-3">
-                                        <div class="icon-circle bg-primary">
-                                            <i class="fas fa-file-alt text-white"></i>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <div class="small text-gray-500">April 12, 2025</div>
-                                        <span class="font-weight-bold">Pemesanan baru telah dibuat!</span>
-                                    </div>
-                                </a>
-                                <a class="dropdown-item text-center small text-gray-500" href="#">Lihat Semua Notifikasi</a>
+                                <h6 class="dropdown-header">Notifikasi Pemesanan</h6>
+                                <div id="pendingBookingsList"></div>
+                                <a class="dropdown-item text-center small text-gray-500" href="{{ route('admin.properties.bookings.dashboard') }}">Lihat Semua Notifikasi</a>
                             </div>
                         </li>
 
-                        <!-- Nav Item - Messages -->
-                        <li class="nav-item dropdown no-arrow mx-1">
-                            <a class="nav-link dropdown-toggle" href="#" id="messagesDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <i class="fas fa-envelope fa-fw"></i>
-                                <!-- Counter - Messages -->
-                                <span class="badge badge-danger badge-counter">7</span>
-                            </a>
-                            <!-- Dropdown - Messages -->
-                            <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="messagesDropdown">
-                                <h6 class="dropdown-header">
-                                    Pesan
-                                </h6>
-                                <a class="dropdown-item d-flex align-items-center" href="#">
-                                    <div class="dropdown-list-image mr-3">
-                                        <img class="rounded-circle" src="https://source.unsplash.com/Mv9hjnEUHR4/60x60" alt="">
-                                        <div class="status-indicator bg-success"></div>
-                                    </div>
-                                    <div>
-                                        <div class="text-truncate">Hi there! I am wondering if you can help me with a problem I've been having.</div>
-                                        <div class="small text-gray-500">Emily Fowler · 58m</div>
-                                    </div>
-                                </a>
-                                <a class="dropdown-item text-center small text-gray-500" href="#">Lihat Semua Pesan</a>
+                        <script>
+                            // Memuat pemesanan yang sedang berlangsung
+                            fetch("{{ route('admin.properties.bookings.pending') }}") // Fixed route URL
+                                .then(response => response.json())
+                                .then(data => {
+                                    const bookings = data.data;
+                                    const count = bookings.length;
+                                    const listContainer = document.getElementById('pendingBookingsList');
+                                    const countElement = document.getElementById('pendingBookingsCount');
+
+                                    countElement.textContent = count; // Update the count
+
+                                    if (count > 0) {
+                                        // Dynamically create list items for pending bookings
+                                        listContainer.innerHTML = bookings.map(booking => `
+                    <a class="dropdown-item d-flex align-items-center" href="{{ route('admin.properties.bookings.show', '') }}/${booking.id}">
+                        <div class="mr-3">
+                            <div class="icon-circle bg-primary">
+                                <i class="fas fa-file-alt text-white"></i>
                             </div>
-                        </li>
+                        </div>
+                        <div>
+                            <div class="small text-gray-500">${booking.created_at}</div>
+                            <span class="font-weight-bold">Pemesanan baru oleh ${booking.guest_name}</span>
+                        </div>
+                    </a>
+                `).join('');
+                                    } else {
+                                        listContainer.innerHTML = '<p class="text-center text-gray-500">Tidak ada pemesanan baru</p>';
+                                    }
+                                })
+                                .catch(error => console.error('Error loading pending bookings:', error));
+                        </script>
+
 
                         <div class="topbar-divider d-none d-sm-block"></div>
 
@@ -224,7 +206,6 @@
                                     src="{{ Auth::user()->profile_picture ? asset('storage/profile_pictures/' . Auth::user()->profile_picture) : asset('img/undraw_profile.svg') }}"
                                     alt="Profile Picture">
                             </a>
-                            <!-- Dropdown - User Information -->
                             <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
                                 <a class="dropdown-item" href="#">
                                     <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
@@ -329,8 +310,6 @@
 
     @stack('scripts')
 
-    @Hommie
-
 </body>
 
-</html> 
+</html>

@@ -1,16 +1,15 @@
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+import 'package:get/get.dart';
+import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:front/core/network/api_client.dart';
 import 'package:front/core/utils/constants.dart';
 import 'package:dio/dio.dart' as dio;
 
-
 class ProfileEditScreen extends StatefulWidget {
   final Map<String, dynamic> userProfile;
 
-  const ProfileEditScreen({super.key, required this.userProfile});
+  const ProfileEditScreen({Key? key, required this.userProfile}) : super(key: key);
 
   @override
   State<ProfileEditScreen> createState() => _ProfileEditScreenState();
@@ -24,7 +23,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
   late TextEditingController _phoneController;
   late TextEditingController _addressController;
   bool _isLoading = false;
-  bool _isImageLoading = false;
+  final ApiClient _apiClient = ApiClient();
 
   @override
   void initState() {
@@ -34,6 +33,9 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
     _selectedGender = widget.userProfile['gender'] ?? 'Pria';
     _phoneController = TextEditingController(text: widget.userProfile['phone'] ?? '');
     _addressController = TextEditingController(text: widget.userProfile['address'] ?? '');
+    
+    // Debug info
+    debugPrint('User Profile Data: ${widget.userProfile}');
   }
 
   @override
@@ -47,19 +49,15 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
 
   Future<void> _selectImage(ImageSource source) async {
     try {
-      final pickedFile = await ImagePicker().pickImage(
-        source: source,
-        maxWidth: 800,
-        maxHeight: 800,
-        imageQuality: 85,
-      );
-      
+      final pickedFile = await ImagePicker().pickImage(source: source);
       if (pickedFile != null) {
         setState(() {
           _selectedImage = File(pickedFile.path);
         });
+        debugPrint('Image selected: ${pickedFile.path}');
       }
     } catch (e) {
+      debugPrint('Error selecting image: $e');
       _showSnackbar('Error', 'Failed to select image: ${e.toString()}');
     }
   }
@@ -72,41 +70,119 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
     });
 
     try {
-      // Validasi data
-      if (_nameController.text.isEmpty) {
-        throw Exception('Name cannot be empty');
-      }
-      if (_usernameController.text.isEmpty) {
-        throw Exception('Username cannot be empty');
+      if (_nameController.text.isEmpty || _usernameController.text.isEmpty || _selectedGender.isEmpty) {
+        throw Exception('Please fill all required fields');
       }
 
-      // Buat form data
+      // Pendekatan 1: Gunakan POST dengan _method=PUT untuk Laravel
       final formData = dio.FormData.fromMap({
+        '_method': 'PUT', // Laravel form method spoofing
         'name': _nameController.text,
         'username': _usernameController.text,
         'gender': _selectedGender,
         'phone': _phoneController.text,
         'address': _addressController.text,
-        if (_selectedImage != null)
+      });
+
+      // Add file if selected
+      if (_selectedImage != null) {
+        debugPrint('Adding image to form data: ${_selectedImage!.path}');
+        formData.files.add(MapEntry(
+          'profile_picture',
+          await dio.MultipartFile.fromFile(
+            _selectedImage!.path,
+            filename: 'profile_${DateTime.now().millisecondsSinceEpoch}.jpg',
+          ),
+        ));
+      }
+
+      // Debug log
+      debugPrint('Updating profile with data: ${formData.fields}');
+      
+      // Gunakan POST dengan _method=PUT untuk Laravel
+      final response = await _apiClient.post(
+        '/profile',
+        formData: formData,
+      );
+
+      debugPrint('Profile update response: $response');
+
+      if (response != null && response['success'] == true) {
+        Get.back(result: true);
+        _showSnackbar('Success', 'Profile updated successfully', Colors.green);
+      } else {
+        throw Exception(response != null ? (response['message'] ?? 'Failed to update profile') : 'No response from server');
+      }
+    } catch (e) {
+      debugPrint('Error updating profile: $e');
+      _showSnackbar('Error', e.toString());
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  // Pendekatan alternatif jika pendekatan pertama tidak berhasil
+  Future<void> _updateProfileAlternative() async {
+    if (_isLoading) return;
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      if (_nameController.text.isEmpty || _usernameController.text.isEmpty || _selectedGender.isEmpty) {
+        throw Exception('Please fill all required fields');
+      }
+
+      // Pendekatan 2: Kirim data sebagai JSON dan file terpisah
+      // Pertama upload gambar jika ada
+      String? profilePicturePath;
+      if (_selectedImage != null) {
+        final imageFormData = dio.FormData.fromMap({
           'profile_picture': await dio.MultipartFile.fromFile(
             _selectedImage!.path,
             filename: 'profile_${DateTime.now().millisecondsSinceEpoch}.jpg',
           ),
-      });
-
-      // Kirim request
-      final response = await ApiClient().post(
-        '${Constants.baseUrl}/update-profile',
-        formData: formData,
+        });
+        
+        final uploadResponse = await _apiClient.post(
+          '/profile/upload-image',
+          formData: imageFormData,
+        );
+        
+        if (uploadResponse != null && uploadResponse['success'] == true) {
+          profilePicturePath = uploadResponse['data']['path'];
+        }
+      }
+      
+      // Kemudian update data profil sebagai JSON
+      final Map<String, dynamic> profileData = {
+        'name': _nameController.text,
+        'username': _usernameController.text,
+        'gender': _selectedGender,
+        'phone': _phoneController.text,
+        'address': _addressController.text,
+      };
+      
+      if (profilePicturePath != null) {
+        profileData['profile_picture_path'] = profilePicturePath;
+      }
+      
+      final response = await _apiClient.put(
+        '/profile',
+        body: profileData,
       );
 
-      if (response['success'] == true) {
-        Get.back(result: true); // Return true to indicate success
-        _showSnackbar('Success', 'Profile updated successfully');
+      if (response != null && response['success'] == true) {
+        Get.back(result: true);
+        _showSnackbar('Success', 'Profile updated successfully', Colors.green);
       } else {
-        throw Exception(response['message'] ?? 'Failed to update profile');
+        throw Exception(response != null ? (response['message'] ?? 'Failed to update profile') : 'No response from server');
       }
     } catch (e) {
+      debugPrint('Error updating profile: $e');
       _showSnackbar('Error', e.toString());
     } finally {
       setState(() {
@@ -126,34 +202,43 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
     );
   }
 
-  Future<void> _showImagePickerOptions() async {
+  Future<void> _showImageOptions() async {
     await showModalBottomSheet(
       context: context,
       builder: (context) => SafeArea(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            ListTile(
-              leading: const Icon(Icons.photo_library),
-              title: const Text('Gallery'),
-              onTap: () {
-                Navigator.pop(context);
-                _selectImage(ImageSource.gallery);
-              },
+            _buildImageOptionTile(
+              text: "Gallery",
+              icon: Icons.photo_library,
+              source: ImageSource.gallery,
             ),
             const Divider(height: 1),
-            ListTile(
-              leading: const Icon(Icons.camera_alt),
-              title: const Text('Camera'),
-              onTap: () {
-                Navigator.pop(context);
-                _selectImage(ImageSource.camera);
-              },
+            _buildImageOptionTile(
+              text: "Camera",
+              icon: Icons.camera_alt,
+              source: ImageSource.camera,
             ),
             const SizedBox(height: 8),
           ],
         ),
       ),
+    );
+  }
+
+  ListTile _buildImageOptionTile({
+    required String text,
+    required IconData icon,
+    required ImageSource source,
+  }) {
+    return ListTile(
+      leading: Icon(icon),
+      title: Text(text),
+      onTap: () {
+        Navigator.pop(context);
+        _selectImage(source);
+      },
     );
   }
 
@@ -165,10 +250,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
         actions: [
           IconButton(
             icon: _isLoading
-                ? const CircularProgressIndicator(
-                    valueColor: AlwaysStoppedAnimation(Colors.white),
-                    strokeWidth: 2,
-                  )
+                ? const CircularProgressIndicator(valueColor: AlwaysStoppedAnimation(Colors.white), strokeWidth: 2)
                 : const Icon(Icons.save),
             onPressed: _isLoading ? null : _updateProfile,
           ),
@@ -179,7 +261,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
         child: Column(
           children: [
             GestureDetector(
-              onTap: _showImagePickerOptions,
+              onTap: _showImageOptions,
               child: Stack(
                 alignment: Alignment.center,
                 children: [
@@ -187,15 +269,15 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                     radius: 50,
                     backgroundColor: Colors.grey.shade300,
                     backgroundImage: _getProfileImage(),
-                    child: _selectedImage == null && 
-                           widget.userProfile['profile_picture'] == null
-                        ? const Icon(Icons.person, size: 40, color: Colors.grey)
+                    child: _selectedImage == null &&
+                            (widget.userProfile['profile_picture'] == null || widget.userProfile['profile_picture'] == '')
+                        ? const Icon(
+                            Icons.person,
+                            size: 40,
+                            color: Colors.grey,
+                          )
                         : null,
                   ),
-                  if (_isImageLoading)
-                    const CircularProgressIndicator(
-                      valueColor: AlwaysStoppedAnimation(Colors.white),
-                    ),
                   const Positioned(
                     bottom: 0,
                     right: 0,
@@ -219,6 +301,13 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
             const SizedBox(height: 16),
             _buildTextField(_addressController, 'Address', null),
             const SizedBox(height: 20),
+            
+            // Tombol alternatif jika pendekatan pertama tidak berhasil
+            if (_isLoading == false)
+              TextButton(
+                onPressed: _updateProfileAlternative,
+                child: const Text('Coba Metode Alternatif'),
+              ),
           ],
         ),
       ),
@@ -228,10 +317,10 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
   ImageProvider? _getProfileImage() {
     if (_selectedImage != null) {
       return FileImage(_selectedImage!);
-    } else if (widget.userProfile['profile_picture'] != null) {
-      return NetworkImage(
-        '${Constants.baseUrlImage}/storage/profile_pictures/${widget.userProfile['profile_picture']}',
-      );
+    } else if (widget.userProfile['profile_picture'] != null && widget.userProfile['profile_picture'] != '') {
+      final imageUrl = '${Constants.baseUrlImage}/storage/profile_pictures/${widget.userProfile['profile_picture']}';
+      debugPrint('Loading profile image from: $imageUrl');
+      return NetworkImage(imageUrl);
     }
     return null;
   }
@@ -261,10 +350,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
         border: OutlineInputBorder(),
       ),
       items: ['Pria', 'Wanita'].map((String value) {
-        return DropdownMenuItem<String>(
-          value: value,
-          child: Text(value),
-        );
+        return DropdownMenuItem<String>(value: value, child: Text(value));
       }).toList(),
       onChanged: (String? newValue) {
         if (newValue != null) {

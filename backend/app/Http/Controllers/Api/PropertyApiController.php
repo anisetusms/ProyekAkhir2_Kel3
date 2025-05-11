@@ -37,6 +37,22 @@ class PropertyApiController extends Controller
         return response()->json($properties);
     }
     
+    /**
+     * Display a listing of all properties for the authenticated user, including deleted ones.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getAllProperties()
+    {
+        $user_id = Auth::id();
+
+        $properties = Property::with(['kostDetail', 'homestayDetail', 'province', 'city', 'district', 'subdistrict'])
+            ->where('user_id', $user_id)
+            ->latest()
+            ->paginate(10);
+
+        return response()->json($properties);
+    }
 
     /**
      * Store a newly created property in storage.
@@ -56,8 +72,8 @@ class PropertyApiController extends Controller
             'subdistrict_id' => 'required|integer|exists:subdistricts,id',
             'price' => 'required|numeric|min:0',
             'address' => 'required|string',
-            'latitude' => 'nullable|numeric',
-            'longitude' => 'nullable|numeric',
+            'latitude' => 'nullable|numeric|between:-90,90', // Tambahkan validasi range
+            'longitude' => 'nullable|numeric|between:-180,180', // Tambahkan validasi range
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'capacity' => 'nullable|integer|min:1',
             'available_rooms' => 'nullable|integer|min:0',
@@ -76,6 +92,21 @@ class PropertyApiController extends Controller
 
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+        // Validasi tambahan untuk latitude dan longitude
+        if ($request->has('latitude') && ($request->latitude < -90 || $request->latitude > 90)) {
+            return response()->json([
+                'message' => 'Nilai latitude tidak valid. Harus antara -90 dan 90.',
+                'errors' => ['latitude' => ['Nilai latitude tidak valid. Harus antara -90 dan 90.']]
+            ], 422);
+        }
+
+        if ($request->has('longitude') && ($request->longitude < -180 || $request->longitude > 180)) {
+            return response()->json([
+                'message' => 'Nilai longitude tidak valid. Harus antara -180 dan 180.',
+                'errors' => ['longitude' => ['Nilai longitude tidak valid. Harus antara -180 dan 180.']]
+            ], 422);
         }
 
         DB::beginTransaction();
@@ -101,7 +132,7 @@ class PropertyApiController extends Controller
                 'longitude' => $request->longitude,
                 'image' => $imagePath,
                 'capacity' => $request->capacity,
-                'available_rooms' => $request->property_type_id == 1 ? $request->available_rooms : 0, // Tambahkan nilai untuk available_rooms
+                'available_rooms' => $request->property_type_id == 1 ? $request->available_rooms : 0,
                 'rules' => $request->rules,
                 'isDeleted' => false,
             ]);
@@ -148,24 +179,6 @@ class PropertyApiController extends Controller
     }
 
     /**
-     * Display the specified property.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function show($id)
-    {
-        $property = Property::with(['kostDetail', 'homestayDetail', 'province', 'city', 'district', 'subdistrict', 'rooms'])
-            ->where('user_id', Auth::id())
-            ->where('isDeleted', false)
-            ->findOrFail($id);
-
-        return response()->json($property);
-    }
-
-    
-
-    /**
      * Update the specified property in storage.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -175,20 +188,20 @@ class PropertyApiController extends Controller
     public function update(Request $request, $id)
     {
         $property = Property::where('user_id', Auth::id())
-            ->where('isDeleted', false)
             ->findOrFail($id);
 
         $validator = Validator::make($request->all(), [
-            'name' => 'sometimes|string|max:255',
+            'name' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'province_id' => 'sometimes|integer|exists:provinces,id',
-            'city_id' => 'sometimes|integer|exists:cities,id',
-            'district_id' => 'sometimes|integer|exists:districts,id',
-            'subdistrict_id' => 'sometimes|integer|exists:subdistricts,id',
-            'price' => 'sometimes|numeric|min:0',
-            'address' => 'sometimes|string',
-            'latitude' => 'nullable|numeric',
-            'longitude' => 'nullable|numeric',
+            'property_type_id' => 'required|integer|exists:property_types,id',
+            'province_id' => 'required|integer|exists:provinces,id',
+            'city_id' => 'required|integer|exists:cities,id',
+            'district_id' => 'required|integer|exists:districts,id',
+            'subdistrict_id' => 'required|integer|exists:subdistricts,id',
+            'price' => 'required|numeric|min:0',
+            'address' => 'required|string',
+            'latitude' => 'nullable|numeric|between:-90,90',
+            'longitude' => 'nullable|numeric|between:-180,180',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'capacity' => 'nullable|integer|min:1',
             'available_rooms' => 'nullable|integer|min:0',
@@ -209,77 +222,102 @@ class PropertyApiController extends Controller
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
+        // Validasi tambahan untuk latitude dan longitude
+        if ($request->has('latitude') && ($request->latitude < -90 || $request->latitude > 90)) {
+            return response()->json([
+                'message' => 'Nilai latitude tidak valid. Harus antara -90 dan 90.',
+                'errors' => ['latitude' => ['Nilai latitude tidak valid. Harus antara -90 dan 90.']]
+            ], 422);
+        }
+
+        if ($request->has('longitude') && ($request->longitude < -180 || $request->longitude > 180)) {
+            return response()->json([
+                'message' => 'Nilai longitude tidak valid. Harus antara -180 dan 180.',
+                'errors' => ['longitude' => ['Nilai longitude tidak valid. Harus antara -180 dan 180.']]
+            ], 422);
+        }
+
         DB::beginTransaction();
         try {
-            // Update gambar jika ada
+            // Upload image if present
             $imagePath = $property->image;
             if ($request->hasFile('image')) {
-                // Hapus gambar lama jika ada
+                // Delete old image if exists
                 if ($imagePath) {
                     Storage::disk('public')->delete($imagePath);
                 }
+                // Store new image
                 $imagePath = $request->file('image')->store('properties', 'public');
             }
 
-            // Update properti
+            // Update property fields
             $property->update([
-                'name' => $request->name ?? $property->name,
-                'description' => $request->description ?? $property->description,
-                'province_id' => $request->province_id ?? $property->province_id,
-                'city_id' => $request->city_id ?? $property->city_id,
-                'district_id' => $request->district_id ?? $property->district_id,
-                'subdistrict_id' => $request->subdistrict_id ?? $property->subdistrict_id,
-                'price' => $request->price ?? $property->price,
-                'address' => $request->address ?? $property->address,
-                'latitude' => $request->latitude ?? $property->latitude,
-                'longitude' => $request->longitude ?? $property->longitude,
+                'name' => $request->name,
+                'description' => $request->description,
+                'property_type_id' => $request->property_type_id,
+                'user_id' => Auth::id(),
+                'province_id' => $request->province_id,
+                'city_id' => $request->city_id,
+                'district_id' => $request->district_id,
+                'subdistrict_id' => $request->subdistrict_id,
+                'price' => $request->price,
+                'address' => $request->address,
+                'latitude' => $request->latitude,
+                'longitude' => $request->longitude,
                 'image' => $imagePath,
-                'capacity' => $request->capacity ?? $property->capacity,
-                'available_rooms' => $request->property_type_id == 1 ? ($request->available_rooms ?? $property->available_rooms) : $property->available_rooms,
-                'rules' => $request->rules ?? $property->rules,
+                'capacity' => $request->capacity,
+                'available_rooms' => $request->property_type_id == 1 ? $request->available_rooms : 0,
+                'rules' => $request->rules,
             ]);
 
-            // Update detail sesuai jenis properti
-            if ($property->property_type_id == 1) { // Kost
-                if ($property->kostDetail) {
-                    $property->kostDetail->update([
-                        'kost_type' => $request->kost_type ?? $property->kostDetail->kost_type,
-                        'total_rooms' => $request->total_rooms ?? $property->kostDetail->total_rooms,
-                        'available_rooms' => $request->available_rooms ?? $property->kostDetail->available_rooms,
-                        'meal_included' => $request->meal_included ?? $property->kostDetail->meal_included,
-                        'laundry_included' => $request->laundry_included ?? $property->kostDetail->laundry_included,
-                        'rules' => $request->rules ?? $property->kostDetail->rules,
-                    ]);
-                }
-            } elseif ($property->property_type_id == 2) { // Homestay
-                if ($property->homestayDetail) {
-                    $property->homestayDetail->update([
-                        'total_units' => $request->total_units ?? $property->homestayDetail->total_units,
-                        'available_units' => $request->available_units ?? $property->homestayDetail->available_units,
-                        'minimum_stay' => $request->minimum_stay ?? $property->homestayDetail->minimum_stay,
-                        'maximum_guest' => $request->maximum_guest ?? $property->homestayDetail->maximum_guest,
-                        'checkin_time' => $request->checkin_time ?? $property->homestayDetail->checkin_time,
-                        'checkout_time' => $request->checkout_time ?? $property->homestayDetail->checkout_time,
-                    ]);
-                }
+            // Update property type specific details
+            if ($request->property_type_id == 1) { // Kost
+                // Create or update Kost detail
+                $kostDetail = $property->kostDetail ?? new KostDetail();
+                $kostDetail->property_id = $property->id;
+                $kostDetail->kost_type = $request->kost_type;
+                $kostDetail->total_rooms = $request->total_rooms;
+                $kostDetail->available_rooms = $request->available_rooms;
+                $kostDetail->meal_included = $request->meal_included ?? false;
+                $kostDetail->laundry_included = $request->laundry_included ?? false;
+                $kostDetail->rules = $request->rules ?? '';
+                $kostDetail->save();
+            } elseif ($request->property_type_id == 2) { // Homestay
+                // Create or update Homestay detail
+                $homestayDetail = $property->homestayDetail ?? new HomestayDetail();
+                $homestayDetail->property_id = $property->id;
+                $homestayDetail->total_units = $request->total_units;
+                $homestayDetail->available_units = $request->available_units;
+                $homestayDetail->minimum_stay = $request->minimum_stay;
+                $homestayDetail->maximum_guest = $request->maximum_guest;
+                $homestayDetail->checkin_time = $request->checkin_time;
+                $homestayDetail->checkout_time = $request->checkout_time;
+                $homestayDetail->save();
             }
 
             DB::commit();
 
-            return response()->json($property, 200);
+            return response()->json([
+                'message' => 'Properti berhasil diperbarui',
+                'data' => $property
+            ], 200);
         } catch (\Exception $e) {
             DB::rollBack();
+            // Handle image rollback if failed
+            if (isset($imagePath)) {
+                Storage::disk('public')->delete($imagePath);
+            }
             return response()->json(['message' => 'Gagal memperbarui properti: ' . $e->getMessage()], 500);
         }
     }
 
     /**
-     * Remove the specified property from storage (soft delete).
+     * Deactivate the specified property (soft delete).
      *
      * @param  int  $id
      * @return \Illuminate\Http\JsonResponse
      */
-    public function destroy($id)
+    public function deactivate($id)
     {
         $property = Property::where('user_id', Auth::id())
             ->where('isDeleted', false)
@@ -290,6 +328,65 @@ class PropertyApiController extends Controller
             return response()->json(['message' => 'Properti berhasil dinonaktifkan']);
         } catch (\Exception $e) {
             return response()->json(['message' => 'Gagal menonaktifkan properti: ' . $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Reactivate a previously deactivated property.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function reactivate($id)
+    {
+        $property = Property::where('user_id', Auth::id())
+            ->where('isDeleted', true)
+            ->findOrFail($id);
+
+        try {
+            $property->update(['isDeleted' => false]);
+            return response()->json(['message' => 'Properti berhasil diaktifkan kembali']);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Gagal mengaktifkan properti: ' . $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Display the specified property.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function show($id)
+    {
+        try {
+            $property = Property::with([
+                'kostDetail', 
+                'homestayDetail', 
+                'propertyType',
+                'province', 
+                'city', 
+                'district', 
+                'subdistrict'
+            ])->findOrFail($id);
+
+            // Pastikan pengguna memiliki akses ke properti ini
+            if ($property->user_id != Auth::id()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Anda tidak memiliki akses ke properti ini'
+                ], 403);
+            }
+
+            return response()->json([
+                'success' => true,
+                'data' => $property
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal memuat detail properti: ' . $e->getMessage()
+            ], 500);
         }
     }
 

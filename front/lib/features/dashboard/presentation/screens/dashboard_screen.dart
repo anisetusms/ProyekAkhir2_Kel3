@@ -199,7 +199,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             return DashboardCard(
               icon: icon,
               title: title,
-              value: FormatUtils.formatPrice(value), // Menggunakan format harga
+              value: FormatUtils.formatNumber(value), // Menggunakan format harga
               color: color,
             );
           },

@@ -4,20 +4,21 @@ import 'package:front/core/network/api_client.dart';
 import 'package:front/features/dashboard/presentation/screens/users/penyewa/models/booking_model.dart';
 import 'package:front/features/property/data/models/property_model.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter/material.dart';
 
 class BookingServiceException implements Exception {
   final String message;
-  final int? statusCode;
+  final int? status;
   final dynamic data;
 
   BookingServiceException({
     required this.message,
-    this.statusCode,
+    this.status,
     this.data,
   });
 
   @override
-  String toString() => 'BookingServiceException: $message${statusCode != null ? ' (Status $statusCode)' : ''}';
+  String toString() => 'BookingServiceException: $message${status != null ? ' (Status $status)' : ''}';
 }
 
 class BookingService {
@@ -33,7 +34,7 @@ class BookingService {
       if (response['statusCode'] != 200) {
         throw BookingServiceException(
           message: _parseErrorMessage(response['data']) ?? 'Failed to fetch property details',
-          statusCode: response['statusCode'],
+          status: response['statusCode'],
           data: response['data'],
         );
       }
@@ -42,7 +43,7 @@ class BookingService {
       if (response['data'] == null || response['data']['data'] == null) {
         throw BookingServiceException(
           message: 'Invalid property data format',
-          statusCode: response['statusCode'],
+          status: response['statusCode'],
         );
       }
 
@@ -58,7 +59,7 @@ class BookingService {
     } on DioError catch (e) {
       throw BookingServiceException(
         message: _parseDioErrorMessage(e) ?? 'Failed to fetch property details',
-        statusCode: e.response?.statusCode,
+        status: e.response?.statusCode,
         data: e.response?.data,
       );
     } catch (e) {
@@ -74,16 +75,26 @@ class BookingService {
     required DateTime checkOut,
   }) async {
     try {
+      // Pastikan tanggal tidak memiliki komponen waktu
+      final cleanCheckIn = DateTime(checkIn.year, checkIn.month, checkIn.day);
+      final cleanCheckOut = DateTime(checkOut.year, checkOut.month, checkOut.day);
+      
+      // Format tanggal sesuai dengan yang diharapkan server (yyyy-MM-dd)
+      final formattedCheckIn = DateFormat('yyyy-MM-dd').format(cleanCheckIn);
+      final formattedCheckOut = DateFormat('yyyy-MM-dd').format(cleanCheckOut);
+      
+      debugPrint('Checking availability for: $formattedCheckIn to $formattedCheckOut');
+      
       final response = await _apiClient.post('/bookings/check-availability', body: {
         'property_id': propertyId,
-        'check_in': DateFormat('yyyy-MM-dd').format(checkIn),
-        'check_out': DateFormat('yyyy-MM-dd').format(checkOut),
+        'check_in': formattedCheckIn,
+        'check_out': formattedCheckOut,
       });
 
       if (response['statusCode'] != 200) {
         throw BookingServiceException(
           message: _parseErrorMessage(response['data']) ?? 'Failed to check availability',
-          statusCode: response['statusCode'],
+          status: response['statusCode'],
           data: response['data'],
         );
       }
@@ -92,7 +103,7 @@ class BookingService {
     } on DioError catch (e) {
       throw BookingServiceException(
         message: _parseDioErrorMessage(e) ?? 'Network error occurred',
-        statusCode: e.response?.statusCode,
+        status: e.response?.statusCode,
         data: e.response?.data,
       );
     } catch (e) {
@@ -102,6 +113,7 @@ class BookingService {
     }
   }
 
+  // Perbaiki metode createBooking untuk menangani respons dengan lebih baik
   Future<Booking> createBooking({
     required int propertyId,
     List<int>? roomIds,
@@ -115,17 +127,31 @@ class BookingService {
     String? specialRequests,
   }) async {
     try {
-      // Validate dates
-      if (checkOut.difference(checkIn).inDays < 1) {
+      // Pastikan tanggal tidak memiliki komponen waktu
+      final cleanCheckIn = DateTime(checkIn.year, checkIn.month, checkIn.day);
+      final cleanCheckOut = DateTime(checkOut.year, checkOut.month, checkOut.day);
+      
+      // Format tanggal sesuai dengan yang diharapkan server (yyyy-MM-dd)
+      final formattedCheckIn = DateFormat('yyyy-MM-dd').format(cleanCheckIn);
+      final formattedCheckOut = DateFormat('yyyy-MM-dd').format(cleanCheckOut);
+      
+      // Debug log untuk melihat tanggal yang dikirim
+      debugPrint('Creating booking with dates: $formattedCheckIn to $formattedCheckOut');
+      
+      // Validasi durasi sesuai dengan validasi server
+      final days = cleanCheckOut.difference(cleanCheckIn).inDays;
+      debugPrint('Calculated days: $days');
+      
+      if (days < 1) {
         throw BookingServiceException(
-          message: 'Check-out date must be at least 1 day after check-in date',
+          message: 'Durasi minimal pemesanan adalah 1 hari',
         );
       }
 
       final formData = FormData.fromMap({
         'property_id': propertyId,
-        'check_in': DateFormat('yyyy-MM-dd').format(checkIn),
-        'check_out': DateFormat('yyyy-MM-dd').format(checkOut),
+        'check_in': formattedCheckIn,
+        'check_out': formattedCheckOut,
         'is_for_others': isForOthers ? 1 : 0,
         if (isForOthers && guestName != null) 'guest_name': guestName,
         if (isForOthers && guestPhone != null) 'guest_phone': guestPhone,
@@ -145,29 +171,54 @@ class BookingService {
         }
       }
 
+      // Debug log untuk melihat data yang dikirim
+      debugPrint('Sending booking data: ${formData.fields}');
+
       // Kirim request ke API
       final response = await _apiClient.post(
         '/bookings',
         formData: formData,
       );
 
-      // Check for successful response (201 Created)
-      if (response['statusCode'] != 201) {
+      // Debug log untuk melihat respons lengkap
+      debugPrint('Server response status: ${response['status']}');
+      debugPrint('Server response data: ${response['data']}');
+
+      // Periksa respons dengan lebih fleksibel
+      if (response['status'] == 'success') {
+        // Respons sukses, coba parse data booking
+        if (response['data'] != null) {
+          if (response['data']['data'] != null) {
+            // Format respons: { data: { data: {...} } }
+            return Booking.fromJson(response['data']['data']);
+          } else {
+            // Format respons: { data: {...} }
+            return Booking.fromJson(response['data']);
+          }
+        } else {
+          throw BookingServiceException(
+            message: 'Respons server tidak valid: Data kosong',
+            status: response['status'],
+            data: response['data'],
+          );
+        }
+      } else {
+        // Respons error
         throw BookingServiceException(
           message: _parseErrorMessage(response['data']) ?? 'Failed to create booking',
-          statusCode: response['statusCode'],
+          status: response['status'],
           data: response['data'],
         );
       }
-
-      return Booking.fromJson(response['data']['data']);
     } on DioError catch (e) {
+      debugPrint('DioError: ${e.response?.data}');
       throw BookingServiceException(
         message: _parseDioErrorMessage(e) ?? 'Network error occurred',
-        statusCode: e.response?.statusCode,
+        status: e.response?.statusCode,
         data: e.response?.data,
       );
     } catch (e) {
+      debugPrint('Error creating booking: $e');
       throw BookingServiceException(
         message: 'Failed to create booking: ${e.toString()}',
       );
@@ -181,7 +232,7 @@ class BookingService {
       if (response['statusCode'] != 200) {
         throw BookingServiceException(
           message: _parseErrorMessage(response['data']) ?? 'Failed to fetch bookings',
-          statusCode: response['statusCode'],
+          status: response['status'],
           data: response['data'],
         );
       }
@@ -192,7 +243,7 @@ class BookingService {
     } on DioError catch (e) {
       throw BookingServiceException(
         message: _parseDioErrorMessage(e) ?? 'Network error occurred',
-        statusCode: e.response?.statusCode,
+        status: e.response?.statusCode,
         data: e.response?.data,
       );
     } catch (e) {
@@ -209,7 +260,7 @@ class BookingService {
       if (response['statusCode'] != 200) {
         throw BookingServiceException(
           message: _parseErrorMessage(response['data']) ?? 'Failed to fetch booking details',
-          statusCode: response['statusCode'],
+          status: response['status'],
           data: response['data'],
         );
       }
@@ -218,7 +269,7 @@ class BookingService {
     } on DioError catch (e) {
       throw BookingServiceException(
         message: _parseDioErrorMessage(e) ?? 'Network error occurred',
-        statusCode: e.response?.statusCode,
+        status: e.response?.statusCode,
         data: e.response?.data,
       );
     } catch (e) {
@@ -235,7 +286,7 @@ class BookingService {
       if (response['statusCode'] != 200) {
         throw BookingServiceException(
           message: _parseErrorMessage(response['data']) ?? 'Failed to cancel booking',
-          statusCode: response['statusCode'],
+          status: response['status'],
           data: response['data'],
         );
       }
@@ -243,13 +294,13 @@ class BookingService {
       if (e.response?.statusCode == 400) {
         throw BookingServiceException(
           message: _parseErrorMessage(e.response?.data) ?? 'Booking cannot be cancelled',
-          statusCode: 400,
+          status: 400,
           data: e.response?.data,
         );
       }
       throw BookingServiceException(
         message: _parseDioErrorMessage(e) ?? 'Network error occurred',
-        statusCode: e.response?.statusCode,
+        status: e.response?.statusCode,
         data: e.response?.data,
       );
     } catch (e) {
