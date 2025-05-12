@@ -82,6 +82,13 @@ class ApiClient {
     );
   }
 
+  // Tambahkan metode untuk mendapatkan token
+  Future<String?> getToken() async {
+    // Mengambil token yang disimpan di SharedPreferences
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('token');
+  }
+
   /// GET request
   Future<dynamic> get(
     String endpoint, {

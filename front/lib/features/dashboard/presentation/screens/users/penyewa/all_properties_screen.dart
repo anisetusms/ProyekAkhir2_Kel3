@@ -3,6 +3,7 @@ import 'package:front/core/network/api_client.dart';
 import 'package:front/features/property/data/models/property_model.dart';
 import 'package:front/features/dashboard/presentation/screens/users/penyewa/property_detail_screen.dart';
 import 'package:front/features/dashboard/presentation/screens/users/penyewa/home_header.dart';
+import 'package:front/core/utils/constants.dart';
 
 class AllPropertiesScreen extends StatefulWidget {
   const AllPropertiesScreen({super.key});
@@ -61,11 +62,9 @@ class _AllPropertiesScreenState extends State<AllPropertiesScreen> {
   }
 
   Widget _buildPropertyCard(PropertyModel property) {
-    // Add your base URL if needed
-    final imageUrl =
-        property.image != null
-            ? 'https://your-api.com/storage/${property.image}'
-            : null;
+    final imageUrl = property.image != null
+        ? '${Constants.baseUrlImage}/storage/${property.image}'
+        : Constants.defaultPropertyImage;
 
     return GestureDetector(
       onTap: () {
@@ -77,7 +76,7 @@ class _AllPropertiesScreenState extends State<AllPropertiesScreen> {
         );
       },
       child: Container(
-        margin: const EdgeInsets.only(bottom: 20),
+        margin: const EdgeInsets.all(8),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
           color: Colors.white,
@@ -93,65 +92,91 @@ class _AllPropertiesScreenState extends State<AllPropertiesScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Gambar Properti
             ClipRRect(
               borderRadius: const BorderRadius.vertical(
                 top: Radius.circular(12),
               ),
-              child:
-                  imageUrl != null
-                      ? Image.network(
-                        imageUrl,
-                        height: 160,
-                        width: double.infinity,
-                        fit: BoxFit.cover,
-                        errorBuilder:
-                            (context, error, stackTrace) =>
-                                _buildImagePlaceholder(),
-                      )
-                      : _buildImagePlaceholder(),
+              child: Container(
+                height: 120,
+                width: double.infinity,
+                child: Image.network(
+                  imageUrl,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) =>
+                      _buildImagePlaceholder(),
+                ),
+              ),
             ),
+            
+            // Detail Properti
             Padding(
               padding: const EdgeInsets.all(12),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Nama Properti
                   Text(
                     property.name,
                     style: const TextStyle(
-                      fontSize: 16,
+                      fontSize: 14,
                       fontWeight: FontWeight.bold,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: 6),
+                  
+                  const SizedBox(height: 4),
+                  
+                  // Lokasi
                   Text(
                     property.address,
-                    style: TextStyle(color: Colors.grey[600], fontSize: 14),
+                    style: TextStyle(
+                      color: Colors.grey[600], 
+                      fontSize: 12
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: 12),
+                  
+                  const SizedBox(height: 8),
+                  
+                  // Harga dan Rating
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        'Rp ${property.price.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.')} / Bulan',
-                        style: TextStyle(
-                          color: Theme.of(context).primaryColor,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14,
+                      // Harga
+                      Flexible(
+                        child: Text(
+                          'Rp ${property.price.toStringAsFixed(0).replaceAllMapped(
+                            RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))/ Bulan'), 
+                            (Match m) => '${m[1]}.'
+                          )}',
+                          style: TextStyle(
+                            color: Theme.of(context).primaryColor,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 12,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
+                      
+                      // Rating
                       Row(
                         children: [
                           const Icon(
                             Icons.star,
-                            size: 16,
+                            size: 14,
                             color: Colors.orange,
                           ),
-                          const SizedBox(width: 4),
+                          const SizedBox(width: 2),
                           Text(
                             '5.0',
-                            style: TextStyle(color: Colors.grey[600]),
+                            style: TextStyle(
+                              color: Colors.grey[600],
+                              fontSize: 12,
+                            ),
                           ),
                         ],
                       ),
@@ -168,7 +193,7 @@ class _AllPropertiesScreenState extends State<AllPropertiesScreen> {
 
   Widget _buildImagePlaceholder() {
     return Container(
-      height: 160,
+      height: 120,
       color: Colors.grey[200],
       child: const Center(
         child: Icon(Icons.home, size: 40, color: Colors.grey),
@@ -176,46 +201,6 @@ class _AllPropertiesScreenState extends State<AllPropertiesScreen> {
     );
   }
 
-  // @override
-  // Widget build(BuildContext context) {
-  //   return Scaffold(
-  //     backgroundColor: Colors.white,
-  //     appBar: AppBar(
-  //       title: const Text('Semua Properti'),
-  //     ),
-  //     body: SafeArea(
-  //       child: _isLoading
-  //           ? const Center(child: CircularProgressIndicator())
-  //           : Padding(
-  //               padding: const EdgeInsets.symmetric(horizontal: 16),
-  //               child: Column(
-  //                 children: [
-  //                   const SizedBox(height: 20),
-  //                   if (_errorMessage.isNotEmpty)
-  //                     Padding(
-  //                       padding: const EdgeInsets.all(8.0),
-  //                       child: Text(
-  //                         _errorMessage,
-  //                         style: const TextStyle(color: Colors.red),
-  //                       ),
-  //                     ),
-  //                   Expanded(
-  //                     child: allProperties.isEmpty
-  //                         ? const Center(child: Text('Tidak ada data'))
-  //                         : ListView.builder(
-  //                             itemCount: allProperties.length,
-  //                             itemBuilder: (context, index) {
-  //                               return _buildPropertyCard(allProperties[index]);
-  //                             },
-  //                           ),
-  //                   ),
-  //                   const SizedBox(height: 20),
-  //                 ],
-  //               ),
-  //             ),
-  //     ),
-  //   );
-  // }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -227,7 +212,7 @@ class _AllPropertiesScreenState extends State<AllPropertiesScreen> {
               padding: EdgeInsets.all(16),
               child: DashboardHeader(),
             ),
-            const SizedBox(height: 20),
+            
             if (_errorMessage.isNotEmpty)
               Padding(
                 padding: const EdgeInsets.all(8.0),
@@ -236,21 +221,29 @@ class _AllPropertiesScreenState extends State<AllPropertiesScreen> {
                   style: const TextStyle(color: Colors.red),
                 ),
               ),
+            
             Expanded(
-              child:
-                  _isLoading
-                      ? const Center(child: CircularProgressIndicator())
-                      : allProperties.isEmpty
+              child: _isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : allProperties.isEmpty
                       ? const Center(child: Text('Tidak ada data'))
-                      : ListView.builder(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        itemCount: allProperties.length,
-                        itemBuilder: (context, index) {
-                          return _buildPropertyCard(allProperties[index]);
-                        },
-                      ),
+                      : GridView.builder(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8, 
+                            vertical: 8
+                          ),
+                          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            childAspectRatio: 0.75,
+                            crossAxisSpacing: 8,
+                            mainAxisSpacing: 8,
+                          ),
+                          itemCount: allProperties.length,
+                          itemBuilder: (context, index) {
+                            return _buildPropertyCard(allProperties[index]);
+                          },
+                        ),
             ),
-            const SizedBox(height: 20),
           ],
         ),
       ),

@@ -70,8 +70,12 @@ class PropertyController extends Controller
         $activeProperties = Property::where('user_id', $user_id)->where('isDeleted', false)->count();
         $inactiveProperties = Property::where('user_id', $user_id)->where('isDeleted', true)->count();
         $pendingProperties = Property::where('user_id', $user_id)->count(); // Bisa menyesuaikan jika dibutuhkan
-
-        // Mengambil pemesanan terbaru berdasarkan user_id
+        $pendingBookings = Booking::whereHas('property', function ($query) use ($user_id) {
+            $query->where('user_id', $user_id);
+        })->where('status', 'pending')->count();
+        $totalRevenue = Booking::whereHas('property', function ($query) use ($user_id) {
+            $query->where('user_id', $user_id);
+        })->whereIn('status', ['confirmed', 'completed'])->sum('total_price');
         // Hanya mengambil pemesanan yang terkait dengan properti yang dimiliki oleh pengguna
         $latestBookings = Booking::whereIn('property_id', Property::where('user_id', $user_id)->pluck('id'))
             ->latest() // Urutkan berdasarkan tanggal pembuatan pemesanan terbaru
@@ -83,7 +87,7 @@ class PropertyController extends Controller
         $totalMessages = 50;
 
         // Mengirim data ke tampilan (view)
-        return view('admin.properties.dashboard', compact('totalProperties', 'activeProperties', 'pendingProperties', 'latestBookings', 'totalViews', 'totalMessages'));
+        return view('admin.properties.dashboard', compact('totalProperties', 'activeProperties', 'pendingProperties', 'latestBookings', 'totalViews', 'totalMessages', 'pendingBookings', 'inactiveProperties', 'totalRevenue'));
     }
 
 

@@ -1,4 +1,3 @@
-// models/booking.dart
 import 'package:intl/intl.dart';
 import 'package:flutter/foundation.dart';
 
@@ -21,11 +20,11 @@ class BookingRoom {
 
   factory BookingRoom.fromJson(Map<String, dynamic> json) {
     return BookingRoom(
-      id: json['id'] ?? 0,
-      bookingId: json['booking_id'] ?? 0,
-      roomId: json['room_id'] ?? 0,
+      id: json['id'] is String ? int.parse(json['id']) : json['id'] ?? 0,
+      bookingId: json['booking_id'] is String ? int.parse(json['booking_id']) : json['booking_id'] ?? 0,
+      roomId: json['room_id'] is String ? int.parse(json['room_id']) : json['room_id'] ?? 0,
       price: double.tryParse(json['price'].toString()) ?? 0.0,
-      customerId: json['customer_id'],
+      customerId: json['customer_id'] is String ? int.tryParse(json['customer_id']) : json['customer_id'],
       room: json['room'] is Map<String, dynamic> ? json['room'] : null,
     );
   }
@@ -98,11 +97,43 @@ class Booking {
   factory Booking.fromJson(Map<String, dynamic> json) {
     debugPrint('Parsing booking from JSON: ${json.keys}');
 
+    // Safely parse ID - handle both String and int types
+    int? id;
+    if (json['id'] != null) {
+      id = json['id'] is String ? int.tryParse(json['id']) : json['id'];
+    }
+
+    // Safely parse property_id - handle both String and int types
+    int propertyId = 0;
+    if (json['property_id'] != null) {
+      propertyId = json['property_id'] is String 
+          ? int.tryParse(json['property_id'].toString()) ?? 0 
+          : json['property_id'] ?? 0;
+    }
+
     List<BookingRoom>? bookingRooms;
     if (json['rooms'] != null && json['rooms'] is List) {
-      bookingRooms = (json['rooms'] as List)
-          .map((room) => BookingRoom.fromJson(room))
-          .toList();
+      try {
+        bookingRooms = (json['rooms'] as List)
+            .map((room) {
+              if (room is Map) {
+                // Konversi Map<dynamic, dynamic> ke Map<String, dynamic>
+                final Map<String, dynamic> roomMap = {};
+                room.forEach((key, value) {
+                  if (key is String) {
+                    roomMap[key] = value;
+                  }
+                });
+                return BookingRoom.fromJson(roomMap);
+              } else {
+                return BookingRoom.fromJson(Map<String, dynamic>.from(room));
+              }
+            })
+            .toList();
+      } catch (e) {
+        debugPrint('Error parsing booking rooms: $e');
+        bookingRooms = [];
+      }
     }
 
     List<int>? roomIds;
@@ -110,7 +141,7 @@ class Booking {
       roomIds = bookingRooms.map((br) => br.roomId).toList();
     } else if (json['room_ids'] != null && json['room_ids'] is List) {
       roomIds = (json['room_ids'] as List)
-          .map((id) => int.tryParse(id.toString()) ?? 0)
+          .map((id) => id is String ? int.tryParse(id) ?? 0 : id as int)
           .toList();
     }
 
@@ -118,9 +149,14 @@ class Booking {
     String? propertyName = property?['name'];
     String? propertyAddress = property?['address'];
     String? propertyImage = property?['image'];
-    int? propertyTypeId = property?['property_type_id'] is String
-        ? int.tryParse(property['property_type_id']) ?? 0
-        : property?['property_type_id'];
+    
+    // Safely parse property_type_id - handle both String and int types
+    int? propertyTypeId;
+    if (property != null && property['property_type_id'] != null) {
+      propertyTypeId = property['property_type_id'] is String
+          ? int.tryParse(property['property_type_id']) ?? 0
+          : property['property_type_id'];
+    }
 
     DateTime parseDate(dynamic dateStr) {
       if (dateStr == null) return DateTime.now();
@@ -132,19 +168,37 @@ class Booking {
       }
     }
 
+    // Safely parse is_for_others - handle different types
+    bool isForOthers = false;
+    if (json['is_for_others'] != null) {
+      if (json['is_for_others'] is bool) {
+        isForOthers = json['is_for_others'];
+      } else if (json['is_for_others'] is int) {
+        isForOthers = json['is_for_others'] == 1;
+      } else if (json['is_for_others'] is String) {
+        isForOthers = json['is_for_others'] == '1' || json['is_for_others'].toLowerCase() == 'true';
+      }
+    }
+
+    // Safely parse total_price - handle different types
+    double totalPrice = 0.0;
+    if (json['total_price'] != null) {
+      totalPrice = double.tryParse(json['total_price'].toString()) ?? 0.0;
+    }
+
     return Booking(
-      id: json['id'],
-      propertyId: json['property_id'] ?? 0,
+      id: id,
+      propertyId: propertyId,
       roomIds: roomIds,
       checkIn: parseDate(json['check_in']),
       checkOut: parseDate(json['check_out']),
-      isForOthers: json['is_for_others'] == 1 || json['is_for_others'] == true,
+      isForOthers: isForOthers,
       guestName: json['guest_name'],
       guestPhone: json['guest_phone'],
       ktpImage: json['ktp_image'],
       identityNumber: json['identity_number'] ?? '',
       specialRequests: json['special_requests'],
-      totalPrice: double.tryParse(json['total_price'].toString()) ?? 0.0,
+      totalPrice: totalPrice,
       status: json['status'] ?? 'pending',
       bookingGroup: json['booking_group'],
       propertyName: propertyName,

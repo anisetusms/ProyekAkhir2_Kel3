@@ -50,13 +50,13 @@
             </div>
         </div>
 
-        <!-- Properti Menunggu -->
+        <!-- Booking Menunggu -->
         <div class="col-xl-3 col-md-6">
             <div class="card bg-warning bg-gradient text-white mb-4">
                 <div class="card-body d-flex justify-content-between align-items-center">
                     <div>
                         <h5 class="card-title">Menunggu Persetujuan</h5>
-                        <h2 class="mb-0">{{ $pendingProperties }}</h2>
+                        <h2 class="mb-0">{{ $pendingBookings }}</h2>
                     </div>
                     <div class="icon-circle">
                         <i class="fas fa-clock fa-2x"></i>
@@ -64,6 +64,24 @@
                 </div>
                 <div class="card-footer d-flex align-items-center justify-content-between">
                     <a class="small text-white stretched-link" href="#">Review Sekarang</a>
+                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                </div>
+            </div>
+        </div>
+        <!-- Total Pendapatan -->
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-danger bg-gradient text-white mb-4">
+                <div class="card-body d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5 class="card-title">Total Pendapatan</h5>
+                        <h2 class="mb-0">{{ 'Rp ' . number_format($totalRevenue, 0, ',', '.') }}</h2>
+                    </div>
+                    <div class="icon-circle">
+                        <i class="fas fa-dollar-sign fa-2x"></i>
+                    </div>
+                </div>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" href="#">Lihat Detail</a>
                     <div class="small text-white"><i class="fas fa-angle-right"></i></div>
                 </div>
             </div>

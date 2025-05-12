@@ -95,7 +95,7 @@ class BookingRepository {
       checkOut: cleanCheckOut,
     );
   }
-  
+
   // Get property details
   Future<PropertyModel> getPropertyDetails(int propertyId) async {
     return await _bookingService.getPropertyDetails(propertyId);

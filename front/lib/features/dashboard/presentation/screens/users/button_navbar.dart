@@ -8,8 +8,8 @@ import 'package:front/features/property/presentation/screens/property_list.dart'
 import 'package:front/features/dashboard/presentation/screens/users/penyewa/profil/profil_user.dart';
 import 'package:front/features/dashboard/presentation/screens/users/owner/profil.dart';
 import 'package:front/features/dashboard/presentation/screens/users/owner/admin_booking_list_screen.dart';
-import 'package:front/features/dashboard/presentation/screens/users/penyewa/booking/Daftar_booking_screen.dart';
-
+import 'package:front/features/dashboard/presentation/screens/users/penyewa/Daftar_booking_screen.dart';
+  
 
 class BottomBar extends StatefulWidget {
   const BottomBar({super.key});
