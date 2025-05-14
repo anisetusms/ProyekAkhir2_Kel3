@@ -3,6 +3,8 @@ import 'package:front/core/network/api_client.dart';
 import 'package:front/features/dashboard/presentation/screens/users/penyewa/models/booking_model.dart';
 import 'package:front/features/dashboard/presentation/screens/users/penyewa/service/booking_service.dart';
 import 'package:front/features/property/data/models/property_model.dart';
+import 'package:flutter/material.dart';
+
 class BookingRepository {
   final BookingService _bookingService;
   
@@ -22,11 +24,26 @@ class BookingRepository {
     required String identityNumber,
     String? specialRequests,
   }) async {
+    // Pastikan tanggal tidak memiliki komponen waktu
+    final cleanCheckIn = DateTime(checkIn.year, checkIn.month, checkIn.day);
+    final cleanCheckOut = DateTime(checkOut.year, checkOut.month, checkOut.day);
+    
+    // Debug log untuk melihat tanggal yang dikirim
+    debugPrint('Repository: Creating booking with dates: ${cleanCheckIn.toString()} to ${cleanCheckOut.toString()}');
+    
+    // Validasi durasi sesuai dengan validasi server
+    final days = cleanCheckOut.difference(cleanCheckIn).inDays;
+    debugPrint('Repository: Calculated days: $days');
+    
+    if (days < 1) {
+      throw Exception('Durasi minimal pemesanan adalah 1 hari');
+    }
+    
     return await _bookingService.createBooking(
       propertyId: propertyId,
       roomIds: roomIds,
-      checkIn: checkIn,
-      checkOut: checkOut,
+      checkIn: cleanCheckIn,
+      checkOut: cleanCheckOut,
       isForOthers: isForOthers,
       guestName: guestName,
       guestPhone: guestPhone,
@@ -57,13 +74,28 @@ class BookingRepository {
     DateTime checkIn, 
     DateTime checkOut
   ) async {
+    // Pastikan tanggal tidak memiliki komponen waktu
+    final cleanCheckIn = DateTime(checkIn.year, checkIn.month, checkIn.day);
+    final cleanCheckOut = DateTime(checkOut.year, checkOut.month, checkOut.day);
+    
+    // Debug log untuk melihat tanggal yang dikirim
+    debugPrint('Repository: Checking availability with dates: ${cleanCheckIn.toString()} to ${cleanCheckOut.toString()}');
+    
+    // Validasi durasi sesuai dengan validasi server
+    final days = cleanCheckOut.difference(cleanCheckIn).inDays;
+    debugPrint('Repository: Calculated days: $days');
+    
+    if (days < 1) {
+      throw Exception('Durasi minimal pemesanan adalah 1 hari');
+    }
+    
     return await _bookingService.checkAvailability(
-  propertyId: propertyId,
-  checkIn: checkIn,
-  checkOut: checkOut,
-);
+      propertyId: propertyId,
+      checkIn: cleanCheckIn,
+      checkOut: cleanCheckOut,
+    );
   }
-  
+
   // Get property details
   Future<PropertyModel> getPropertyDetails(int propertyId) async {
     return await _bookingService.getPropertyDetails(propertyId);

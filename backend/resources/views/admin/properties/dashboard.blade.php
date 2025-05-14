@@ -50,13 +50,13 @@
             </div>
         </div>
 
-        <!-- Properti Menunggu -->
+        <!-- Booking Menunggu -->
         <div class="col-xl-3 col-md-6">
             <div class="card bg-warning bg-gradient text-white mb-4">
                 <div class="card-body d-flex justify-content-between align-items-center">
                     <div>
                         <h5 class="card-title">Menunggu Persetujuan</h5>
-                        <h2 class="mb-0">{{ $pendingProperties }}</h2>
+                        <h2 class="mb-0">{{ $pendingBookings }}</h2>
                     </div>
                     <div class="icon-circle">
                         <i class="fas fa-clock fa-2x"></i>
@@ -64,6 +64,24 @@
                 </div>
                 <div class="card-footer d-flex align-items-center justify-content-between">
                     <a class="small text-white stretched-link" href="#">Review Sekarang</a>
+                    <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+                </div>
+            </div>
+        </div>
+        <!-- Total Pendapatan -->
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-danger bg-gradient text-white mb-4">
+                <div class="card-body d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5 class="card-title">Total Pendapatan</h5>
+                        <h2 class="mb-0">{{ 'Rp ' . number_format($totalRevenue, 0, ',', '.') }}</h2>
+                    </div>
+                    <div class="icon-circle">
+                        <i class="fas fa-dollar-sign fa-2x"></i>
+                    </div>
+                </div>
+                <div class="card-footer d-flex align-items-center justify-content-between">
+                    <a class="small text-white stretched-link" href="#">Lihat Detail</a>
                     <div class="small text-white"><i class="fas fa-angle-right"></i></div>
                 </div>
             </div>
@@ -90,65 +108,56 @@
     </div>
 
     <div class="row">
-        <!-- Properti Terbaru -->
+        <!-- Pemesanan Terbaru -->
         <div class="col-lg-8">
             <div class="card mb-4">
                 <div class="card-header bg-white d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">Properti Terbaru</h5>
-                    <a href="#" class="btn btn-sm btn-outline-primary">Lihat Semua</a>
+                    <h5 class="mb-0">Pemesanan Terbaru</h5>
+                    <a href="{{ route('admin.properties.bookings.dashboard') }}" class="btn btn-sm btn-outline-primary">Lihat Semua</a>
                 </div>
                 <div class="card-body p-0">
                     <div class="table-responsive">
                         <table class="table table-hover mb-0">
                             <thead class="table-light">
                                 <tr>
-                                    <th>Nama Properti</th>
+                                    <th>ID Pemesanan</th>
+                                    <th>Tamu</th>
+                                    <th>Properti</th>
+                                    <th>Check-in</th>
+                                    <th>Check-out</th>
+                                    <th>Total</th>
                                     <th>Status</th>
-                                    <th>Tanggal Ditambahkan</th>
                                     <th>Aksi</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach($latestProperties as $property)
+                                @foreach($latestBookings as $booking)
                                 <tr>
+                                    <td>{{ $booking->id }}</td>
                                     <td>
-                                        <div class="d-flex align-items-center">
-                                            <div class="avatar avatar-sm me-3">
-                                                <span class="avatar-initial rounded-circle bg-light text-dark">
-                                                    {{ substr($property->name, 0, 1) }}
-                                                </span>
-                                            </div>
-                                            <div>
-                                                <h6 class="mb-0">{{ $property->name }}</h6>
-                                                <small class="text-muted">{{ $property->type ?? 'Residensial' }}</small>
-                                            </div>
-                                        </div>
+                                        <strong>{{ $booking->guest_name }}</strong><br>
+                                        <small>{{ $booking->guest_phone }}</small>
+                                    </td>
+                                    <td>{{ $booking->property->name }}</td>
+                                    <td>{{ \Carbon\Carbon::parse($booking->check_in)->format('d M Y') }}</td>
+                                    <td>{{ \Carbon\Carbon::parse($booking->check_out)->format('d M Y') }}</td>
+                                    <td>{{ 'Rp ' . number_format($booking->total_price, 0, ',', '.') }}</td>
+                                    <td>
+                                        @if($booking->status == 'pending')
+                                        <span class="badge badge-warning">Menunggu</span>
+                                        @elseif($booking->status == 'confirmed')
+                                        <span class="badge badge-success">Dikonfirmasi</span>
+                                        @elseif($booking->status == 'completed')
+                                        <span class="badge badge-info">Selesai</span>
+                                        @elseif($booking->status == 'cancelled')
+                                        <span class="badge badge-danger">Dibatalkan</span>
+                                        @endif
                                     </td>
                                     <td>
-                                        <span class="badge rounded-pill bg-{{ $property->isDeleted ? 'danger' : 'success' }}">
-                                            {{ $property->isDeleted ? 'Nonaktif' : 'Aktif' }}
-                                        </span>
-                                    </td>
-                                    <td>{{ $property->created_at->translatedFormat('d M Y') }}</td>
-                                    <td class="text-nowrap">
-                                        <a href="{{ route('admin.properties.rooms.index', $property->id) }}" class="btn btn-sm btn-outline-info" data-bs-toggle="tooltip" title="Kelola Kamar">
-                                            <i class="fas fa-door-open"></i>
-                                        </a>
-                                        <a href="{{ route('admin.properties.show', $property->id) }}" class="btn btn-sm btn-outline-primary" title="Lihat">
+                                        <a href="{{ route('admin.properties.bookings.dashboard', $booking->id) }}" class="btn btn-info btn-sm">
                                             <i class="fas fa-eye"></i>
                                         </a>
-                                        <a href="{{ route('admin.properties.edit', $property->id) }}" class="btn btn-sm btn-outline-warning" title="Edit">
-                                            <i class="fas fa-edit"></i>
-                                        </a>
-                                        <form action="{{ route('admin.properties.destroy', $property->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Yakin ingin menonaktifkan properti ini?')">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn btn-sm btn-outline-danger" title="Non-aktifkan">
-                                                <i class="fas fa-power-off"></i>
-                                            </button>
-                                        </form>
                                     </td>
-
                                 </tr>
                                 @endforeach
                             </tbody>

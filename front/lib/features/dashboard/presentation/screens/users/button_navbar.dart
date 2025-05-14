@@ -7,7 +7,10 @@ import 'package:front/features/dashboard/presentation/screens/users/penyewa/Sear
 import 'package:front/features/property/presentation/screens/property_list.dart';
 import 'package:front/features/dashboard/presentation/screens/users/penyewa/profil/profil_user.dart';
 import 'package:front/features/dashboard/presentation/screens/users/owner/profil.dart';
-import 'package:front/features/dashboard/presentation/screens/users/penyewa/booking/Daftar_booking_screen.dart';
+import 'package:front/features/dashboard/presentation/screens/users/owner/admin_booking_list_screen.dart';
+import 'package:front/features/dashboard/presentation/screens/users/penyewa/Daftar_booking_screen.dart';
+  
+
 class BottomBar extends StatefulWidget {
   const BottomBar({super.key});
 
@@ -113,7 +116,7 @@ class _BottomBarState extends State<BottomBar> {
         case 1:
           return PropertyListScreen();
         case 2:
-          return const BookingOwner();
+          return const AdminBookingListScreen();
         case 3:
           return const Ulasan();
         case 4:
@@ -128,7 +131,7 @@ class _BottomBarState extends State<BottomBar> {
         case 1:
           return const SearchScreen();
         case 2:
-          return  const  BookingListScreen();
+          return  const BookingListScreen();
         case 3:
           return const ProfileUser();
         default:
@@ -139,13 +142,13 @@ class _BottomBarState extends State<BottomBar> {
 }
 
 // Dummy halaman untuk Owner/Admin
-class BookingOwner extends StatelessWidget {
-  const BookingOwner({super.key});
-  @override
-  Widget build(BuildContext context) {
-    return const Center(child: Text('Booking Owner'));
-  }
-}
+// class BookingOwner extends StatelessWidget {
+//   const BookingOwner({super.key});
+//   @override
+//   Widget build(BuildContext context) {
+//     return const Center(child: Text('Booking Owner'));
+//   }
+// }
 
 // class Search extends StatelessWidget {
 //   const Search({super.key});

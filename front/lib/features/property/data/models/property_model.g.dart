@@ -3,6 +3,7 @@
 part of 'property_model.dart';
 
 // **************************************************************************
+
 // JsonSerializableGenerator
 // **************************************************************************
 
@@ -28,33 +29,6 @@ PropertyModel _$PropertyModelFromJson(Map<String, dynamic> json) =>
       createdAt: DateTime.parse(json['created_at'] as String),
       updatedAt: DateTime.parse(json['updated_at'] as String),
     );
-
-double _parsePrice(dynamic price) {
-  if (price is String) {
-    return double.tryParse(price) ?? 0.0;
-  } else if (price is num) {
-    return price.toDouble();
-  }
-  return 0.0;
-}
-
-double? _parseLatitude(dynamic latitude) {
-  if (latitude is String) {
-    return double.tryParse(latitude);
-  } else if (latitude is num) {
-    return latitude.toDouble();
-  }
-  return null;
-}
-
-double? _parseLongitude(dynamic longitude) {
-  if (longitude is String) {
-    return double.tryParse(longitude);
-  } else if (longitude is num) {
-    return longitude.toDouble();
-  }
-  return null;
-}
 
 Map<String, dynamic> _$PropertyModelToJson(PropertyModel instance) =>
     <String, dynamic>{

@@ -1,134 +1,9 @@
-// import 'package:flutter/material.dart';
-// import 'package:front/features/room/data/models/room_detail.dart';
-// import 'package:front/core/utils/constants.dart';
-// import 'package:http/http.dart' as http;
-// import 'dart:convert'; // Sesuaikan dengan import path Anda
-
-// class RoomDetailScreen extends StatelessWidget {
-//   final int propertyId;
-//   final int roomId;
-
-//   const RoomDetailScreen({
-//     Key? key,
-//     required this.propertyId,
-//     required this.roomId,
-//   }) : super(key: key);
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(title: Text('Detail Kamar')),
-//       body: FutureBuilder<RoomDetail>(
-//         future: _fetchRoomDetail(
-//           propertyId,
-//           roomId,
-//         ), // Mengambil detail kamar dari API
-//         builder: (context, snapshot) {
-//           if (snapshot.connectionState == ConnectionState.waiting) {
-//             return Center(child: CircularProgressIndicator());
-//           }
-
-//           if (snapshot.hasError) {
-//             return Center(child: Text('Gagal memuat data kamar'));
-//           }
-
-//           if (!snapshot.hasData) {
-//             return Center(child: Text('Kamar tidak ditemukan'));
-//           }
-
-//           final roomDetail = snapshot.data!;
-//           return SingleChildScrollView(
-//             child: Column(
-//               children: [
-//                 // Gambar utama kamar
-//                 Image.network(
-//                   '${Constants.baseUrl}/storage/${roomDetail.images[0].imageUrl}',
-//                   fit: BoxFit.cover,
-//                   height: 250,
-//                   width: double.infinity,
-//                 ),
-
-//                 SizedBox(height: 16),
-//                 // Informasi kamar
-//                 ListTile(
-//                   title: Text(
-//                     '${roomDetail.roomType} - ${roomDetail.roomNumber}',
-//                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-//                   ),
-//                   subtitle: Text(
-//                     'Rp${roomDetail.price.toStringAsFixed(2)}/malam',
-//                     style: TextStyle(color: Colors.green),
-//                   ),
-//                 ),
-//                 SizedBox(height: 16),
-//                 // Fasilitas
-//                 Text('Fasilitas:', style: TextStyle(fontSize: 16)),
-//                 Wrap(
-//                   spacing: 8,
-//                   children:
-//                       roomDetail.facilities
-//                           .map(
-//                             (facility) => Chip(
-//                               label: Text(facility.facilityName),
-//                               backgroundColor: Colors.blue[50],
-//                             ),
-//                           )
-//                           .toList(),
-//                 ),
-//                 SizedBox(height: 16),
-//                 // Galeri Gambar
-//                 roomDetail.images.isNotEmpty
-//                     ? Column(
-//                       crossAxisAlignment: CrossAxisAlignment.start,
-//                       children: [
-//                         Text('Galeri Gambar:', style: TextStyle(fontSize: 16)),
-//                         Wrap(
-//                           spacing: 8,
-//                           children:
-//                               roomDetail.images
-//                                   .map(
-//                                     (image) => ClipRRect(
-//                                       borderRadius: BorderRadius.circular(8),
-//                                       child: Image.network(
-//                                         '${Constants.baseUrl}/storage/${image.imageUrl}',
-//                                         fit: BoxFit.cover,
-//                                         height: 120,
-//                                         width: 120,
-//                                       ),
-//                                     ),
-//                                   )
-//                                   .toList(),
-//                         ),
-//                       ],
-//                     )
-//                     : SizedBox(),
-//               ],
-//             ),
-//           );
-//         },
-//       ),
-//     );
-//   }
-
-//   Future<RoomDetail> _fetchRoomDetail(int propertyId, int roomId) async {
-//     final response = await http.get(
-//       Uri.parse('${Constants.baseUrl}/properties/$propertyId/rooms/$roomId'),
-//       headers: {'Accept': 'application/json'},
-//     );
-
-//     if (response.statusCode == 200) {
-//       final data = json.decode(response.body);
-//       return RoomDetail.fromJson(data['data']);
-//     } else {
-//       throw Exception('Failed to load room details');
-//     }
-//   }
-// }
-
 import 'package:flutter/material.dart';
 import 'package:front/features/room/data/models/room_detail.dart';
 import 'package:front/core/utils/constants.dart';
 import 'package:front/core/network/api_client.dart';
+import 'package:front/features/dashboard/presentation/widgets/image_gallery_viewer.dart';
+import 'package:front/features/room/data/models/room_image.dart';
 
 class RoomDetailScreen extends StatefulWidget {
   final int propertyId;
@@ -225,26 +100,34 @@ class _RoomDetailScreenState extends State<RoomDetailScreen> {
           if (roomDetail.images.isNotEmpty)
             Stack(
               children: [
-                Image.network(
-                  '${Constants.baseUrlImage}/storage/${roomDetail.images[0].imageUrl}',
-                  fit: BoxFit.cover,
-                  height: 250,
-                  width: double.infinity,
-                  errorBuilder: (context, error, stackTrace) {
-                    print("Error loading image: $error"); // Debugging error
-                    return Container(
+                GestureDetector(
+                  onTap: () {
+                    _openGallery(roomDetail.images, 0);
+                  },
+                  child: Hero(
+                    tag: 'room_image_${roomDetail.id}_0',
+                    child: Image.network(
+                      '${Constants.baseUrlImage}/storage/${roomDetail.images[0].imageUrl}',
+                      fit: BoxFit.cover,
                       height: 250,
                       width: double.infinity,
-                      color: Colors.grey[300],
-                      child: const Center(
-                        child: Icon(
-                          Icons.image_not_supported,
-                          size: 50,
-                          color: Colors.grey,
-                        ),
-                      ),
-                    );
-                  },
+                      errorBuilder: (context, error, stackTrace) {
+                        print("Error loading image: $error"); // Debugging error
+                        return Container(
+                          height: 250,
+                          width: double.infinity,
+                          color: Colors.grey[300],
+                          child: const Center(
+                            child: Icon(
+                              Icons.image_not_supported,
+                              size: 50,
+                              color: Colors.grey,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
                 ),
                 Positioned(
                   top: 16,
@@ -404,29 +287,32 @@ class _RoomDetailScreenState extends State<RoomDetailScreen> {
                           padding: const EdgeInsets.only(right: 8),
                           child: GestureDetector(
                             onTap: () {
-                              // Implement image viewer here if needed
+                              _openGallery(roomDetail.images, index);
                             },
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(8),
-                              child: Image.network(
-                                '${Constants.baseUrlImage}/storage/${roomDetail.images[index].imageUrl}',
-                                fit: BoxFit.cover,
-                                height: 120,
-                                width: 120,
-                                errorBuilder: (context, error, stackTrace) {
-                                  return Container(
-                                    height: 120,
-                                    width: 120,
-                                    color: Colors.grey[300],
-                                    child: const Center(
-                                      child: Icon(
-                                        Icons.image_not_supported,
-                                        size: 30,
-                                        color: Colors.grey,
+                            child: Hero(
+                              tag: 'room_image_${roomDetail.id}_$index',
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(8),
+                                child: Image.network(
+                                  '${Constants.baseUrlImage}/storage/${roomDetail.images[index].imageUrl}',
+                                  fit: BoxFit.cover,
+                                  height: 120,
+                                  width: 120,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return Container(
+                                      height: 120,
+                                      width: 120,
+                                      color: Colors.grey[300],
+                                      child: const Center(
+                                        child: Icon(
+                                          Icons.image_not_supported,
+                                          size: 30,
+                                          color: Colors.grey,
+                                        ),
                                       ),
-                                    ),
-                                  );
-                                },
+                                    );
+                                  },
+                                ),
                               ),
                             ),
                           ),
@@ -439,6 +325,19 @@ class _RoomDetailScreenState extends State<RoomDetailScreen> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  void _openGallery(List<RoomImage> images, int initialIndex) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ImageGalleryViewer(
+          images: images,
+          initialIndex: initialIndex,
+          roomId: widget.roomId,
+        ),
       ),
     );
   }

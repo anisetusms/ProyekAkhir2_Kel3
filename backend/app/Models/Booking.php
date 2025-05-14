@@ -35,6 +35,11 @@ class Booking extends Model
         return $this->belongsTo(User::class);
     }
 
+    public function customer(): BelongsTo
+    {
+        return $this->belongsTo(Customer::class);
+    }
+
     public function property(): BelongsTo
     {
         return $this->belongsTo(Property::class);
@@ -43,6 +48,6 @@ class Booking extends Model
     public function rooms()
     {
         return $this->belongsToMany(Room::class, 'booking_rooms')
-                   ->withPivot('price');
+            ->withPivot('price');
     }
 }

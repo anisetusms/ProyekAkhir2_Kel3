@@ -1,9 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:front/features/dashboard/presentation/screens/users/penyewa/search_result_screen.dart';
 import 'package:front/features/dashboard/presentation/screens/users/penyewa/filter_dialog.dart';
+import 'package:front/features/dashboard/presentation/widgets/notification_badge.dart';
+import 'package:front/features/dashboard/presentation/screens/users/penyewa/notification_screen.dart';
+import 'package:front/features/dashboard/presentation/screens/users/penyewa/wishlist_screen.dart';
 
 class DashboardHeader extends StatefulWidget {
-  const DashboardHeader({super.key});
+  final Function? onWishlistUpdated;
+  
+  const DashboardHeader({
+    super.key,
+    this.onWishlistUpdated,
+  });
 
   @override
   State<DashboardHeader> createState() => _DashboardHeaderState();
@@ -35,20 +43,14 @@ class _DashboardHeaderState extends State<DashboardHeader> {
             ),
             Row(
               children: [
-                const Icon(Icons.favorite, color: Colors.red),
+                GestureDetector(
+                  onTap: () => _navigateToWishlist(),
+                  child: const Icon(Icons.favorite, color: Colors.red),
+                ),
                 const SizedBox(width: 12),
-                Stack(
-                  children: [
-                    const Icon(Icons.notifications_none),
-                    const Positioned(
-                      right: 0,
-                      top: 0,
-                      child: CircleAvatar(
-                        radius: 4,
-                        backgroundColor: Colors.red,
-                      ),
-                    )
-                  ],
+                NotificationBadge(
+                  onTap: () => _navigateToNotifications(),
+                  child: const Icon(Icons.notifications_none),
                 ),
               ],
             ),
@@ -95,6 +97,29 @@ class _DashboardHeaderState extends State<DashboardHeader> {
           ],
         ),
       ],
+    );
+  }
+
+  void _navigateToWishlist() async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const WishlistScreen(),
+      ),
+    );
+    
+    // Jika ada perubahan pada wishlist, refresh dashboard
+    if (result == true && widget.onWishlistUpdated != null) {
+      widget.onWishlistUpdated!();
+    }
+  }
+
+  void _navigateToNotifications() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const NotificationScreen(),
+      ),
     );
   }
 
