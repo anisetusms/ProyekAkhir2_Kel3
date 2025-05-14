@@ -13,9 +13,9 @@
 
     <style>
         :root {
-            --primary-color: #4361ee;
-            --secondary-color: #3f37c9;
-            --accent-color: #4895ef;
+            --primary-color:rgb(14, 216, 17);
+            --secondary-color:rgb(14, 216, 17);
+            --accent-color:rgb(14, 216, 17);
             --light-color: #f8f9fa;
             --dark-color: #212529;
         }
@@ -65,7 +65,7 @@
             justify-content: center;
             color: white;
             font-size: 2rem;
-            box-shadow: 0 4px 12px rgba(67, 97, 238, 0.3);
+            box-shadow: 0 4px 12px rgb(37, 226, 46);
         }
 
         .login-title {
@@ -87,7 +87,7 @@
         }
 
         .form-control:focus {
-            box-shadow: 0 0 0 0.2rem rgba(67, 97, 238, 0.25);
+            box-shadow: 0 0 0 0.2rem rgb(112, 237, 114);
             border-color: var(--primary-color);
         }
 
@@ -200,7 +200,7 @@
 
     <div class="login-card card p-4 animate__animated animate__fadeIn">
         <div class="login-header text-center mb-4">
-            <img src="frontend/assets/logo/logo.jpg" alt="Logo" class="logo-img mb-2">
+           <img src="{{ asset('assets/images/gallery/logo.jpg') }}" alt="Logo" class="logo-img mb-2">
             <h4 class="finger-paint">Hommie</h4>
             <p class="text-muted mb-0">Silakan login ke akun Anda</p>
         </div>
@@ -279,7 +279,7 @@
         // Efek hover pada tombol login
         const loginBtn = document.querySelector('.btn-login');
         loginBtn.addEventListener('mouseenter', () => {
-            loginBtn.style.boxShadow = '0 5px 15px rgba(67, 97, 238, 0.4)';
+            loginBtn.style.boxShadow = '0 5px 15px rgb(37, 226, 46)';
         });
         loginBtn.addEventListener('mouseleave', () => {
             loginBtn.style.boxShadow = 'none';

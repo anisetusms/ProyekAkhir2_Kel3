@@ -160,7 +160,7 @@
             <li class="nav-item {{ request()->routeIs('super_admin.platform_admins.*') ? 'active' : '' }}">
                 <a class="nav-link" href="{{ route('super_admin.platform_admins.index') }}">
                     <i class="fas fa-fw fa-user-shield"></i>
-                    <span>Admin Platform</span>
+                    <span>Admin Officier</span>
                 </a>
             </li>
 

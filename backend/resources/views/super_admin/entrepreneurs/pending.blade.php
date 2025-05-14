@@ -40,8 +40,9 @@
                                         @csrf
                                         @method('PUT')
                                         <button type="submit" class="btn btn-success btn-sm">
-                                            <i class="fas fa-check"></i> Setujui
+                                           <i class="fas fa-check-circle fa-sm me-1"></i>Setujui
                                         </button>
+                                      
                                     </form>
                                     </td>
                             </tr>

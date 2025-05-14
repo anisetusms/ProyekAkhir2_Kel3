@@ -1,37 +1,39 @@
 @extends('layouts.index-superadmin')
+@section('title' , 'Dashboard')
 
 @section('content')
-<main class="p-4">
+<main class="p-4" style="background-color: #f5f5f5;">
   <div class="container-fluid">
     <p class="text-sm text-muted">Today is {{ \Carbon\Carbon::now()->format('l, M. d, Y') }}</p>
     <h2 class="fw-bold">Welcome, {{ Auth::user()->name }}!</h2>
-    <p class="mb-4">Dashboard</p>
+ 
 
     <div class="row mb-4">
       <div class="col-md-4 mb-3">
-        <div class="card shadow-sm text-center py-3">
-          <h4 class="text-success fw-bold">{{ $bookings->count() }}</h4>
-          <p class="text-muted">Pemesanan</p>
+        <div class="card text-white text-center shadow-sm py-3" style="background-color: #3f51b5;">
+          <h4 class="fw-bold">{{ $bookings->count() }}</h4>
+          <p class="mb-0">Pemesanan</p>
         </div>
       </div>
       <div class="col-md-4 mb-3">
-        <div class="card shadow-sm text-center py-3">
-          <h4 class="text-success fw-bold">{{ $totalProperties }}</h4>
-          <p class="text-muted">Total Property</p>
+        <div class="card text-white text-center shadow-sm py-3" style="background-color: #4caf50;">
+          <h4 class="fw-bold">{{ $totalProperties }}</h4>
+          <p class="mb-0">Total Property</p>
         </div>
       </div>
       <div class="col-md-4 mb-3">
-        <div class="card shadow-sm text-center py-3">
-          <h4 class="text-success fw-bold">{{ $totalBookings }}</h4>
-          <p class="text-muted">Total Booking</p>
+        <div class="card text-white text-center shadow-sm py-3" style="background-color: #ffc107;">
+          <h4 class="fw-bold">{{ $totalBookings }}</h4>
+          <p class="mb-0">Total Booking</p>
         </div>
       </div>
     </div>
+
     <div class="card shadow-sm">
       <div class="card-body">
         <h5 class="card-title mb-3">Booking</h5>
         <div class="table-responsive">
-          <table class="table table-bordered table-hover">
+          <table class="table table-bordered table-hover align-middle">
             <thead class="table-light">
               <tr>
                 <th>BookingID</th>
@@ -42,7 +44,6 @@
                 <th>Check-Out</th>
                 <th>Status</th>
                 <th>Properti</th>
-                <th>Action</th>
               </tr>
             </thead>
             <tbody>
@@ -56,9 +57,6 @@
                 <td>{{ $b->check_out }}</td>
                 <td>{{ ucfirst($b->status) }}</td>
                 <td>{{ $b->property->name ?? '-' }}</td>
-                <td>
-                  <a href="#" class="text-primary me-2"><i class="bi bi-pencil-square"></i></a>
-                  <a href="#" class="text-danger"><i class="bi bi-trash"></i></a>
                 </td>
               </tr>
               @endforeach

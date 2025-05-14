@@ -1,12 +1,9 @@
 @extends('layouts.index-superadmin')
-@section('title', 'Owner yang Sudah Disetujui')
+@section('title' , 'Daftar Owner yang sudah Disetujui')
 
 @section('content')
 <div class="container-fluid py-4">
     <div class="card shadow border-0">
-        <div class="card-header bg-gradient-success text-white">
-            <h3 class="mb-0"><i class="fas fa-user-check me-2"></i>Daftar Owner yang Sudah Disetujui</h3>
-        </div>
         <div class="card-body">
             @if($approvedOwners->isEmpty())
                 <div class="alert alert-info text-center py-4">
@@ -32,9 +29,7 @@
                                 <tr>
                                     <td class="ps-4">
                                         <div class="d-flex align-items-center">
-                                            <div class="avatar-custom me-3">
-                                                {{ strtoupper(substr($owner->name, 0, 1)) }}
-                                            </div>
+
                                             <div>
                                                 <strong>{{ $owner->name }}</strong><br>
                                                 <small class="text-muted">ID: {{ $owner->id }}</small>
@@ -48,9 +43,7 @@
                                     </td>
                                     <td>{{ $owner->username }}</td>
                                     <td>
-                                        <span class="badge-status-approved">
-                                            <i class="fas fa-check-circle me-1"></i> Disetujui
-                                        </span>
+                                         <span class="badge badge-pill badge-success"><i class="fas fa-check-circle fa-sm me-1"></i>Disetujui</span>
                                     </td>
                                     <td class="text-center">
                                         <span class="badge-status-property">
@@ -114,7 +107,7 @@
         width: 40px;
         height: 40px;
         border-radius: 50%;
-        background: linear-gradient(135deg, #84fab0, #8fd3f4); /* A different gradient */
+        background: linear-gradient(135deg, #84fab0, #8fd3f4);
         color: white;
         font-weight: 600;
         font-size: 1rem;
@@ -133,18 +126,8 @@
     .card-header {
         border-radius: 16px 16px 0 0;
         padding: 1rem 1.25rem;
-        background: linear-gradient(90deg, #28a745, #64dd17); /* Success gradient */
+        background: linear-gradient(90deg, #28a745, #64dd17);
         color: white;
-    }
-
-    .badge-status-approved {
-        background-color: #e6f4ea;
-        color: #28a745;
-        font-weight: 600;
-        font-size: 0.85rem;
-        padding: 6px 12px;
-        border-radius: 999px;
-        display: inline-block;
     }
 
     .badge-status-property {
@@ -158,7 +141,7 @@
     }
 
     .table-hover tbody tr:hover {
-        background-color: rgba(40, 167, 69, 0.05); /* Light green hover */
+        background-color: rgba(40, 167, 69, 0.05);
     }
 
     .btn-group .btn {

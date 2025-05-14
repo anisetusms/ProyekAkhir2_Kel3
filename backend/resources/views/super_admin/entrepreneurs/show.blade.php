@@ -19,9 +19,7 @@
                     <div class="row">
                         <div class="col-md-8">
                             <div class="d-flex align-items-center mb-4">
-                                <div class="avatar-custom-xl me-4">
-                                    {{ strtoupper(substr($owner->name, 0, 1)) }}
-                                </div>
+                          
                                 <div>
                                     <h5 class="font-weight-bold text-primary mb-0">{{ $owner->name }}</h5>
                                     <small class="text-muted">ID: {{ $owner->id }}</small>
@@ -137,7 +135,7 @@
                                             @endif
                                         </td>
                                         <td class="text-end pe-4">
-                                        <a href="{{ route('super_admin.entrepreneurs.properties.details', $property->id) }}" class="btn btn-sm btn-outline-info" data-bs-toggle="tooltip" title="Detail Property">
+                                        <a href="{{ route('super_admin.entrepreneurs.properties.details', $property->id) }}" class="btn btn-sm btn-outline-primary" data-bs-toggle="tooltip" title="Detail Property">
                                             <i class="fas fa-eye"></i>
                                         </a>
                                     </td>
