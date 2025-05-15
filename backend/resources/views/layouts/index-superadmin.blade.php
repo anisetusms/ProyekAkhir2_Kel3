@@ -172,19 +172,11 @@
                 Manajemen Sistem
             </div>
 
-            <!-- Nav Item - Profile -->
-            <li class="nav-item {{ request()->routeIs('super_admin.profiles.*') ? 'active' : '' }}">
-                <a class="nav-link" href="{{ route('super_admin.profiles.index') }}">
-                    <i class="fas fa-fw fa-user-cog"></i>
-                    <span>Profil</span>
-                </a>
-            </li>
-
             <!-- Nav Item - Settings -->
             <li class="nav-item {{ request()->routeIs('super_admin.settings') ? 'active' : '' }}">
                 <a class="nav-link" href="{{ route('super_admin.settings') }}">
                     <i class="fas fa-fw fa-cogs"></i>
-                    <span>Pengaturan</span>
+                    <span>Pengaturan Profil</span>
                 </a>
             </li>
 

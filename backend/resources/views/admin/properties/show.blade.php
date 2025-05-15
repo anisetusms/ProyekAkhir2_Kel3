@@ -20,6 +20,23 @@
 
         <div class="row">
             <div class="col-md-8">
+                <!-- Property Image Card -->
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                        <h6 class="m-0 font-weight-bold text-primary">Gambar Properti</h6>
+                    </div>
+                    <div class="card-body">
+                        @if($property->image)
+                            <img src="{{ asset('storage/' . $property->image) }}" alt="{{ $property->name }}" class="img-fluid rounded" style="max-height: 300px; width: 100%; object-fit: cover;">
+                        @else
+                            <div class="text-center p-5 bg-light rounded">
+                                <i class="fas fa-home fa-5x text-secondary mb-3"></i>
+                                <p class="text-muted">Tidak ada gambar properti</p>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+
                 <div class="card shadow mb-4">
                     <div class="card-header py-3">
                         <h6 class="m-0 font-weight-bold text-primary">Informasi Dasar</h6>
@@ -29,26 +46,16 @@
                             <div class="col-md-6">
                                 <h5>Harga</h5>
                                 <p><strong>Harga:</strong> Rp {{ number_format($property->price, 0, ',', '.') }}</p>
-                                <p><strong>Kapasitas:</strong> {{ $property->capacity }} orang</p>
-                                <p><strong>Kamar Tersedia:</strong> {{ $property->available_rooms }}</p>
+                                <p><strong>Kapasitas:</strong> {{ $property->capacity ?? 'N/A' }} orang</p>
+                                <p><strong>Kamar Tersedia:</strong> {{ $property->available_rooms ?? 'N/A' }}</p>
                             </div>
                             <div class="col-md-6">
                                 <h5>Status</h5>
-                                 <span class="badge {{ $property->isDeleted ? 'badge-secondary' : 'badge-success' }}">
+                                <span class="badge badge-pill {{ $property->isDeleted ? 'badge-danger' : 'badge-success' }} p-2">
                                     {{ $property->isDeleted ? 'Tidak Aktif' : 'Aktif' }}
                                 </span>
-                                <h5 class="mt-3">Lokasi</h5>
-                                <p>{{ $property->address }}</p>
-                                <p>
-                                    @if($property->subdistrict && $property->district && $property->city && $property->province)
-                                        {{ $property->subdistrict->subdis_name }},
-                                        {{ $property->district->dis_name }},
-                                        {{ $property->city->city_name }},
-                                        {{ $property->province->prov_name }}
-                                    @else
-                                        -
-                                    @endif
-                                </p>
+                                <h5 class="mt-3">Deskripsi</h5>
+                                <p>{{ $property->description }}</p>
                             </div>
                         </div>
                     </div>
@@ -91,26 +98,71 @@
                         <h6 class="m-0 font-weight-bold text-primary">Detail Properti</h6>
                     </div>
                     <div class="card-body">
-                        @if($property->propertyType->name === 'kost' && $property->kostDetail)
+                        @if($property->property_type_id == 1 && $property->kostDetail)
                             <h5>Detail Kost</h5>
-                            <p><strong>Tipe:</strong> {{ ucfirst($property->kostDetail->kost_type) }}</p>
-                            <p><strong>Total Kamar:</strong> {{ $property->kostDetail->total_rooms }}</p>
-                            <p><strong>Kamar Tersedia:</strong> {{ $property->kostDetail->available_rooms }}</p>
-                            <p><strong>Termasuk Makan:</strong> {{ $property->kostDetail->meal_included ? 'Ya' : 'Tidak' }}</p>
-                            <p><strong>Termasuk Laundry:</strong> {{ $property->kostDetail->laundry_included ? 'Ya' : 'Tidak' }}</p>
-                        @elseif($property->propertyType->name === 'homestay' && $property->homestayDetail)
+                            <div class="table-responsive">
+                                <table class="table table-bordered">
+                                    <tr>
+                                        <th>Tipe Kost</th>
+                                        <td><span class="badge badge-info">{{ ucfirst($property->kostDetail->kost_type) }}</span></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Total Kamar</th>
+                                        <td>{{ $property->kostDetail->total_rooms }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Kamar Tersedia</th>
+                                        <td>{{ $property->kostDetail->available_rooms }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Termasuk Makan</th>
+                                        <td>{!! $property->kostDetail->meal_included ? '<span class="text-success"><i class="fas fa-check"></i> Ya</span>' : '<span class="text-danger"><i class="fas fa-times"></i> Tidak</span>' !!}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Termasuk Laundry</th>
+                                        <td>{!! $property->kostDetail->laundry_included ? '<span class="text-success"><i class="fas fa-check"></i> Ya</span>' : '<span class="text-danger"><i class="fas fa-times"></i> Tidak</span>' !!}</td>
+                                    </tr>
+                                </table>
+                            </div>
+                        @elseif($property->property_type_id == 2 && $property->homestayDetail)
                             <h5>Detail Homestay</h5>
-                            <p><strong>Total Unit:</strong> {{ $property->homestayDetail->total_units }}</p>
-                            <p><strong>Unit Tersedia:</strong> {{ $property->homestayDetail->available_units }}</p>
-                            <p><strong>Minimum Menginap:</strong> {{ $property->homestayDetail->minimum_stay }} malam</p>
-                            <p><strong>Maksimum Tamu:</strong> {{ $property->homestayDetail->maximum_guest }}</p>
-                            <p><strong>Waktu Check-in:</strong> {{ $property->homestayDetail->checkin_time }}</p>
-                            <p><strong>Waktu Check-out:</strong> {{ $property->homestayDetail->checkout_time }}</p>
+                            <div class="table-responsive">
+                                <table class="table table-bordered">
+                                    <tr>
+                                        <th>Total Unit</th>
+                                        <td>{{ $property->homestayDetail->total_units }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Unit Tersedia</th>
+                                        <td>{{ $property->homestayDetail->available_units }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Minimum Menginap</th>
+                                        <td>{{ $property->homestayDetail->minimum_stay }} malam</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Maksimum Tamu</th>
+                                        <td>{{ $property->homestayDetail->maximum_guest }} orang</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Waktu Check-in</th>
+                                        <td>{{ \Carbon\Carbon::parse($property->homestayDetail->checkin_time)->format('H:i') }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Waktu Check-out</th>
+                                        <td>{{ \Carbon\Carbon::parse($property->homestayDetail->checkout_time)->format('H:i') }}</td>
+                                    </tr>
+                                </table>
+                            </div>
                         @endif
 
                         @if($property->rules)
-                            <h5 class="mt-4"> Peraturan</h5>
-                            <p>{{ $property->rules }}</p>
+                            <h5 class="mt-4">Peraturan</h5>
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <p class="mb-0">{{ $property->rules }}</p>
+                                </div>
+                            </div>
                         @endif
                     </div>
                 </div>
@@ -138,10 +190,16 @@
                             <h5 class="mt-2">Tingkat Ketersediaan</h5>
                         </div>
                         <div class="text-center">
-                            <p>
-                                <span class="badge badge-success">{{ $availableRooms }} Tersedia</span> /
-                                <span class="badge badge-secondary">{{ $totalRooms }} Total</span>
-                            </p>
+                            <div class="d-flex justify-content-center">
+                                <div class="px-3">
+                                    <span class="badge badge-success p-2">{{ $availableRooms }}</span>
+                                    <p class="mt-1 mb-0">Tersedia</p>
+                                </div>
+                                <div class="px-3">
+                                    <span class="badge badge-secondary p-2">{{ $totalRooms }}</span>
+                                    <p class="mt-1 mb-0">Total</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -155,8 +213,8 @@
         .progress-circle {
             position: relative;
             display: inline-block;
-            width: 100px;
-            height: 100px;
+            width: 120px;
+            height: 120px;
         }
 
         .progress-circle-svg {
@@ -187,6 +245,13 @@
             height: 200px;
             width: 100%;
             margin-top: 20px;
+            border-radius: 5px;
+        }
+        .badge-pill {
+            font-size: 14px;
+        }
+        .table th {
+            width: 40%;
         }
     </style>
 @endpush

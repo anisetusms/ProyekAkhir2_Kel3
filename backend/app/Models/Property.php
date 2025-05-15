@@ -95,6 +95,10 @@ class Property extends Model
         return $query->where('isDeleted', false);
     }
     // app/Models/Property.php
+    public function reviews()
+    {
+        return $this->hasMany(review::class, 'property_id');  // Mengacu pada 'property_id' di tabel 'Reviews'
+    }
 
 }
 

@@ -2,6 +2,7 @@ import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'room_image.dart';
 import 'facility.dart';
+import 'package:flutter/foundation.dart';
 
 part 'room_detail.g.dart';
 
@@ -64,48 +65,77 @@ class RoomDetail extends Equatable {
 
   // Custom converter for images
   static List<RoomImage> _imagesFromJson(dynamic json) {
-    if (json == null) return [];
+    debugPrint('Processing images from JSON: $json');
+    if (json == null) {
+      debugPrint('Images JSON is null, returning empty list');
+      return [];
+    }
     
     List<RoomImage> imagesList = [];
     
     if (json is List) {
+      debugPrint('Images JSON is a List with ${json.length} items');
       for (var item in json) {
         if (item is Map<String, dynamic>) {
-          imagesList.add(RoomImage.fromJson(item));
+          try {
+            imagesList.add(RoomImage.fromJson(Map<String, dynamic>.from(item)));
+            debugPrint('Added image from map: $item');
+          } catch (e) {
+            debugPrint('Error parsing image from map: $e');
+          }
         } else if (item is String) {
           imagesList.add(RoomImage(imageUrl: item));
+          debugPrint('Added image from string: $item');
         }
       }
     } else if (json is Map<String, dynamic>) {
       // Handle case where images might be a single object
-      imagesList.add(RoomImage.fromJson(json));
+      try {
+        imagesList.add(RoomImage.fromJson(Map<String, dynamic>.from(json)));
+        debugPrint('Added image from single map: $json');
+      } catch (e) {
+        debugPrint('Error parsing image from single map: $e');
+      }
     }
     
+    debugPrint('Processed ${imagesList.length} images');
     return imagesList;
   }
 
   // Custom converter for facilities
   static List<Facility> _facilitiesFromJson(dynamic json) {
-    if (json == null) return [];
+    debugPrint('Processing facilities from JSON: $json');
+    if (json == null) {
+      debugPrint('Facilities JSON is null, returning empty list');
+      return [];
+    }
     
     List<Facility> facilitiesList = [];
     
     if (json is List) {
+      debugPrint('Facilities JSON is a List with ${json.length} items');
       for (var item in json) {
         if (item is Map<String, dynamic>) {
-          facilitiesList.add(Facility.fromJson(item));
+          try {
+            facilitiesList.add(Facility.fromJson(Map<String, dynamic>.from(item)));
+            debugPrint('Added facility from map: $item');
+          } catch (e) {
+            debugPrint('Error parsing facility from map: $e');
+          }
         } else if (item is String) {
           facilitiesList.add(Facility(facilityName: item));
+          debugPrint('Added facility from string: $item');
         }
       }
     }
     
+    debugPrint('Processed ${facilitiesList.length} facilities');
     return facilitiesList;
   }
 
   factory RoomDetail.fromJson(Map<String, dynamic> json) {
     try {
-      print('Processing RoomDetail.fromJson with: $json');
+      debugPrint('Processing RoomDetail.fromJson with: $json');
       
       // Create a copy of the json to avoid modifying the original
       final Map<String, dynamic> processedJson = Map<String, dynamic>.from(json);
@@ -137,10 +167,39 @@ class RoomDetail extends Equatable {
         processedJson['room_facilities'] = processedJson['facilities'];
       }
       
+      // Add debug for images
+      debugPrint('Images in JSON: ${processedJson['images']}');
+      
+      // Jika tidak ada images, coba cari di field lain
+      if (processedJson['images'] == null) {
+        // Coba cari di main_image_url atau mainImageUrl
+        if (processedJson.containsKey('main_image_url') && processedJson['main_image_url'] != null) {
+          processedJson['images'] = [{'image_url': processedJson['main_image_url'], 'is_main': true}];
+        } else if (processedJson.containsKey('mainImageUrl') && processedJson['mainImageUrl'] != null) {
+          processedJson['images'] = [{'image_url': processedJson['mainImageUrl'], 'is_main': true}];
+        }
+        
+        // Coba cari di gallery_images atau galleryImages
+        if (processedJson.containsKey('gallery_images') && processedJson['gallery_images'] != null) {
+          List<Map<String, dynamic>> galleryImages = [];
+          if (processedJson['gallery_images'] is List) {
+            for (var url in processedJson['gallery_images']) {
+              galleryImages.add({'image_url': url, 'is_main': false});
+            }
+          }
+          
+          if (processedJson['images'] == null) {
+            processedJson['images'] = galleryImages;
+          } else if (processedJson['images'] is List) {
+            (processedJson['images'] as List).addAll(galleryImages);
+          }
+        }
+      }
+      
       // Use the generated fromJson method with our processed data
       return _$RoomDetailFromJson(processedJson);
     } catch (e) {
-      print('Error in RoomDetail.fromJson: $e');
+      debugPrint('Error in RoomDetail.fromJson: $e');
       // Return a default RoomDetail object in case of error
       return RoomDetail(
         id: 0,

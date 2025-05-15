@@ -1,51 +1,71 @@
 <?php
 
-namespace App\Http\Controllers\API;
+namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\HomestayDetail; // Pastikan ini ada
-use App\Models\KostDetail;    // Pastikan ini ada
 use App\Models\Property;
-use App\Models\Room;
-use App\Models\RoomFacility;
+use App\Models\KostDetail;
+use App\Models\HomestayDetail;
+use App\Models\Province;
+use App\Models\RecentSearch;
+use App\Models\City;
+use App\Models\District;
+use App\Models\Subdistrict;
+use App\Models\Review;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class RoomPenywaApiController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index($propertyId)
+    public function index()
     {
-        try {
-            $property = Property::where('isDeleted', false)->find($propertyId);
+        $user_id = Auth::id();
 
-            if (!$property) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Properti tidak ditemukan'
-                ], 404);
-            }
+        $properties = Property::with(['kostDetail', 'homestayDetail', 'province', 'city', 'district', 'subdistrict'])
+            ->where('isDeleted', false)
+            ->latest()
+            ->get();
 
-            $rooms = $property->rooms()
-                ->with('facilities')
-                ->where('is_available', true)
-                ->paginate(10);
+        return response()->json($properties);
+    }
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Daftar kamar berhasil diambil',
-                'data' => $rooms
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Gagal mengambil daftar kamar',
-                'error' => $e->getMessage()
-            ], 500);
+    public function search(Request $request)
+    {
+        $keyword = $request->query('keyword');
+        
+        if (!$keyword) {
+            return response()->json(['message' => 'Keyword is required'], 400);
         }
+    
+        // Simpan keyword ke recent search
+        RecentSearch::create([
+            'user_id' => auth()->check() ? auth()->id() : null,
+            'keyword' => $keyword
+        ]);
+    
+        // Pencarian properti + relasi lokasi
+        $result = Property::with(['kostDetail', 'homestayDetail', 'province', 'city', 'district', 'subdistrict', 'propertyType'])
+            ->where('isDeleted', false)
+            ->where(function ($query) use ($keyword) {
+                $query->where('name', 'like', "%{$keyword}%")
+                      ->orWhereHas('province', fn($q) => $q->where('prov_name', 'like', "%{$keyword}%"))
+                      ->orWhereHas('city', fn($q) => $q->where('city_name', 'like', "%{$keyword}%"))
+                      ->orWhereHas('district', fn($q) => $q->where('dis_name', 'like', "%{$keyword}%"))
+                      ->orWhereHas('subdistrict', fn($q) => $q->where('subdis_name', 'like', "%{$keyword}%"))
+                      ->orWhereHas('propertytype', fn($q) => $q->where('name', 'like', "%{$keyword}%"));
+            })
+            ->get();
+    
+            return response()->json([
+                'data' => $result
+            ]);
     }
 
     /**
@@ -59,9 +79,41 @@ class RoomPenywaApiController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show($id)
     {
-        //
+        try {
+            // Mencari properti berdasarkan ID yang diberikan
+            $property = Property::active()->findOrFail($id);
+            
+            // Mengambil 5 ulasan teratas untuk properti ini
+            $reviews = Review::where('property_id', $id)
+                ->with('user:id,name,profile_picture')
+                ->orderBy('created_at', 'desc')
+                ->limit(5)
+                ->get();
+            
+            // Menghitung rata-rata rating
+            $averageRating = Review::where('property_id', $id)->avg('rating') ?? 0;
+            $reviewCount = Review::where('property_id', $id)->count();
+            
+            // Mengembalikan data properti dalam format JSON
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Data properti berhasil diambil',
+                'data' => $property,
+                'reviews' => [
+                    'items' => $reviews,
+                    'average_rating' => round($averageRating, 1),
+                    'count' => $reviewCount
+                ]
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Gagal mengambil data properti',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     /**

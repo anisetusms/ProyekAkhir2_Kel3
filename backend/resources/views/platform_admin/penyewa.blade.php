@@ -1,4 +1,3 @@
-penyewa.blade.php
 <!-- filepath: resources/views/platform_admin/Penyewa.blade.php -->
 @extends('layouts.index-adminplatform')
 

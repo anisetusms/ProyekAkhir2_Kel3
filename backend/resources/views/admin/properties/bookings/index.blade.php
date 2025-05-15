@@ -1,7 +1,5 @@
 @extends('layouts.admin')
 
-@section('title', 'Daftar Pemesanan')
-
 @section('action_button')
 <a href="{{ route('admin.properties.bookings.statistics') }}" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">
     <i class="fas fa-chart-bar fa-sm text-white-50"></i> Lihat Statistik

@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\PropertyController;
 use App\Http\Controllers\Admin\RoomController;
 use App\Http\Controllers\Admin\OwnerBookingController;
+use App\Http\Controllers\Admin\UlasanController;
 use App\Http\Controllers\Admin\UnitController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\LocationController;
@@ -14,6 +15,7 @@ use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\SettingControllerS;
 use App\Http\Controllers\SettingControllerP;
 use Illuminate\Support\Facades\Route;
+
 
 // Landing Page
 Route::get('/', [AuthController::class, 'landingpage'])->name('landingpage');
@@ -158,6 +160,13 @@ Route::prefix('admin/properties')->name('admin.properties.')->group(function () 
     Route::get('cities/{province_id}', [PropertyController::class, 'getCities'])->name('cities');
     Route::get('districts/{city_id}', [PropertyController::class, 'getDistricts'])->name('districts');
     Route::get('subdistricts/{district_id}', [PropertyController::class, 'getSubdistricts'])->name('subdistricts');
+});
+
+Route::prefix('admin/properties/ulasan')->name('admin.properties.ulasan.')->group(function () {
+    Route::get('/dashboard', [App\Http\Controllers\Admin\UlasanController::class, 'dashboard'])->name('dashboard');
+    Route::get('/', [App\Http\Controllers\Admin\UlasanController::class, 'index'])->name('index');
+    Route::get('/property/{id}', [App\Http\Controllers\Admin\UlasanController::class, 'getByProperty'])->name('property');
+    Route::get('/{id}', [App\Http\Controllers\Admin\UlasanController::class, 'show'])->name('show');
 });
 
 

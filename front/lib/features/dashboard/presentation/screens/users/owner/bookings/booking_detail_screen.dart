@@ -38,8 +38,9 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
     });
 
     try {
+      // Gunakan endpoint yang benar tanpa menggabungkan baseUrl dua kali
       final response = await _apiClient.get(
-        '${Constants.baseUrl}/admin/bookings/${widget.bookingId}',
+        '/admin/bookings/${widget.bookingId}',
       );
 
       if (response is Map<String, dynamic> && response.containsKey('data')) {
@@ -76,9 +77,9 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
     });
 
     try {
+      // Gunakan endpoint yang benar tanpa menggabungkan baseUrl dua kali
       await _apiClient.post(
-        '${Constants.baseUrl}/admin/bookings/${widget.bookingId}/$action',
-
+        '/admin/bookings/${widget.bookingId}/$action',
       );
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -388,7 +389,7 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                     ClipRRect(
                       borderRadius: BorderRadius.circular(8),
                       child: Image.network(
-                        '${Constants.baseUrl}/storage/${_booking!['ktp_image']}',
+                        '${Constants.baseUrlImage}/storage/${_booking!['ktp_image']}',
                         height: 200,
                         width: double.infinity,
                         fit: BoxFit.cover,
@@ -432,7 +433,7 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                     ClipRRect(
                       borderRadius: BorderRadius.circular(8),
                       child: Image.network(
-                        '${Constants.baseUrl}/storage/${_booking!['payment_proof']}',
+                        '${Constants.baseUrlImage}/storage/${_booking!['payment_proof']}',
                         height: 200,
                         width: double.infinity,
                         fit: BoxFit.cover,

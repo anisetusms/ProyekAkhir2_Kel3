@@ -18,6 +18,9 @@ use App\Http\Controllers\Api\BookingController;
 use App\Http\Controllers\Api\RoomController;
 use App\Http\Controllers\Api\AdminBookingController;
 use App\Http\Controllers\Api\NotificationController;
+use App\Http\Controllers\Api\RoomImageController;
+use App\Http\Controllers\Api\StorageController;
+use App\Http\Controllers\Api\UlasanController;
 
 /*
 |---------------------------------------------------------------------------
@@ -162,13 +165,17 @@ use App\Http\Controllers\Api\NotificationController;
 |
 */
 
+Route::get('/dashboardc', [CustomerDashboardController::class, 'dashboardc']);
 
 
-
-
-
+Route::get('/storage/{path}', [StorageController::class, 'show'])
+    ->where('path', '.*')
+    ->name('api.storage.show');
 
 Route::middleware('auth:sanctum')->group(function () {
+
+    Route::get('/room-images/{roomId}', [RoomImageController::class, 'getByRoomId']);
+
     // Notification routes
     Route::prefix('notifications')->group(function () {
         Route::get('/', [NotificationController::class, 'index']);
@@ -179,6 +186,18 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 });
 
+// Rute publik untuk melihat ulasan properti
+Route::get('property/{property_id}/reviews', [UlasanController::class, 'getByProperty']);
+
+Route::get('property/{id}/reviews', [UlasanController::class, 'getByProperty']);
+Route::middleware('auth:sanctum')->group(function () {
+    // Menambahkan ulasan
+    Route::post('reviews', [UlasanController::class, 'store']);
+
+    // Menampilkan ulasan pengguna saat ini
+    Route::get('user/reviews', [UlasanController::class, 'userUlasan']);
+});
+
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/profile', [SettingController::class, 'profile']);
     Route::put('/profile', [SettingController::class, 'updateProfile']); // Ini yang penting
@@ -187,7 +206,7 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 
 Route::get('/propertiescustomer', [PropertyPenywaApiController::class, 'index']);
-Route::get('/properties/{propertyId}/rooms', [RoomPenywaApiController::class, 'index']);
+// Route::get('/properties/{propertyId}/rooms', [RoomPenywaApiController::class, 'index']);
 Route::get('/propertiesdetail/{id}', [PropertyPenywaApiController::class, 'show'])->name('api.properties.show');
 Route::get('/roles', [RoleController::class, 'index']);
 
@@ -205,7 +224,7 @@ Route::get('/storage/properties/{filename}', function ($filename) {
 })->where('filename', '.*');
 
 // Property Routes
-Route::get('/properties/{propertyId}/rooms', [RoomPenywaApiController::class, 'index']);
+// Route::get('/properties/{propertyId}/rooms', [RoomPenywaApiController::class, 'index']);
 Route::get('/propertiesdetail/{id}', [PropertyPenywaApiController::class, 'show'])->name('api.properties.show');
 Route::get('/roles', [RoleController::class, 'index']);
 
@@ -228,6 +247,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // Property Routes
     Route::get('properties/available', [PropertyApiController::class, 'getAvailableProperties']);
     Route::get('/properties', [PropertyApiController::class, 'index'])->name('api.properties.index');
+    Route::get('/properties1', [PropertyApiController::class, 'index1'])->name('api.properties.index1');
     Route::get('/properties/all', [PropertyApiController::class, 'getAllProperties'])->name('api.properties.all'); // Tambahkan endpoint baru
     Route::post('/properties', [PropertyApiController::class, 'store'])->name('api.properties.store');
     Route::get('/properties/{id}', [PropertyApiController::class, 'show'])->name('api.properties.show');
@@ -261,7 +281,6 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Dashboard Routes
     Route::get('/dashboard', [DashboardApiController::class, 'index'])->name('api.dashboard');
-    Route::get('/dashboardc', [CustomerDashboardController::class, 'dashboardc']);
 
     // Room Routes for Property
     // Route::prefix('properties/{property}/rooms')->name('api.properties.rooms.')->group(function () {
@@ -330,4 +349,13 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/check/{property}', [WishlistController::class, 'checkWishlist']);
         Route::get('/user', [WishlistController::class, 'getUserWishlists']);
     });
+});
+
+// Rute untuk ulasan
+Route::get('property/{id}/reviews', [UlasanController::class, 'getByProperty']);
+Route::middleware('auth:sanctum')->group(function () {
+    // Menambahkan ulasan
+    Route::post('reviews', [UlasanController::class, 'store']);
+    // Menampilkan ulasan pengguna saat ini
+    Route::get('user/reviews', [UlasanController::class, 'userUlasan']);
 });

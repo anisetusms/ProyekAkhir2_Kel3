@@ -19,7 +19,7 @@ class ApiClient {
     // Set default headers
     _dio.options.headers['Accept'] = 'application/json';
     _dio.options.validateStatus = (status) {
-      return status! < 500; // Terima semua status kode di bawah 500
+      return status! < 500; 
     };
 
     // Tambahkan logging untuk debugging
@@ -58,20 +58,16 @@ class ApiClient {
           return handler.next(options);
         },
         onResponse: (response, handler) {
-          // Log response untuk debugging
           debugPrint(
             '✅ RESPONSE[${response.statusCode}] => URL: ${response.requestOptions.baseUrl}${response.requestOptions.path}',
           );
           return handler.next(response);
         },
         onError: (DioException e, handler) {
-          // Log error untuk debugging
           debugPrint(
             '⚠️ ERROR[${e.response?.statusCode}] => URL: ${e.requestOptions.baseUrl}${e.requestOptions.path}',
           );
           debugPrint('ERROR MESSAGE: ${e.message}');
-
-          // Coba tampilkan response body jika ada
           if (e.response?.data != null) {
             debugPrint('ERROR RESPONSE: ${e.response?.data}');
           }
@@ -84,7 +80,6 @@ class ApiClient {
 
   // Tambahkan metode untuk mendapatkan token
   Future<String?> getToken() async {
-    // Mengambil token yang disimpan di SharedPreferences
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString('token');
   }
@@ -252,12 +247,10 @@ class ApiClient {
   /// DELETE request
   Future<dynamic> delete(String endpoint) async {
     try {
-      // Tambahkan log untuk debugging
       debugPrint('Sending DELETE request to: ${Constants.baseUrl}$endpoint');
 
       final response = await _dio.delete(endpoint);
 
-      // Tambahkan log untuk debugging
       debugPrint('Response status code: ${response.statusCode}');
       debugPrint('Response data: ${response.data}');
 
@@ -271,6 +264,17 @@ class ApiClient {
         throw Exception('Error: $e');
       }
       return null;
+    }
+  }
+
+   // Fungsi untuk mengambil ulasan berdasarkan propertyId
+  Future<List<dynamic>> getUlasanByProperty(int propertyId) async {
+    try {
+      final response = await _dio.get('/api/property/$propertyId/reviews');
+      return response.data;
+    } catch (e) {
+      print("Error fetching ulasan: $e");
+      return [];
     }
   }
 

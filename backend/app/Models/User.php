@@ -46,4 +46,10 @@ class User extends Authenticatable
     {
         return $this->hasMany(Property::class, 'user_id');
     }
+
+    // Menambahkan relasi ke Ulasan
+    public function ulasan()
+    {
+        return $this->hasMany(Ulasan::class); // Setiap user dapat memiliki banyak ulasan
+    }
 }

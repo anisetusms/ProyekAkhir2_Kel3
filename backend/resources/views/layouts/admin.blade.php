@@ -79,6 +79,13 @@
                 </a>
             </li>
 
+            <li class="nav-item {{ request()->routeIs('admin.properties.ulasan.*') ? 'active' : '' }}">
+                <a class="nav-link" href="{{ route('admin.properties.ulasan.dashboard') }}">
+                    <i class="fas fa-fw fa-star"></i>
+                    <span>Ulasan</span>
+                </a>
+            </li>
+
             <!-- Divider -->
             <hr class="sidebar-divider">
 

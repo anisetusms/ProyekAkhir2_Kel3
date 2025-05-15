@@ -2,9 +2,10 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:front/core/network/api_client.dart';
 import 'package:front/features/dashboard/presentation/screens/users/penyewa/models/booking_model.dart';
+import 'package:front/features/property/data/models/property_model.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
-import 'package:front/core/services/auth_service.dart';
+import 'dart:developer' as developer;
 
 class BookingServiceException implements Exception {
   final String message;
@@ -24,8 +25,58 @@ class BookingService {
   BookingService(this._apiClient);
 
   Future<Map<String, String>> getAuthHeaders() async {
-    final token = await AuthService().getToken();
-    return {'Authorization': 'Bearer $token', 'Accept': 'application/json'};
+    // Ini sekarang menggunakan getToken() dari ApiClient untuk mendapatkan token
+    return {
+      'Authorization': 'Bearer ${await _apiClient.getToken()}',
+      'Accept': 'application/json',
+    };
+  }
+
+  Future<PropertyModel> getPropertyDetails(int propertyId) async {
+    try {
+      final response = await _apiClient.get('/propertiesdetails/$propertyId');
+
+      // Check if status code is not 200 (OK)
+      if (response['statusCode'] != 200) {
+        throw BookingServiceException(
+          message:
+              _parseErrorMessage(response['data']) ??
+              'Failed to fetch property details',
+          status: response['statusCode'],
+          data: response['data'],
+        );
+      }
+
+      // Ensure we're handling the data correctly
+      if (response['data'] == null || response['data']['data'] == null) {
+        throw BookingServiceException(
+          message: 'Invalid property data format',
+          status: response['statusCode'],
+        );
+      }
+
+      // Safely parse the property data with proper type handling
+      final propertyData = response['data']['data'];
+
+      // Ensure propertyTypeId is treated as int
+      if (propertyData['property_type_id'] is String) {
+        propertyData['property_type_id'] = int.parse(
+          propertyData['property_type_id'],
+        );
+      }
+
+      return PropertyModel.fromJson(propertyData);
+    } on DioError catch (e) {
+      throw BookingServiceException(
+        message: _parseDioErrorMessage(e) ?? 'Failed to fetch property details',
+        status: e.response?.statusCode,
+        data: e.response?.data,
+      );
+    } catch (e) {
+      throw BookingServiceException(
+        message: 'Failed to fetch property details: ${e.toString()}',
+      );
+    }
   }
 
   Future<Map<String, dynamic>> checkAvailability({
@@ -202,82 +253,83 @@ class BookingService {
 
   Future<List<Booking>> getUserBookings() async {
     try {
-      final response = await _apiClient.get('/bookings/user');
+      final response = await _apiClient.get('/bookings');
 
-      if (response == null) {
-        throw Exception('Tidak ada respons dari server');
-      }
+      debugPrint('Get user bookings response: ${response['status']}');
 
-      if (response is List) {
-        return response.map((item) => Booking.fromJson(item)).toList();
-      } else if (response is Map &&
-          response.containsKey('data') &&
-          response['data'] is List) {
-        return (response['data'] as List)
-            .map((item) => Booking.fromJson(item))
-            .toList();
-      } else {
-        throw Exception('Format respons tidak valid');
-      }
-    } catch (e) {
-      throw Exception('Gagal memuat daftar booking: $e');
-    }
-  }
-
-  Future<Booking> getBookingDetail(int id) async {
-    try {
-      final response = await _apiClient.get('/bookings/$id');
-
-      if (response['statusCode'] != 200) {
+      if (response['statusCode'] != 200 && response['status'] != 'success') {
         throw BookingServiceException(
           message:
               _parseErrorMessage(response['data']) ??
-              'Failed to fetch booking details',
-          status: response['statusCode'],
+              'Failed to fetch bookings',
+          status: response['statusCode'] ?? response['status'],
           data: response['data'],
         );
       }
 
-      return Booking.fromJson(response['data']['data']);
+      // Memastikan 'response['data']' adalah List atau mengambil data dari struktur yang benar
+      List<dynamic> bookingsData = [];
+
+      if (response['data'] != null) {
+        if (response['data'] is List) {
+          // Format: { data: [...] }
+          bookingsData = List.from(response['data']);
+        } else if (response['data']['data'] != null &&
+            response['data']['data'] is List) {
+          // Format: { data: { data: [...] } }
+          bookingsData = List.from(response['data']['data']);
+        } else {
+          throw BookingServiceException(
+            message: 'Format data booking tidak valid',
+            status: response['statusCode'] ?? response['status'],
+            data: response['data'],
+          );
+        }
+      } else {
+        throw BookingServiceException(
+          message: 'Data booking kosong',
+          status: response['statusCode'] ?? response['status'],
+          data: response['data'],
+        );
+      }
+
+      // Proses elemen dalam bookingsData
+      List<Booking> bookings = [];
+      for (var i = 0; i < bookingsData.length; i++) {
+        try {
+          final json = bookingsData[i];
+          debugPrint('Processing booking ${i + 1}/${bookingsData.length}');
+
+          // Pastikan json adalah Map<String, dynamic>
+          if (json is! Map) {
+            debugPrint('Booking data is not a Map: $json');
+            continue;
+          }
+
+          final booking = Booking.fromJson(Map<String, dynamic>.from(json));
+          bookings.add(booking);
+        } catch (e) {
+          debugPrint('Error parsing booking at index $i: $e');
+          // Tetap lanjutkan untuk memproses data lain meski satu gagal
+        }
+      }
+
+      return bookings;
     } on DioError catch (e) {
+      debugPrint('DioError in getUserBookings: ${e.message}');
+      debugPrint('DioError response: ${e.response?.data}');
       throw BookingServiceException(
         message: _parseDioErrorMessage(e) ?? 'Network error occurred',
         status: e.response?.statusCode,
         data: e.response?.data,
       );
     } catch (e) {
+      debugPrint('Error in getUserBookings: $e');
       throw BookingServiceException(
-        message: 'Failed to fetch booking details: ${e.toString()}',
+        message: 'Failed to fetch bookings: ${e.toString()}',
       );
     }
   }
-
-  Future<void> cancelBooking(int bookingId) async {
-    try {
-      final response = await _apiClient.put(
-        '/bookings/$bookingId/cancel',
-        body: {}, // atau formData, tergantung definisinya
-      );
-      if (response == null) {
-        throw Exception('Tidak ada respons dari server');
-      }
-
-      if (response is Map &&
-          response.containsKey('success') &&
-          response['success'] == true) {
-        return;
-      } else {
-        final message =
-            response is Map && response.containsKey('message')
-                ? response['message']
-                : 'Gagal membatalkan booking';
-        throw Exception(message);
-      }
-    } catch (e) {
-      throw Exception('Gagal membatalkan booking: $e');
-    }
-  }
-
   // Helper method to parse error messages from the response data
   String? _parseErrorMessage(dynamic responseData) {
     if (responseData == null) return null;
@@ -296,5 +348,104 @@ class BookingService {
       return _parseErrorMessage(e.response?.data);
     }
     return e.message;
+  }
+
+  Future<List<Booking>> getBookings() async {
+    try {
+      developer.log('Fetching bookings...', name: 'BookingService');
+
+      final response = await _apiClient.get('/bookings');
+
+      developer.log('Bookings response: $response', name: 'BookingService');
+
+      if (response == null) {
+        throw Exception('Tidak ada respons dari server');
+      }
+
+      if (response is Map<String, dynamic> &&
+          response.containsKey('status') &&
+          response['status'] == 'success' &&
+          response.containsKey('data')) {
+        final List<dynamic> bookingsData = response['data'];
+        return bookingsData.map((json) => Booking.fromJson(json)).toList();
+      } else {
+        throw Exception('Format respons tidak valid');
+      }
+    } catch (e) {
+      developer.log('Error fetching bookings: $e', name: 'BookingService');
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Booking> getBookingDetail(int id) async {
+    try {
+      developer.log('Fetching booking detail for ID: $id', name: 'BookingService');
+
+      final response = await _apiClient.get('/bookings/$id');
+
+      developer.log('Booking detail response: $response', name: 'BookingService');
+
+      if (response == null) {
+        throw Exception('Tidak ada respons dari server');
+      }
+
+      if (response is Map<String, dynamic>) {
+        // Cek apakah respons memiliki struktur yang diharapkan
+        if (response.containsKey('status') && response['status'] == 'success') {
+          if (response.containsKey('data')) {
+            final bookingData = response['data'];
+            developer.log('Booking data: $bookingData', name: 'BookingService');
+
+            try {
+              return Booking.fromJson(bookingData);
+            } catch (e) {
+              developer.log('Error parsing booking data: $e', name: 'BookingService');
+              throw Exception('Gagal memproses data booking: $e');
+            }
+          }
+        }
+
+        // Jika respons tidak memiliki struktur yang diharapkan
+        if (response.containsKey('message')) {
+          throw Exception(response['message']);
+        }
+      }
+
+      throw Exception('Format respons tidak valid');
+    } catch (e) {
+      developer.log('Error fetching booking detail: $e', name: 'BookingService');
+      rethrow;
+    }
+  }
+
+  @override
+  Future<void> cancelBooking(int id) async {
+    try {
+      developer.log('Cancelling booking with ID: $id', name: 'BookingService');
+
+      final response = await _apiClient.put('/bookings/$id/cancel', body: {});
+
+      developer.log('Cancel booking response: $response', name: 'BookingService');
+
+      if (response == null) {
+        throw Exception('Tidak ada respons dari server');
+      }
+
+      if (response is Map<String, dynamic> &&
+          response.containsKey('status') &&
+          response['status'] == 'success') {
+        return;
+      }
+
+      if (response is Map<String, dynamic> && response.containsKey('message')) {
+        throw Exception(response['message']);
+      }
+
+      throw Exception('Gagal membatalkan booking');
+    } catch (e) {
+      developer.log('Error cancelling booking: $e', name: 'BookingService');
+      rethrow;
+    }
   }
 }

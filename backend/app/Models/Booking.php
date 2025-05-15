@@ -50,4 +50,10 @@ class Booking extends Model
         return $this->belongsToMany(Room::class, 'booking_rooms')
             ->withPivot('price');
     }
+
+    // Menambahkan relasi dengan Ulasan
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(Review::class);
+    }
 }

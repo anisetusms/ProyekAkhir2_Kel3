@@ -37,6 +37,18 @@ class PropertyApiController extends Controller
         return response()->json($properties);
     }
     
+    public function index1()
+    {
+        $user_id = Auth::id();
+
+        $properties = Property::with(['kostDetail', 'homestayDetail', 'province', 'city', 'district', 'subdistrict'])
+            ->where('isDeleted', false)
+            ->latest()
+            ->paginate(10);
+
+        return response()->json($properties);
+    }
+
     /**
      * Display a listing of all properties for the authenticated user, including deleted ones.
      *

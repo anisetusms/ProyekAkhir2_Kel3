@@ -1,5 +1,7 @@
 // import 'package:flutter/material.dart';
-// import 'package:get/get.dart'; // Tambahkan impor ini
+// import 'package:front/features/dashboard/presentation/screens/users/penyewa/booking_detail_screen.dart';
+// import 'package:front/features/dashboard/presentation/screens/users/penyewa/models/booking_model.dart';
+// import 'package:get/get.dart';
 // import 'package:front/features/auth/presentation/screens/login_screen.dart';
 // import 'package:front/features/auth/presentation/screens/register_screen.dart';
 // import 'package:front/features/dashboard/presentation/screens/dashboard_screen.dart';
@@ -12,6 +14,7 @@
 // import 'package:front/features/room/presentation/screens/edit_room_screen.dart';
 // import 'package:front/features/room/data/models/room_model.dart';
 // import 'package:front/features/dashboard/presentation/screens/users/button_navbar.dart';
+// import 'package:front/features/dashboard/presentation/screens/users/penyewa/booking_detail_screen.dart';
 
 // void main() {
 //   runApp(MyApp());
@@ -21,7 +24,6 @@
 //   @override
 //   Widget build(BuildContext context) {
 //     return GetMaterialApp(
-//       // Ganti MaterialApp dengan GetMaterialApp
 //       debugShowCheckedModeBanner: false,
 //       title: 'Hommie App',
 //       theme: ThemeData(
@@ -30,7 +32,6 @@
 //       ),
 //       initialRoute: '/login',
 //       getPages: [
-//         // Ganti routes dengan getPages untuk GetX
 //         GetPage(name: '/login', page: () => LoginScreen()),
 //         GetPage(name: '/register', page: () => RegisterScreen()),
 //         GetPage(name: '/dashboard', page: () => DashboardScreen()),
@@ -53,10 +54,9 @@
 //         ),
 //         GetPage(
 //           name: EditPropertyScreen.routeName,
-//           page:
-//               () => EditPropertyScreen(
-//                 property: Get.arguments as Map<String, dynamic>,
-//               ),
+//           page: () => EditPropertyScreen(
+//             property: Get.arguments as Map<String, dynamic>,
+//           ),
 //         ),
 //         GetPage(
 //           name: AddRoomScreen.routeName,
@@ -66,15 +66,16 @@
 //           name: EditRoomScreen.routeName,
 //           page: () => EditRoomScreen(room: Get.arguments as Room),
 //         ),
+//         // Tambahkan route untuk BookingDetailScreen
+//         GetPage(
+//           name: '/booking-details',
+//           page: () => BookingDetailScreen(bookingId: Get.arguments),
+//         ),
 //       ],
-//       // Untuk navigasi yang masih menggunakan ModalRoute, tambahkan juga routes biasa
-//       routes: {
-//         '/login': (context) => LoginScreen(),
-//         '/register': (context) => RegisterScreen(),
-//       },
 //     );
 //   }
 // }
+
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -91,6 +92,7 @@ import 'package:front/features/room/presentation/screens/edit_room_screen.dart';
 import 'package:front/features/room/data/models/room_model.dart';
 import 'package:front/features/dashboard/presentation/screens/users/button_navbar.dart';
 import 'package:front/features/dashboard/presentation/screens/users/penyewa/booking_detail_screen.dart';
+import 'package:front/features/wellcome/wellcome_page.dart'; // Import welcome page
 
 void main() {
   runApp(MyApp());
@@ -106,8 +108,9 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      initialRoute: '/login',
+      initialRoute: '/', // Ubah initial route ke welcome page
       getPages: [
+        GetPage(name: '/', page: () => WelcomePage()), // Tambahkan welcome page
         GetPage(name: '/login', page: () => LoginScreen()),
         GetPage(name: '/register', page: () => RegisterScreen()),
         GetPage(name: '/dashboard', page: () => DashboardScreen()),
@@ -151,4 +154,3 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-

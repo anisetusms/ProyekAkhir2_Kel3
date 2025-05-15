@@ -7,6 +7,7 @@ use App\Models\Room;
 use App\Models\RoomImage;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Log;
 
 class RoomController extends Controller
 {
@@ -32,7 +33,7 @@ class RoomController extends Controller
             return response()->json([
                 'success' => true,
                 'data' => $rooms->map(function ($room) {
-                    $room->main_image_url = $room->images->isNotEmpty() ? url('storage/room_images/' . $room->images->first()->image_url) : null;
+                    $room->main_image_url = $room->images->isNotEmpty() ? url('storage/' . $room->images->first()->image_url) : null;
                     return $room;
                 })
             ]);
@@ -52,16 +53,40 @@ class RoomController extends Controller
     {
         try {
             $property = Property::findOrFail($propertyId);
-            $room = $property->rooms()
-                ->with(['roomFacilities', 'images']) // Mengambil fasilitas dan gambar
-                ->findOrFail($roomId); // Menampilkan detail kamar berdasarkan ID
-
+            
+            // Ambil kamar dengan relasi
+            $room = Room::with(['roomFacilities', 'images'])
+                ->where('property_id', $propertyId)
+                ->findOrFail($roomId);
+            
+            // Log untuk debugging
+            Log::debug('Room data: ' . json_encode($room->toArray()));
+            
+            // Jika tidak ada gambar, cek langsung di database
+            if ($room->images->isEmpty()) {
+                Log::warning('Tidak ada gambar untuk kamar ID: ' . $roomId);
+                
+                // Cek langsung di database
+                $images = RoomImage::where('room_id', $roomId)->get();
+                Log::debug('Images dari database langsung: ' . json_encode($images->toArray()));
+                
+                // Jika ada gambar di database tapi tidak dimuat dalam relasi
+                if ($images->isNotEmpty()) {
+                    $room->setRelation('images', $images);
+                }
+            }
+            
+            // Tambahkan data gambar secara manual ke respons jika perlu
+            $responseData = $room->toArray();
+            
             // Mengembalikan data kamar beserta fasilitas dan gambar
             return response()->json([
                 'success' => true,
-                'data' => $room
+                'message' => 'Detail kamar berhasil diambil',
+                'data' => $responseData
             ]);
         } catch (\Exception $e) {
+            Log::error('Error pada RoomController@show: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
                 'message' => 'Kamar tidak ditemukan atau terjadi kesalahan.',

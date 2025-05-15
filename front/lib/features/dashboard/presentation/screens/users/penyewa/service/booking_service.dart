@@ -5,6 +5,7 @@ import 'package:front/features/dashboard/presentation/screens/users/penyewa/mode
 import 'package:front/features/property/data/models/property_model.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
+import 'dart:developer' as developer;
 
 class BookingServiceException implements Exception {
   final String message;
@@ -330,26 +331,81 @@ class BookingService {
     }
   }
 
-  Future<Booking> getBookingDetail(int id) async {
+  // Future<Booking> getBookingDetail(int id) async {
+  //   try {
+  //     final response = await _apiClient.get('/bookings/$id');
+
+  //     if (response['statusCode'] != 200) {
+  //       throw BookingServiceException(
+  //         message:
+  //             _parseErrorMessage(response['data']) ??
+  //             'Failed to fetch booking details',
+  //         status: response['status'],
+  //         data: response['data'],
+  //       );
+  //     }
+
+  //     // Handle different response formats
+  //     if (response['data'] != null) {
+  //       if (response['data']['data'] != null) {
+  //         return Booking.fromJson(response['data']['data']);
+  //       } else {
+  //         return Booking.fromJson(response['data']);
+  //       }
+  //     } else {
+  //       throw BookingServiceException(
+  //         message: 'Invalid booking data format',
+  //         status: response['statusCode'],
+  //       );
+  //     }
+  //   } on DioError catch (e) {
+  //     throw BookingServiceException(
+  //       message: _parseDioErrorMessage(e) ?? 'Network error occurred',
+  //       status: e.response?.statusCode,
+  //       data: e.response?.data,
+  //     );
+  //   } catch (e) {
+  //     throw BookingServiceException(
+  //       message: 'Failed to fetch booking details: ${e.toString()}',
+  //     );
+  //   }
+  // }
+
+  Future<Booking> getBookingDetail(int bookingId) async {
     try {
-      final response = await _apiClient.get('/bookings/$id');
+      developer.log(
+        'Fetching booking detail for ID: $bookingId',
+        name: 'BookingService',
+      );
+
+      final response = await _apiClient.get('/bookings/$bookingId');
+
+      developer.log(
+        'Response status code: ${response['statusCode']}',
+        name: 'BookingService',
+      );
+      developer.log(
+        'Response data: ${response['data']}',
+        name: 'BookingService',
+      );
 
       if (response['statusCode'] != 200) {
         throw BookingServiceException(
           message:
               _parseErrorMessage(response['data']) ??
               'Failed to fetch booking details',
-          status: response['status'],
+          status: response['statusCode'],
           data: response['data'],
         );
       }
 
       // Handle different response formats
+      Map<String, dynamic> bookingData;
       if (response['data'] != null) {
         if (response['data']['data'] != null) {
-          return Booking.fromJson(response['data']['data']);
+          bookingData = Map<String, dynamic>.from(response['data']['data']);
         } else {
-          return Booking.fromJson(response['data']);
+          bookingData = Map<String, dynamic>.from(response['data']);
         }
       } else {
         throw BookingServiceException(
@@ -357,48 +413,78 @@ class BookingService {
           status: response['statusCode'],
         );
       }
-    } on DioError catch (e) {
-      throw BookingServiceException(
-        message: _parseDioErrorMessage(e) ?? 'Network error occurred',
-        status: e.response?.statusCode,
-        data: e.response?.data,
-      );
+
+      return Booking.fromJson(bookingData);
     } catch (e) {
+      developer.log('Error in getBookingDetail: $e', name: 'BookingService');
       throw BookingServiceException(
-        message: 'Failed to fetch booking details: ${e.toString()}',
+        message: 'Failed to fetch booking details: $e',
       );
     }
   }
 
-  Future<void> cancelBooking(int id) async {
+  // Future<void> cancelBooking(int id) async {
+  //   try {
+  //     final response = await _apiClient.put('/bookings/$id/cancel');
+
+  //     if (response['statusCode'] != 200) {
+  //       throw BookingServiceException(
+  //         message:
+  //             _parseErrorMessage(response['data']) ??
+  //             'Failed to cancel booking',
+  //         status: response['status'],
+  //         data: response['data'],
+  //       );
+  //     }
+  //   } on DioError catch (e) {
+  //     if (e.response?.statusCode == 400) {
+  //       throw BookingServiceException(
+  //         message:
+  //             _parseErrorMessage(e.response?.data) ??
+  //             'Booking cannot be cancelled',
+  //         status: 400,
+  //         data: e.response?.data,
+  //       );
+  //     }
+  //     throw BookingServiceException(
+  //       message: _parseDioErrorMessage(e) ?? 'Network error occurred',
+  //       status: e.response?.statusCode,
+  //       data: e.response?.data,
+  //     );
+  //   } catch (e) {
+  //     throw BookingServiceException(message: 'Failed to cancel booking: $e');
+  //   }
+  // }
+
+  Future<void> cancelBooking(int bookingId) async {
     try {
-      final response = await _apiClient.put('/bookings/$id/cancel');
+      developer.log(
+        'Cancelling booking with ID: $bookingId',
+        name: 'BookingService',
+      );
+
+      final response = await _apiClient.put('/bookings/$bookingId/cancel');
+
+      developer.log(
+        'Response status code: ${response['statusCode']}',
+        name: 'BookingService',
+      );
+      developer.log(
+        'Response data: ${response['data']}',
+        name: 'BookingService',
+      );
 
       if (response['statusCode'] != 200) {
         throw BookingServiceException(
           message:
               _parseErrorMessage(response['data']) ??
               'Failed to cancel booking',
-          status: response['status'],
+          status: response['statusCode'],
           data: response['data'],
         );
       }
-    } on DioError catch (e) {
-      if (e.response?.statusCode == 400) {
-        throw BookingServiceException(
-          message:
-              _parseErrorMessage(e.response?.data) ??
-              'Booking cannot be cancelled',
-          status: 400,
-          data: e.response?.data,
-        );
-      }
-      throw BookingServiceException(
-        message: _parseDioErrorMessage(e) ?? 'Network error occurred',
-        status: e.response?.statusCode,
-        data: e.response?.data,
-      );
     } catch (e) {
+      developer.log('Error in cancelBooking: $e', name: 'BookingService');
       throw BookingServiceException(message: 'Failed to cancel booking: $e');
     }
   }

@@ -106,7 +106,7 @@ class OwnerBookingController extends Controller
                 $booking->user_id, 
                 'booking_confirmed', 
                 'Pemesanan Anda telah dikonfirmasi', 
-                'Pemesanan Anda untuk ' . $booking->property->name . ' telah dikonfirmasi oleh pemilik.',
+                'Pemesanan Anda untuk ' . $booking->property->name . ' telah dikonfirmasi oleh pemilik,/n Silahkan lakukan pembayaran saat check-in di lokasi.',
                 $id
             );
 

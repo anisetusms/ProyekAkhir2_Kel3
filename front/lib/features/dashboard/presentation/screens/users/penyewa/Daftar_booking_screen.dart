@@ -5,6 +5,7 @@ import 'package:front/features/dashboard/presentation/screens/users/penyewa/serv
 import 'package:front/features/dashboard/presentation/screens/users/penyewa/models/booking_model.dart';
 import 'package:front/features/dashboard/presentation/screens/users/penyewa/booking_card_screen.dart';
 import 'package:front/features/dashboard/presentation/screens/users/penyewa/booking_detail_screen.dart';
+import 'package:front/features/dashboard/presentation/screens/users/penyewa/review_booking_screen.dart';
 import 'package:front/core/utils/constants.dart';
 import 'package:front/core/widgets/loading_indicator.dart';
 import 'package:front/core/widgets/error_state.dart';
@@ -12,6 +13,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'dart:io';
 import 'package:http/http.dart' as http;
+import 'package:front/core/utils/theme_config.dart';
 
 class BookingListScreen extends StatefulWidget {
   const BookingListScreen({Key? key}) : super(key: key);
@@ -233,9 +235,9 @@ class _BookingListScreenState extends State<BookingListScreen>
         bottom: TabBar(
           controller: _tabController,
           isScrollable: true,
-          labelColor: Theme.of(context).primaryColor,
+          labelColor: ThemeConfig.primaryColor,
           unselectedLabelColor: Colors.grey,
-          indicatorColor: Theme.of(context).primaryColor,
+          indicatorColor: ThemeConfig.primaryColor,
           tabs: const [
             Tab(text: 'Menunggu'),
             Tab(text: 'Disetujui'),
@@ -590,8 +592,6 @@ class BookingCard extends StatelessWidget {
                     ),
 
                   const SizedBox(height: 16),
-
-                  // Action buttons
                   Row(
                     children: [
                       // Cancel button for pending and confirmed bookings
@@ -602,7 +602,7 @@ class BookingCard extends StatelessWidget {
                         Expanded(
                           child: OutlinedButton.icon(
                             onPressed: onCancel,
-                            icon: const Icon(Icons.cancel, size: 18),
+                            icon: const Icon(Icons.cancel, size: 16),
                             label: const Text('Batalkan'),
                             style: OutlinedButton.styleFrom(
                               foregroundColor: Colors.red,
@@ -620,10 +620,10 @@ class BookingCard extends StatelessWidget {
                         Expanded(
                           child: ElevatedButton.icon(
                             onPressed: onDownloadCard,
-                            icon: const Icon(Icons.download, size: 18),
+                            icon: const Icon(Icons.download, size: 16),
                             label: const Text('Kartu Booking'),
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Theme.of(context).primaryColor,
+                              backgroundColor: ThemeConfig.primaryColor,
                               foregroundColor: Colors.white,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(8),
@@ -632,7 +632,36 @@ class BookingCard extends StatelessWidget {
                           ),
                         ),
 
-                      // View details button for all bookings
+                      // New "Give Review" button next to "Download Booking Card"
+                      if (booking.status.toLowerCase() == 'completed')
+                        Expanded(
+                          child: ElevatedButton.icon(
+                            onPressed: () {
+                              final bookingId =
+                                  booking.id ??
+                                  0; // Jika booking.id null, berikan default 0
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder:
+                                      (context) => ReviewBookingScreen(
+                                        bookingId: bookingId, // Mengirimkan bookingId, bahkan jika 0
+                                        propertyId: booking.propertyId,
+                                      ),
+                                ),
+                              );
+                            },
+                            icon: const Icon(Icons.rate_review, size: 16),
+                            label: const Text('Berikan Ulasan'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: ThemeConfig.primaryColor,
+                              foregroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
+                          ),
+                        ),
                       if (booking.status.toLowerCase() != 'completed' ||
                           onDownloadCard == null)
                         Expanded(
@@ -651,10 +680,10 @@ class BookingCard extends StatelessWidget {
                                 ),
                               );
                             },
-                            icon: const Icon(Icons.visibility, size: 18),
+                            icon: const Icon(Icons.visibility, size: 16),
                             label: const Text('Lihat Detail'),
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Theme.of(context).primaryColor,
+                              backgroundColor: ThemeConfig.primaryColor,
                               foregroundColor: Colors.white,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(8),
