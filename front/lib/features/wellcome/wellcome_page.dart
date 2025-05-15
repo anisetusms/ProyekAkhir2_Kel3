@@ -94,8 +94,8 @@ class _WelcomePageState extends State<WelcomePage> with SingleTickerProviderStat
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              const Color(0xFF2E7D32), // Green 800
-              const Color(0xFF4CAF50), // Green 500
+              const Color(0xFF4CAF50),
+              const Color.fromARGB(255, 124, 196, 255), 
             ],
           ),
         ),
@@ -196,7 +196,7 @@ class _WelcomePageState extends State<WelcomePage> with SingleTickerProviderStat
                             Get.offAllNamed('/bottombar');
                           },
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF2E7D32), // Green 800
+                            backgroundColor: const Color(0xFF4CAF50), // Green 800
                             foregroundColor: Colors.white,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(25),
