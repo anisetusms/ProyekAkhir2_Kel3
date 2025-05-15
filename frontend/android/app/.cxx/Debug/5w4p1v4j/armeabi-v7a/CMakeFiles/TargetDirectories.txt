@@ -1,2 +1,0 @@
-E:/KULIAH/SEMESTER 4/PA2/ProyekAkhir2/frontend/android/app/.cxx/Debug/5w4p1v4j/armeabi-v7a/CMakeFiles/edit_cache.dir
-E:/KULIAH/SEMESTER 4/PA2/ProyekAkhir2/frontend/android/app/.cxx/Debug/5w4p1v4j/armeabi-v7a/CMakeFiles/rebuild_cache.dir
