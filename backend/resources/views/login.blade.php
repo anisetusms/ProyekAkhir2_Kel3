@@ -13,9 +13,9 @@
 
     <style>
         :root {
-            --primary-color:rgb(14, 216, 17);
-            --secondary-color:rgb(14, 216, 17);
-            --accent-color:rgb(14, 216, 17);
+            --primary-color:#2F9F20;
+            --secondary-color:#2F9F20;
+            --accent-color:#2F9F20;
             --light-color: #f8f9fa;
             --dark-color: #212529;
         }
@@ -65,7 +65,7 @@
             justify-content: center;
             color: white;
             font-size: 2rem;
-            box-shadow: 0 4px 12px rgb(37, 226, 46);
+            box-shadow: 0 4px 12px #2F9F20;
         }
 
         .login-title {
@@ -198,7 +198,7 @@
         <i class="bi bi-moon-stars-fill me-1"></i> Mode
     </button>
 
-    <div class="login-card card p-4 animate__animated animate__fadeIn">
+    <div class="login-card card p-4 animate_animated animate_fadeIn">
         <div class="login-header text-center mb-4">
            <img src="{{ asset('assets/images/gallery/logo.jpg') }}" alt="Logo" class="logo-img mb-2">
             <h4 class="finger-paint">Hommie</h4>
@@ -279,7 +279,7 @@
         // Efek hover pada tombol login
         const loginBtn = document.querySelector('.btn-login');
         loginBtn.addEventListener('mouseenter', () => {
-            loginBtn.style.boxShadow = '0 5px 15px rgb(37, 226, 46)';
+            loginBtn.style.boxShadow = Color(0xFF4CAF50);
         });
         loginBtn.addEventListener('mouseleave', () => {
             loginBtn.style.boxShadow = 'none';
