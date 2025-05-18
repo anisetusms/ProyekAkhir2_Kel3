@@ -4,6 +4,7 @@ import 'package:front/core/utils/constants.dart';
 import 'package:front/core/utils/format_utils.dart';
 import 'package:front/core/widgets/error_state.dart';
 import 'package:front/core/widgets/loading_indicator.dart';
+import 'package:front/features/dashboard/presentation/screens/users/button_navbar.dart';
 import 'package:front/features/dashboard/presentation/screens/users/owner/bookings/booking_detail_screen.dart';
 import 'package:intl/intl.dart';
 
@@ -25,10 +26,16 @@ class _AdminBookingListScreenState extends State<AdminBookingListScreen> with Si
   String _searchQuery = '';
   final TextEditingController _searchController = TextEditingController();
 
+  // Colors
+  final Color backgroundColor = Colors.grey[50]!;
+  final Color textPrimaryColor = Colors.black;
+  final Color primaryColor = Color(0xFF4CAF50); // Dominant green color
+  final Color priceColor = Colors.red; // Red color for prices
+
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: 4, vsync: this);
     _tabController.addListener(_handleTabChange);
     _fetchBookings();
   }
@@ -105,6 +112,8 @@ class _AdminBookingListScreenState extends State<AdminBookingListScreen> with Si
         return 'pending';
       case 2:
         return 'cancelled';
+      case 3:
+        return 'completed';
       default:
         return 'all';
     }
@@ -113,16 +122,61 @@ class _AdminBookingListScreenState extends State<AdminBookingListScreen> with Si
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: backgroundColor,
       appBar: AppBar(
-        title: const Text('Daftar Pemesanan'),
+        title: Row(
+          children: [
+            Text(
+              'Daftar Pemesanan',
+              style: TextStyle(
+                color: textPrimaryColor,
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: textPrimaryColor),
+          onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => BottomBar()),
+          );
+        },
+      ),
+        centerTitle: false,
+        elevation: 0,
+        backgroundColor: Colors.white,
         bottom: TabBar(
           controller: _tabController,
+          indicatorColor: primaryColor,
+          labelColor: primaryColor,
+          unselectedLabelColor: Colors.grey,
           tabs: const [
             Tab(text: 'Semua'),
             Tab(text: 'Menunggu'),
             Tab(text: 'Dibatalkan'),
+            Tab(text: 'Selesai'),
           ],
         ),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.search, color: textPrimaryColor, size: 24),
+            onPressed: () {
+              showSearch(
+                context: context,
+                delegate: BookingSearchDelegate(_bookings, _getStatusText, _getStatusColor),
+              );
+            },
+            tooltip: 'Cari',
+          ),
+          IconButton(
+            icon: Icon(Icons.refresh, color: textPrimaryColor, size: 24),
+            onPressed: _fetchBookings,
+            tooltip: 'Segarkan',
+          ),
+        ],
       ),
       body: Column(
         children: [
@@ -132,14 +186,21 @@ class _AdminBookingListScreenState extends State<AdminBookingListScreen> with Si
               controller: _searchController,
               decoration: InputDecoration(
                 hintText: 'Cari berdasarkan nama tamu atau properti',
-                prefixIcon: const Icon(Icons.search),
+                prefixIcon: const Icon(Icons.search, color: Colors.grey),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
+                  borderSide: BorderSide(color: Colors.grey[300]!),
                 ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: BorderSide(color: Colors.grey[300]!),
+                ),
+                filled: true,
+                fillColor: Colors.white,
                 contentPadding: const EdgeInsets.symmetric(vertical: 0),
                 suffixIcon: _searchQuery.isNotEmpty
                     ? IconButton(
-                        icon: const Icon(Icons.clear),
+                        icon: const Icon(Icons.clear, color: Colors.grey),
                         onPressed: () {
                           setState(() {
                             _searchController.clear();
@@ -167,11 +228,6 @@ class _AdminBookingListScreenState extends State<AdminBookingListScreen> with Si
                     : _buildBookingList(),
           ),
         ],
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: _fetchBookings,
-        icon: const Icon(Icons.refresh),
-        label: const Text('Refresh'),
       ),
     );
   }
@@ -204,6 +260,7 @@ class _AdminBookingListScreenState extends State<AdminBookingListScreen> with Si
 
     return RefreshIndicator(
       onRefresh: _fetchBookings,
+      color: primaryColor,
       child: ListView.separated(
         padding: const EdgeInsets.all(16),
         itemCount: filteredBookings.length,
@@ -319,7 +376,7 @@ class _AdminBookingListScreenState extends State<AdminBookingListScreen> with Si
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 16,
-                          color: Theme.of(context).primaryColor,
+                          color: priceColor, // Changed to red color
                         ),
                       ),
                       const SizedBox(height: 4),
@@ -410,7 +467,7 @@ class _AdminBookingListScreenState extends State<AdminBookingListScreen> with Si
       case 'pending':
         return Colors.orange;
       case 'confirmed':
-        return Colors.green;
+        return primaryColor; // Using the dominant green color
       case 'cancelled':
         return Colors.red;
       case 'completed':
@@ -433,5 +490,83 @@ class _AdminBookingListScreenState extends State<AdminBookingListScreen> with Si
       default:
         return 'Tidak Diketahui';
     }
+  }
+}
+
+class BookingSearchDelegate extends SearchDelegate {
+  final List<dynamic> bookings;
+  final Function(String) getStatusText;
+  final Function(String) getStatusColor;
+
+  BookingSearchDelegate(this.bookings, this.getStatusText, this.getStatusColor);
+
+  @override
+  List<Widget> buildActions(BuildContext context) {
+    return [
+      IconButton(
+        icon: const Icon(Icons.clear),
+        onPressed: () {
+          query = '';
+        },
+      ),
+    ];
+  }
+
+  @override
+  Widget buildLeading(BuildContext context) {
+    return IconButton(
+      icon: const Icon(Icons.arrow_back),
+      onPressed: () {
+        close(context, null);
+      },
+    );
+  }
+
+  @override
+  Widget buildResults(BuildContext context) {
+    return _buildSearchResults();
+  }
+
+  @override
+  Widget buildSuggestions(BuildContext context) {
+    return _buildSearchResults();
+  }
+
+  Widget _buildSearchResults() {
+    final results = bookings.where((booking) {
+      final guestName = booking['guest_name']?.toString().toLowerCase() ?? '';
+      final propertyName = booking['property']?['name']?.toString().toLowerCase() ?? '';
+      final bookingId = booking['id']?.toString() ?? '';
+      
+      return guestName.contains(query.toLowerCase()) || 
+             propertyName.contains(query.toLowerCase()) || 
+             bookingId.contains(query.toLowerCase());
+    }).toList();
+
+    return ListView.builder(
+      itemCount: results.length,
+      itemBuilder: (context, index) {
+        final booking = results[index];
+        return ListTile(
+          title: Text(booking['guest_name'] ?? 'Tamu'),
+          subtitle: Text(booking['property']?['name'] ?? 'Properti'),
+          trailing: Text(
+            getStatusText(booking['status']),
+            style: TextStyle(
+              color: getStatusColor(booking['status']),
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => BookingDetailScreen(bookingId: booking['id']),
+              ),
+            );
+          },
+        );
+      },
+    );
   }
 }

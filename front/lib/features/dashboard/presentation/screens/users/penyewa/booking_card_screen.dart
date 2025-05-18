@@ -18,10 +18,7 @@ import 'dart:typed_data';
 class BookingCardScreen extends StatefulWidget {
   final Booking booking;
 
-  const BookingCardScreen({
-    Key? key,
-    required this.booking,
-  }) : super(key: key);
+  const BookingCardScreen({Key? key, required this.booking}) : super(key: key);
 
   @override
   _BookingCardScreenState createState() => _BookingCardScreenState();
@@ -55,462 +52,534 @@ class _BookingCardScreenState extends State<BookingCardScreen> {
           ),
         ],
       ),
-      body: _isLoading
-          ? const LoadingIndicator()
-          : _errorMessage != null
+      body:
+          _isLoading
+              ? const LoadingIndicator()
+              : _errorMessage != null
               ? Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.error_outline,
-                          size: 64,
-                          color: Colors.red[300],
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          _errorMessage!,
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(fontSize: 16),
-                        ),
-                        const SizedBox(height: 24),
-                        ElevatedButton(
-                          onPressed: () {
-                            setState(() {
-                              _errorMessage = null;
-                            });
-                          },
-                          child: const Text('Coba Lagi'),
-                        ),
-                        const SizedBox(height: 12),
-                        TextButton(
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
-                          child: const Text('Kembali'),
-                        ),
-                      ],
-                    ),
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.error_outline,
+                        size: 64,
+                        color: Colors.red[300],
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        _errorMessage!,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(fontSize: 16),
+                      ),
+                      const SizedBox(height: 24),
+                      ElevatedButton(
+                        onPressed: () {
+                          setState(() {
+                            _errorMessage = null;
+                          });
+                        },
+                        child: const Text('Coba Lagi'),
+                      ),
+                      const SizedBox(height: 12),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        child: const Text('Kembali'),
+                      ),
+                    ],
                   ),
-                )
+                ),
+              )
               : SingleChildScrollView(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      children: [
-                        // Booking Card
-                        Card(
-                          elevation: 4,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: Column(
-                            children: [
-                              // Header
-                              Container(
-                                padding: const EdgeInsets.all(16),
-                                decoration: BoxDecoration(
-                                  color: Theme.of(context).primaryColor,
-                                  borderRadius: const BorderRadius.vertical(
-                                    top: Radius.circular(16),
-                                  ),
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    children: [
+                      // Booking Card
+                      Card(
+                        elevation: 4,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Column(
+                          children: [
+                            // Header
+                            Container(
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(
+                                color: Theme.of(context).primaryColor,
+                                borderRadius: const BorderRadius.vertical(
+                                  top: Radius.circular(16),
                                 ),
-                                child: Row(
-                                  children: [
-                                    const Icon(
-                                      Icons.confirmation_number,
-                                      color: Colors.white,
+                              ),
+                              child: Row(
+                                children: [
+                                  const Icon(
+                                    Icons.confirmation_number,
+                                    color: Colors.white,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        const Text(
+                                          'KARTU BOOKING',
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 16,
+                                          ),
+                                        ),
+                                        Text(
+                                          'ID: #${widget.booking.id}',
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                      ],
                                     ),
-                                    const SizedBox(width: 8),
+                                  ),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                      vertical: 6,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    child: Text(
+                                      _getStatusText(widget.booking.status),
+                                      style: TextStyle(
+                                        color: _getStatusColor(
+                                          widget.booking.status,
+                                        ),
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+
+                            // Property Details
+                            if (widget.booking.propertyName != null)
+                              Padding(
+                                padding: const EdgeInsets.all(16),
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    // Property Image
+                                    ClipRRect(
+                                      borderRadius: BorderRadius.circular(8),
+                                      child: Image.network(
+                                        _getPropertyImageUrl(
+                                          widget.booking.propertyImage,
+                                        ),
+                                        width: 80,
+                                        height: 80,
+                                        fit: BoxFit.cover,
+                                        errorBuilder:
+                                            (context, error, stackTrace) =>
+                                                Container(
+                                                  width: 80,
+                                                  height: 80,
+                                                  color: Colors.grey[200],
+                                                  child: const Icon(
+                                                    Icons.home,
+                                                    size: 40,
+                                                    color: Colors.grey,
+                                                  ),
+                                                ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 16),
+                                    // Property Info
                                     Expanded(
                                       child: Column(
                                         crossAxisAlignment:
                                             CrossAxisAlignment.start,
                                         children: [
-                                          const Text(
-                                            'KARTU BOOKING',
-                                            style: TextStyle(
-                                              color: Colors.white,
+                                          Text(
+                                            widget.booking.propertyName ??
+                                                'Properti',
+                                            style: const TextStyle(
                                               fontWeight: FontWeight.bold,
                                               fontSize: 16,
                                             ),
                                           ),
+                                          const SizedBox(height: 4),
                                           Text(
-                                            'ID: #${widget.booking.id}',
-                                            style: const TextStyle(
-                                              color: Colors.white,
+                                            widget.booking.propertyAddress ??
+                                                'Alamat tidak tersedia',
+                                            style: TextStyle(
+                                              color: Colors.grey[600],
                                               fontSize: 14,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 8),
+                                          Text(
+                                            widget.booking.isKost
+                                                ? 'Kost'
+                                                : widget.booking.isHomestay
+                                                ? 'Homestay'
+                                                : 'Properti',
+                                            style: TextStyle(
+                                              color: Colors.grey[600],
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.w500,
                                             ),
                                           ),
                                         ],
                                       ),
                                     ),
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 12,
-                                        vertical: 6,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: Colors.white,
-                                        borderRadius: BorderRadius.circular(20),
-                                      ),
-                                      child: Text(
-                                        _getStatusText(widget.booking.status),
-                                        style: TextStyle(
-                                          color: _getStatusColor(widget.booking.status),
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 12,
-                                        ),
-                                      ),
-                                    ),
                                   ],
                                 ),
                               ),
 
-                              // Property Details
-                              if (widget.booking.propertyName != null)
-                                Padding(
-                                  padding: const EdgeInsets.all(16),
-                                  child: Row(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      // Property Image
-                                      ClipRRect(
-                                        borderRadius: BorderRadius.circular(8),
-                                        child: Image.network(
-                                          _getPropertyImageUrl(widget.booking.propertyImage),
-                                          width: 80,
-                                          height: 80,
-                                          fit: BoxFit.cover,
-                                          errorBuilder:
-                                              (context, error, stackTrace) =>
-                                                  Container(
-                                            width: 80,
-                                            height: 80,
-                                            color: Colors.grey[200],
-                                            child: const Icon(
-                                              Icons.home,
-                                              size: 40,
-                                              color: Colors.grey,
-                                            ),
-                                          ),
-                                        ),
+                            // Room Details if available
+                            if (widget.booking.bookingRooms != null &&
+                                widget.booking.bookingRooms!.isNotEmpty)
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text(
+                                      'Kamar yang Dipesan',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 14,
                                       ),
-                                      const SizedBox(width: 16),
-                                      // Property Info
-                                      Expanded(
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
+                                    ),
+                                    const SizedBox(height: 8),
+                                    ...widget.booking.bookingRooms!.map((room) {
+                                      final roomName =
+                                          room.room != null &&
+                                                  room.room!.containsKey('name')
+                                              ? room.room!['name']
+                                              : 'Kamar #${room.roomId}';
+
+                                      return Padding(
+                                        padding: const EdgeInsets.only(
+                                          bottom: 4,
+                                        ),
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
                                           children: [
                                             Text(
-                                              widget.booking.propertyName ?? 'Properti',
+                                              roomName,
                                               style: const TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 16,
-                                              ),
-                                            ),
-                                            const SizedBox(height: 4),
-                                            Text(
-                                              widget.booking.propertyAddress ?? 'Alamat tidak tersedia',
-                                              style: TextStyle(
-                                                color: Colors.grey[600],
                                                 fontSize: 14,
                                               ),
                                             ),
-                                            const SizedBox(height: 8),
                                             Text(
-                                              widget.booking.isKost 
-                                                  ? 'Kost' 
-                                                  : widget.booking.isHomestay 
-                                                      ? 'Homestay' 
-                                                      : 'Properti',
-                                              style: TextStyle(
-                                                color: Colors.grey[600],
-                                                fontSize: 12,
+                                              currencyFormat.format(room.price),
+                                              style: const TextStyle(
                                                 fontWeight: FontWeight.w500,
+                                                fontSize: 14,
                                               ),
                                             ),
                                           ],
                                         ),
-                                      ),
-                                    ],
-                                  ),
+                                      );
+                                    }).toList(),
+                                  ],
                                 ),
+                              ),
 
-                              // Room Details if available
-                              if (widget.booking.bookingRooms != null && 
-                                  widget.booking.bookingRooms!.isNotEmpty)
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                            const Divider(),
+
+                            // Booking Details
+                            Padding(
+                              padding: const EdgeInsets.all(16),
+                              child: Column(
+                                children: [
+                                  // Guest Info
+                                  _buildInfoRow(
+                                    'Tamu',
+                                    widget.booking.guestName ??
+                                        (widget.booking.isForOthers == true
+                                            ? 'Tamu Lain'
+                                            : 'Diri Sendiri'),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  _buildInfoRow(
+                                    'No. Telepon',
+                                    widget.booking.guestPhone ?? 'N/A',
+                                  ),
+                                  const SizedBox(height: 8),
+                                  _buildInfoRow(
+                                    'No. Identitas',
+                                    widget.booking.identityNumber,
+                                  ),
+                                  if (widget.booking.specialRequests != null &&
+                                      widget
+                                          .booking
+                                          .specialRequests!
+                                          .isNotEmpty) ...[
+                                    const SizedBox(height: 8),
+                                    _buildInfoRow(
+                                      'Permintaan Khusus',
+                                      widget.booking.specialRequests!,
+                                    ),
+                                  ],
+                                  const SizedBox(height: 16),
+
+                                  // Dates
+                                  Row(
                                     children: [
-                                      const Text(
-                                        'Kamar yang Dipesan',
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 14,
+                                      Expanded(
+                                        child: _buildInfoRow(
+                                          'Check-in',
+                                          dateFormat.format(
+                                            widget.booking.checkIn,
+                                          ),
+                                          icon: Icons.login,
                                         ),
                                       ),
-                                      const SizedBox(height: 8),
-                                      ...widget.booking.bookingRooms!.map((room) {
-                                        final roomName = room.room != null && room.room!.containsKey('name') 
-                                            ? room.room!['name'] 
-                                            : 'Kamar #${room.roomId}';
-                                        
-                                        return Padding(
-                                          padding: const EdgeInsets.only(bottom: 4),
-                                          child: Row(
-                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              Text(
-                                                roomName,
-                                                style: const TextStyle(fontSize: 14),
-                                              ),
-                                              Text(
-                                                currencyFormat.format(room.price),
-                                                style: const TextStyle(
-                                                  fontWeight: FontWeight.w500,
-                                                  fontSize: 14,
-                                                ),
-                                              ),
-                                            ],
+                                      Expanded(
+                                        child: _buildInfoRow(
+                                          'Check-out',
+                                          dateFormat.format(
+                                            widget.booking.checkOut,
                                           ),
-                                        );
-                                      }).toList(),
+                                          icon: Icons.logout,
+                                        ),
+                                      ),
                                     ],
                                   ),
-                                ),
+                                  const SizedBox(height: 16),
 
-                              const Divider(),
+                                  // Payment Info
+                                  _buildInfoRow(
+                                    'Total Pembayaran',
+                                    currencyFormat.format(
+                                      widget.booking.totalPrice,
+                                    ),
+                                    icon: Icons.payment,
+                                    valueStyle: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
+                                      color: Theme.of(context).primaryColor,
+                                    ),
+                                  ),
 
-                              // Booking Details
-                              Padding(
-                                padding: const EdgeInsets.all(16),
-                                child: Column(
-                                  children: [
-                                    // Guest Info
-                                    _buildInfoRow(
-                                      'Tamu',
-                                      widget.booking.guestName ?? (widget.booking.isForOthers == true
-                                          ? 'Tamu Lain'
-                                          : 'Diri Sendiri'),
-                                    ),
-                                    const SizedBox(height: 8),
-                                    _buildInfoRow(
-                                      'No. Telepon',
-                                      widget.booking.guestPhone ?? 'N/A',
-                                    ),
-                                    const SizedBox(height: 8),
-                                    _buildInfoRow(
-                                      'No. Identitas',
-                                      widget.booking.identityNumber,
-                                    ),
-                                    if (widget.booking.specialRequests != null &&
-                                        widget.booking.specialRequests!.isNotEmpty) ...[
-                                      const SizedBox(height: 8),
-                                      _buildInfoRow(
-                                        'Permintaan Khusus',
-                                        widget.booking.specialRequests!,
-                                      ),
-                                    ],
-                                    const SizedBox(height: 16),
+                                  // Booking Date
+                                  const SizedBox(height: 16),
+                                  _buildInfoRow(
+                                    'Tanggal Booking',
+                                    dateFormat.format(widget.booking.createdAt),
+                                    icon: Icons.calendar_today,
+                                  ),
+                                ],
+                              ),
+                            ),
 
-                                    // Dates
-                                    Row(
+                            const Divider(),
+
+                            // QR Code
+                            Padding(
+                              padding: const EdgeInsets.all(16),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  // Title or instruction above the QR code
+                                  const Text(
+                                    'Tunjukkan QR Code ini saat check-in',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 16),
+
+                                  // QR Code itself
+                                  Center(
+                                    child: QrImageView(
+                                      data: _generateQrData(
+                                        widget.booking,
+                                      ), // Generate QR Code data
+                                      version: QrVersions.auto,
+                                      size: 200, // Size of the QR Code
+                                      backgroundColor: Colors.white,
+                                    ),
+                                  ),
+
+                                  const SizedBox(height: 24),
+
+                                  // Booking Details
+                                  Container(
+                                    padding: const EdgeInsets.all(12),
+                                    decoration: BoxDecoration(
+                                      color: Colors.grey[200],
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
-                                        Expanded(
-                                          child: _buildInfoRow(
-                                            'Check-in',
-                                            dateFormat
-                                                .format(widget.booking.checkIn),
-                                            icon: Icons.login,
-                                          ),
+                                        // Booking ID
+                                        _buildInfoRow(
+                                          'Booking ID',
+                                          '#${widget.booking.id}',
+                                          icon:
+                                              Icons
+                                                  .confirmation_number_outlined,
                                         ),
-                                        Expanded(
-                                          child: _buildInfoRow(
-                                            'Check-out',
-                                            dateFormat
-                                                .format(widget.booking.checkOut),
-                                            icon: Icons.logout,
-                                          ),
+                                        const SizedBox(height: 8),
+
+                                        // Property Name
+                                        _buildInfoRow(
+                                          'Properti',
+                                          widget.booking.propertyName ?? 'N/A',
+                                          icon: Icons.hotel,
+                                        ),
+                                        const SizedBox(height: 8),
+
+                                        // Guest Name
+                                        _buildInfoRow(
+                                          'Penyewa',
+                                          widget.booking.guestName ?? 'N/A',
+                                          icon: Icons.person,
+                                        ),
+                                        const SizedBox(height: 8),
+
+                                        // Room Details
+                                        _buildInfoRow(
+                                          'Kamar',
+                                          _getRoomDetails(),
+                                          icon: Icons.room,
                                         ),
                                       ],
                                     ),
-                                    const SizedBox(height: 16),
-
-                                    // Payment Info
-                                    _buildInfoRow(
-                                      'Total Pembayaran',
-                                      currencyFormat
-                                          .format(widget.booking.totalPrice),
-                                      icon: Icons.payment,
-                                      valueStyle: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 16,
-                                        color: Theme.of(context).primaryColor,
-                                      ),
-                                    ),
-                                    
-                                    // Booking Date
-                                    const SizedBox(height: 16),
-                                    _buildInfoRow(
-                                      'Tanggal Booking',
-                                      dateFormat.format(widget.booking.createdAt),
-                                      icon: Icons.calendar_today,
-                                    ),
-                                  ],
-                                ),
-                              ),
-
-                              const Divider(),
-
-                              // QR Code
-                              Padding(
-                                padding: const EdgeInsets.all(16),
-                                child: Column(
-                                  children: [
-                                    const Text(
-                                      'Tunjukkan QR Code ini saat check-in',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 16),
-                                    QrImageView(
-                                      data:
-                                          'BOOKING:${widget.booking.id}:${widget.booking.propertyId}',
-                                      version: QrVersions.auto,
-                                      size: 200,
-                                      backgroundColor: Colors.white,
-                                    ),
-                                    const SizedBox(height: 16),
-                                    Text(
-                                      'Booking ID: #${widget.booking.id}',
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-
-                              // Footer
-                              Container(
-                                padding: const EdgeInsets.all(16),
-                                decoration: BoxDecoration(
-                                  color: Colors.grey[200],
-                                  borderRadius: const BorderRadius.vertical(
-                                    bottom: Radius.circular(16),
                                   ),
-                                ),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    const Icon(
-                                      Icons.info_outline,
-                                      size: 16,
-                                      color: Colors.grey,
-                                    ),
-                                    const SizedBox(width: 8),
-                                    Flexible(
-                                      child: Text(
-                                        'Kartu booking ini adalah bukti sah reservasi Anda',
-                                        style: TextStyle(
-                                          color: Colors.grey[700],
-                                          fontSize: 12,
-                                        ),
-                                        textAlign: TextAlign.center,
-                                      ),
-                                    ),
-                                  ],
+                                ],
+                              ),
+                            ),
+
+                            // Footer
+                            Container(
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(
+                                color: Colors.grey[200],
+                                borderRadius: const BorderRadius.vertical(
+                                  bottom: Radius.circular(16),
                                 ),
                               ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const Icon(
+                                    Icons.info_outline,
+                                    size: 16,
+                                    color: Colors.grey,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Flexible(
+                                    child: Text(
+                                      'Kartu booking ini adalah bukti sah reservasi Anda',
+                                      style: TextStyle(
+                                        color: Colors.grey[700],
+                                        fontSize: 12,
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      const SizedBox(height: 24),
+
+                      // Additional Info
+                      Card(
+                        elevation: 2,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'Informasi Penting',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
+                              ),
+                              const SizedBox(height: 12),
+                              _buildInfoItem(
+                                widget.booking.isKost
+                                    ? 'Untuk kost, check-in sesuai dengan jadwal yang ditentukan'
+                                    : 'Check-in dimulai pukul 14:00',
+                                Icons.access_time,
+                              ),
+                              _buildInfoItem(
+                                widget.booking.isKost
+                                    ? 'Untuk kost, masa sewa sesuai dengan perjanjian'
+                                    : 'Check-out sebelum pukul 12:00',
+                                Icons.access_time,
+                              ),
+                              _buildInfoItem(
+                                'Harap tunjukkan kartu identitas saat check-in',
+                                Icons.credit_card,
+                              ),
+                              _buildInfoItem(
+                                'Hubungi pemilik properti jika ada pertanyaan',
+                                Icons.phone,
+                              ),
+                              if (widget.booking.isHomestay)
+                                _buildInfoItem(
+                                  'Untuk homestay, patuhi peraturan yang berlaku',
+                                  Icons.rule,
+                                ),
                             ],
                           ),
                         ),
+                      ),
 
-                        const SizedBox(height: 24),
-
-                        // Additional Info
-                        Card(
-                          elevation: 2,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(16),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text(
-                                  'Informasi Penting',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16,
-                                  ),
-                                ),
-                                const SizedBox(height: 12),
-                                _buildInfoItem(
-                                  widget.booking.isKost
-                                      ? 'Untuk kost, check-in sesuai dengan jadwal yang ditentukan'
-                                      : 'Check-in dimulai pukul 14:00',
-                                  Icons.access_time,
-                                ),
-                                _buildInfoItem(
-                                  widget.booking.isKost
-                                      ? 'Untuk kost, masa sewa sesuai dengan perjanjian'
-                                      : 'Check-out sebelum pukul 12:00',
-                                  Icons.access_time,
-                                ),
-                                _buildInfoItem(
-                                  'Harap tunjukkan kartu identitas saat check-in',
-                                  Icons.credit_card,
-                                ),
-                                _buildInfoItem(
-                                  'Hubungi pemilik properti jika ada pertanyaan',
-                                  Icons.phone,
-                                ),
-                                if (widget.booking.isHomestay)
-                                  _buildInfoItem(
-                                    'Untuk homestay, patuhi peraturan yang berlaku',
-                                    Icons.rule,
-                                  ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        
-                        // Action buttons based on booking status
-                        if (widget.booking.status == 'pending' || 
-                            widget.booking.status == 'confirmed')
-                          Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 24),
-                            child: ElevatedButton.icon(
-                              onPressed: () {
-                                // Implement cancel booking functionality
-                                _showCancelConfirmation();
-                              },
-                              icon: const Icon(Icons.cancel),
-                              label: const Text('Batalkan Booking'),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.red,
-                                foregroundColor: Colors.white,
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 24,
-                                  vertical: 12,
-                                ),
+                      // Action buttons based on booking status
+                      if (widget.booking.status == 'pending' ||
+                          widget.booking.status == 'confirmed')
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 24),
+                          child: ElevatedButton.icon(
+                            onPressed: () {
+                              // Implement cancel booking functionality
+                              _showCancelConfirmation();
+                            },
+                            icon: const Icon(Icons.cancel),
+                            label: const Text('Batalkan Booking'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.red,
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 24,
+                                vertical: 12,
                               ),
                             ),
                           ),
-                      ],
-                    ),
+                        ),
+                    ],
                   ),
                 ),
+              ),
     );
   }
 
@@ -518,11 +587,11 @@ class _BookingCardScreenState extends State<BookingCardScreen> {
     if (imagePath == null || imagePath.isEmpty) {
       return 'https://via.placeholder.com/150';
     }
-    
+
     if (imagePath.startsWith('http')) {
       return imagePath;
     }
-    
+
     // Coba beberapa kemungkinan URL
     try {
       // Coba gunakan Constants.baseUrl jika tersedia
@@ -566,28 +635,27 @@ class _BookingCardScreenState extends State<BookingCardScreen> {
   void _showCancelConfirmation() {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Batalkan Booking'),
-        content: const Text(
-          'Apakah Anda yakin ingin membatalkan booking ini? Tindakan ini tidak dapat dibatalkan.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('TIDAK'),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              _cancelBooking();
-            },
-            child: const Text('YA, BATALKAN'),
-            style: TextButton.styleFrom(
-              foregroundColor: Colors.red,
+      builder:
+          (context) => AlertDialog(
+            title: const Text('Batalkan Booking'),
+            content: const Text(
+              'Apakah Anda yakin ingin membatalkan booking ini? Tindakan ini tidak dapat dibatalkan.',
             ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('TIDAK'),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  _cancelBooking();
+                },
+                child: const Text('YA, BATALKAN'),
+                style: TextButton.styleFrom(foregroundColor: Colors.red),
+              ),
+            ],
           ),
-        ],
-      ),
     );
   }
 
@@ -609,7 +677,7 @@ class _BookingCardScreenState extends State<BookingCardScreen> {
             backgroundColor: Colors.green,
           ),
         );
-        
+
         // Return to previous screen with result
         Navigator.pop(context, true);
       } else {
@@ -626,8 +694,12 @@ class _BookingCardScreenState extends State<BookingCardScreen> {
     }
   }
 
-  Widget _buildInfoRow(String label, String value,
-      {IconData? icon, TextStyle? valueStyle}) {
+  Widget _buildInfoRow(
+    String label,
+    String value, {
+    IconData? icon,
+    TextStyle? valueStyle,
+  }) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -641,19 +713,14 @@ class _BookingCardScreenState extends State<BookingCardScreen> {
             children: [
               Text(
                 label,
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey[600],
-                ),
+                style: TextStyle(fontSize: 12, color: Colors.grey[600]),
               ),
               const SizedBox(height: 2),
               Text(
                 value,
-                style: valueStyle ??
-                    const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                    ),
+                style:
+                    valueStyle ??
+                    const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
               ),
             ],
           ),
@@ -673,10 +740,7 @@ class _BookingCardScreenState extends State<BookingCardScreen> {
           Expanded(
             child: Text(
               text,
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey[800],
-              ),
+              style: TextStyle(fontSize: 14, color: Colors.grey[800]),
             ),
           ),
         ],
@@ -696,7 +760,10 @@ class _BookingCardScreenState extends State<BookingCardScreen> {
         pdfFile.path,
       ], text: 'Kartu Booking #${widget.booking.id}');
     } catch (e) {
-      developer.log('Error sharing booking card: $e', name: 'BookingCardScreen');
+      developer.log(
+        'Error sharing booking card: $e',
+        name: 'BookingCardScreen',
+      );
       setState(() {
         _errorMessage = 'Gagal membagikan kartu booking: $e';
       });
@@ -715,7 +782,7 @@ class _BookingCardScreenState extends State<BookingCardScreen> {
 
     try {
       final pdfFile = await _generatePdf();
-      
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Kartu booking berhasil diunduh ke ${pdfFile.path}'),
@@ -729,7 +796,10 @@ class _BookingCardScreenState extends State<BookingCardScreen> {
         ),
       );
     } catch (e) {
-      developer.log('Error downloading booking card: $e', name: 'BookingCardScreen');
+      developer.log(
+        'Error downloading booking card: $e',
+        name: 'BookingCardScreen',
+      );
       setState(() {
         _errorMessage = 'Gagal mengunduh kartu booking: $e';
       });
@@ -756,35 +826,52 @@ class _BookingCardScreenState extends State<BookingCardScreen> {
     // Load property image if available
     pw.MemoryImage? propertyImage;
     Uint8List? placeholderImageBytes;
-    
+
     try {
       // Coba memuat gambar placeholder terlebih dahulu sebagai fallback
-      final placeholderResponse = await http.get(Uri.parse('https://via.placeholder.com/150'));
+      final placeholderResponse = await http.get(
+        Uri.parse('https://via.placeholder.com/150'),
+      );
       if (placeholderResponse.statusCode == 200) {
         placeholderImageBytes = placeholderResponse.bodyBytes;
       }
     } catch (e) {
-      developer.log('Failed to load placeholder image: $e', name: 'BookingCardScreen');
+      developer.log(
+        'Failed to load placeholder image: $e',
+        name: 'BookingCardScreen',
+      );
     }
-    
+
     if (widget.booking.propertyImage != null) {
       try {
         final imageUrl = _getPropertyImageUrl(widget.booking.propertyImage);
-        developer.log('Loading property image from: $imageUrl', name: 'BookingCardScreen');
-        
+        developer.log(
+          'Loading property image from: $imageUrl',
+          name: 'BookingCardScreen',
+        );
+
         final response = await http.get(Uri.parse(imageUrl));
         if (response.statusCode == 200) {
           propertyImage = pw.MemoryImage(response.bodyBytes);
-          developer.log('Property image loaded successfully', name: 'BookingCardScreen');
+          developer.log(
+            'Property image loaded successfully',
+            name: 'BookingCardScreen',
+          );
         } else {
-          developer.log('Failed to load property image. Status code: ${response.statusCode}', name: 'BookingCardScreen');
+          developer.log(
+            'Failed to load property image. Status code: ${response.statusCode}',
+            name: 'BookingCardScreen',
+          );
           // Gunakan placeholder jika tersedia
           if (placeholderImageBytes != null) {
             propertyImage = pw.MemoryImage(placeholderImageBytes);
           }
         }
       } catch (e) {
-        developer.log('Failed to load property image: $e', name: 'BookingCardScreen');
+        developer.log(
+          'Failed to load property image: $e',
+          name: 'BookingCardScreen',
+        );
         // Gunakan placeholder jika tersedia
         if (placeholderImageBytes != null) {
           propertyImage = pw.MemoryImage(placeholderImageBytes);
@@ -795,7 +882,8 @@ class _BookingCardScreenState extends State<BookingCardScreen> {
     }
 
     // Generate QR code
-    final qrData = 'BOOKING:${widget.booking.id ?? "0"}:${widget.booking.propertyId}';
+    final qrData =
+        'BOOKING:${widget.booking.id ?? "0"}:${widget.booking.propertyId}';
     final qrCode = pw.BarcodeWidget(
       barcode: pw.Barcode.qrCode(),
       data: qrData,
@@ -875,32 +963,32 @@ class _BookingCardScreenState extends State<BookingCardScreen> {
                     // Property Image
                     propertyImage != null
                         ? pw.ClipRRect(
-                            verticalRadius: 8,
-                            horizontalRadius: 8,
-                            child: pw.Image(
-                              propertyImage,
-                              width: 80,
-                              height: 80,
-                              fit: pw.BoxFit.cover,
-                            ),
-                          )
-                        : pw.Container(
+                          verticalRadius: 8,
+                          horizontalRadius: 8,
+                          child: pw.Image(
+                            propertyImage,
                             width: 80,
                             height: 80,
-                            decoration: pw.BoxDecoration(
-                              color: PdfColors.grey200,
-                              borderRadius: pw.BorderRadius.circular(8),
-                            ),
-                            child: pw.Center(
-                              child: pw.Text(
-                                'No Image',
-                                style: pw.TextStyle(
-                                  font: ttf,
-                                  color: PdfColors.grey,
-                                ),
+                            fit: pw.BoxFit.cover,
+                          ),
+                        )
+                        : pw.Container(
+                          width: 80,
+                          height: 80,
+                          decoration: pw.BoxDecoration(
+                            color: PdfColors.grey200,
+                            borderRadius: pw.BorderRadius.circular(8),
+                          ),
+                          child: pw.Center(
+                            child: pw.Text(
+                              'No Image',
+                              style: pw.TextStyle(
+                                font: ttf,
+                                color: PdfColors.grey,
                               ),
                             ),
                           ),
+                        ),
                     pw.SizedBox(width: 16),
                     // Property Info
                     pw.Expanded(
@@ -909,14 +997,12 @@ class _BookingCardScreenState extends State<BookingCardScreen> {
                         children: [
                           pw.Text(
                             widget.booking.propertyName ?? 'Properti',
-                            style: pw.TextStyle(
-                              font: ttfBold,
-                              fontSize: 16,
-                            ),
+                            style: pw.TextStyle(font: ttfBold, fontSize: 16),
                           ),
                           pw.SizedBox(height: 4),
                           pw.Text(
-                            widget.booking.propertyAddress ?? 'Alamat tidak tersedia',
+                            widget.booking.propertyAddress ??
+                                'Alamat tidak tersedia',
                             style: pw.TextStyle(
                               font: ttf,
                               color: PdfColors.grey700,
@@ -925,11 +1011,11 @@ class _BookingCardScreenState extends State<BookingCardScreen> {
                           ),
                           pw.SizedBox(height: 4),
                           pw.Text(
-                            widget.booking.isKost 
-                                ? 'Kost' 
-                                : widget.booking.isHomestay 
-                                    ? 'Homestay' 
-                                    : 'Properti',
+                            widget.booking.isKost
+                                ? 'Kost'
+                                : widget.booking.isHomestay
+                                ? 'Homestay'
+                                : 'Properti',
                             style: pw.TextStyle(
                               font: ttf,
                               color: PdfColors.grey700,
@@ -943,22 +1029,20 @@ class _BookingCardScreenState extends State<BookingCardScreen> {
                 ),
 
               // Room Details if available
-              if (widget.booking.bookingRooms != null && 
+              if (widget.booking.bookingRooms != null &&
                   widget.booking.bookingRooms!.isNotEmpty) ...[
                 pw.SizedBox(height: 16),
                 pw.Text(
                   'Kamar yang Dipesan',
-                  style: pw.TextStyle(
-                    font: ttfBold,
-                    fontSize: 14,
-                  ),
+                  style: pw.TextStyle(font: ttfBold, fontSize: 14),
                 ),
                 pw.SizedBox(height: 8),
                 ...widget.booking.bookingRooms!.map((room) {
-                  final roomName = room.room != null && room.room!.containsKey('name') 
-                      ? room.room!['name'] 
-                      : 'Kamar #${room.roomId}';
-                  
+                  final roomName =
+                      room.room != null && room.room!.containsKey('name')
+                          ? room.room!['name']
+                          : 'Kamar #${room.roomId}';
+
                   return pw.Padding(
                     padding: const pw.EdgeInsets.only(bottom: 4),
                     child: pw.Row(
@@ -966,17 +1050,11 @@ class _BookingCardScreenState extends State<BookingCardScreen> {
                       children: [
                         pw.Text(
                           roomName,
-                          style: pw.TextStyle(
-                            font: ttf,
-                            fontSize: 12,
-                          ),
+                          style: pw.TextStyle(font: ttf, fontSize: 12),
                         ),
                         pw.Text(
                           currencyFormat.format(room.price),
-                          style: pw.TextStyle(
-                            font: ttfBold,
-                            fontSize: 12,
-                          ),
+                          style: pw.TextStyle(font: ttfBold, fontSize: 12),
                         ),
                       ],
                     ),
@@ -995,9 +1073,10 @@ class _BookingCardScreenState extends State<BookingCardScreen> {
                   // Guest Info
                   _buildPdfInfoRow(
                     'Tamu',
-                    widget.booking.guestName ?? (widget.booking.isForOthers == true
-                        ? 'Tamu Lain'
-                        : 'Diri Sendiri'),
+                    widget.booking.guestName ??
+                        (widget.booking.isForOthers == true
+                            ? 'Tamu Lain'
+                            : 'Diri Sendiri'),
                     ttf,
                     ttfBold,
                   ),
@@ -1058,7 +1137,7 @@ class _BookingCardScreenState extends State<BookingCardScreen> {
                     ttfBold,
                     valueColor: PdfColors.brown,
                   ),
-                  
+
                   // Booking Date
                   pw.SizedBox(height: 16),
                   _buildPdfInfoRow(
@@ -1080,20 +1159,14 @@ class _BookingCardScreenState extends State<BookingCardScreen> {
                   children: [
                     pw.Text(
                       'Tunjukkan QR Code ini saat check-in',
-                      style: pw.TextStyle(
-                        font: ttfBold,
-                        fontSize: 14,
-                      ),
+                      style: pw.TextStyle(font: ttfBold, fontSize: 14),
                     ),
                     pw.SizedBox(height: 16),
                     qrCode,
                     pw.SizedBox(height: 16),
                     pw.Text(
                       'Booking ID: #${widget.booking.id}',
-                      style: pw.TextStyle(
-                        font: ttfBold,
-                        fontSize: 14,
-                      ),
+                      style: pw.TextStyle(font: ttfBold, fontSize: 14),
                     ),
                   ],
                 ),
@@ -1115,10 +1188,7 @@ class _BookingCardScreenState extends State<BookingCardScreen> {
                   children: [
                     pw.Text(
                       'Informasi Penting',
-                      style: pw.TextStyle(
-                        font: ttfBold,
-                        fontSize: 14,
-                      ),
+                      style: pw.TextStyle(font: ttfBold, fontSize: 14),
                     ),
                     pw.SizedBox(height: 8),
                     _buildPdfInfoItem(
@@ -1178,10 +1248,11 @@ class _BookingCardScreenState extends State<BookingCardScreen> {
         // Jika gagal, gunakan direktori sementara
         directory = await getTemporaryDirectory();
       }
-      
-      final filePath = '${directory.path}/booking_card_${widget.booking.id}.pdf';
+
+      final filePath =
+          '${directory.path}/booking_card_${widget.booking.id}.pdf';
       developer.log('Saving PDF to: $filePath', name: 'BookingCardScreen');
-      
+
       final file = File(filePath);
       await file.writeAsBytes(await pdf.save());
       return file;
@@ -1222,19 +1293,31 @@ class _BookingCardScreenState extends State<BookingCardScreen> {
     );
   }
 
-  pw.Widget _buildPdfInfoItem(
-    String text,
-    pw.Font font,
-  ) {
+  // Method to generate QR Code data with additional details
+  String _generateQrData(Booking booking) {
+    final propertyName = booking.propertyName ?? 'N/A';
+    final guestName = booking.guestName ?? 'N/A';
+    final roomDetails = _getRoomDetails();
+
+    return 'BOOKING:${booking.id}:${booking.propertyId}:${propertyName}:${guestName}:${roomDetails}';
+  }
+
+  // Method to get room details as a string
+  String _getRoomDetails() {
+    return widget.booking.bookingRooms
+            ?.map((room) {
+              return room.room?['name'] ?? 'Kamar #${room.roomId}';
+            })
+            .join(', ') ??
+        'N/A';
+  }
+
+  pw.Widget _buildPdfInfoItem(String text, pw.Font font) {
     return pw.Padding(
       padding: const pw.EdgeInsets.only(bottom: 4),
       child: pw.Text(
         '• $text',
-        style: pw.TextStyle(
-          font: font,
-          fontSize: 10,
-          color: PdfColors.grey800,
-        ),
+        style: pw.TextStyle(font: font, fontSize: 10, color: PdfColors.grey800),
       ),
     );
   }

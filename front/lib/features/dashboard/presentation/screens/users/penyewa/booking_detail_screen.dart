@@ -397,7 +397,7 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                       icon: const Icon(Icons.download, size: 16),
                       label: const Text('Kartu Booking'),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Theme.of(context).primaryColor,
+                        backgroundColor: Color(0xFF4CAF50),
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(
                           horizontal: 12,
@@ -558,7 +558,7 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                     valueStyle: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
-                      color: Theme.of(context).primaryColor,
+                      color: Color(0xFF4CAF50),
                     ),
                   ),
                 ],
@@ -889,7 +889,7 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                       icon: const Icon(Icons.download, size: 16),
                       label: const Text('Kartu Booking'),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Theme.of(context).primaryColor,
+                        backgroundColor: Color(0xFF4CAF50),
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(
                           horizontal: 12,
@@ -1052,7 +1052,7 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                     valueStyle: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
-                      color: Theme.of(context).primaryColor,
+                      color: Color(0xFF4CAF50),
                     ),
                   ),
                 ],

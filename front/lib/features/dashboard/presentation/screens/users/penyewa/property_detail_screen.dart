@@ -39,7 +39,7 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
     _apiService = PropertyApiService();
     _loadProperty();
     _propertyFuture = _apiService.getPropertyDetail(widget.propertyId);
-    
+
     // Listener untuk mengubah AppBar saat scroll
     _scrollController.addListener(() {
       if (_scrollController.offset > 200 && !_showAppBarTitle) {
@@ -70,30 +70,30 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
     setState(() {
       _isFavorite = !_isFavorite;
     });
-    
+
     // Tampilkan snackbar dengan nama properti
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(_isFavorite 
-            ? '$_propertyName ditambahkan ke favorit' 
-            : '$_propertyName dihapus dari favorit'),
+        content: Text(
+          _isFavorite
+              ? '$_propertyName ditambahkan ke favorit'
+              : '$_propertyName dihapus dari favorit',
+        ),
         duration: const Duration(seconds: 2),
         behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       ),
     );
   }
 
   void _shareProperty(PropertyModel property) {
-    final String shareText = 
+    final String shareText =
         'Cek "${property.name}" di aplikasi KostKita!\n'
         'Alamat: ${property.address}\n'
         'Harga: Rp ${_formatPrice(property.price)} / ${property.isKost ? 'Bulan' : 'Malam'}\n'
         'Tipe: ${property.isKost ? 'Kost' : 'Homestay'}\n\n'
         'Download aplikasi KostKita sekarang!';
-    
+
     Share.share(shareText);
   }
 
@@ -129,7 +129,7 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
       ),
     );
   }
-  
+
   Widget _buildLoadingState() {
     return Scaffold(
       extendBodyBehindAppBar: true,
@@ -149,10 +149,7 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
             SizedBox(height: 16),
             Text(
               'Memuat detail properti...',
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.grey,
-              ),
+              style: TextStyle(fontSize: 16, color: Colors.grey),
             ),
           ],
         ),
@@ -188,9 +185,9 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
             const SizedBox(height: 24),
             Text(
               'Gagal memuat data',
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 12),
             Padding(
@@ -207,7 +204,10 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
               icon: const Icon(Icons.refresh),
               label: const Text('Coba Lagi'),
               style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 12,
+                ),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),
@@ -223,19 +223,21 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
-        backgroundColor: _showAppBarTitle 
-            ? Theme.of(context).appBarTheme.backgroundColor 
-            : Colors.transparent,
+        backgroundColor:
+            _showAppBarTitle
+                ? Theme.of(context).appBarTheme.backgroundColor
+                : Colors.transparent,
         elevation: _showAppBarTitle ? 4 : 0,
-        title: _showAppBarTitle 
-            ? Text(
-                property.name,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
-              ) 
-            : null,
+        title:
+            _showAppBarTitle
+                ? Text(
+                  property.name,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                )
+                : null,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => Navigator.pop(context),
@@ -258,10 +260,8 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
         controller: _scrollController,
         slivers: [
           // Header Image with Gradient Overlay
-          SliverToBoxAdapter(
-            child: _buildHeaderImage(property),
-          ),
-          
+          SliverToBoxAdapter(child: _buildHeaderImage(property)),
+
           // Content
           SliverToBoxAdapter(
             child: Column(
@@ -269,29 +269,29 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
               children: [
                 // Basic Info
                 _buildBasicInfo(property),
-                
+
                 // Quick Info Cards
                 _buildQuickInfoCards(property),
-                
+
                 // Divider
                 const Padding(
                   padding: EdgeInsets.symmetric(horizontal: 16.0),
                   child: Divider(height: 32),
                 ),
-                
+
                 // Deskripsi
                 _buildDescriptionSection(property),
-                
+
                 // Peraturan (jika ada)
                 if (property.rules != null && property.rules!.isNotEmpty)
                   _buildRulesSection(property),
-                
-                // Ulasan
-                _buildReviewsSection(property),
-                
+
                 // Lokasi
                 _buildLocationSection(property),
-                
+
+                // Ulasan
+                _buildReviewsSection(property),
+
                 // Padding untuk bottom space
                 const SizedBox(height: 80),
               ],
@@ -304,9 +304,10 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
   }
 
   Widget _buildHeaderImage(PropertyModel property) {
-    final imageUrl = property.image != null
-        ? '${Constants.baseUrl}/storage/${property.image}'
-        : 'https://via.placeholder.com/400x250?text=No+Image';
+    final imageUrl =
+        property.image != null
+            ? '${Constants.baseUrl}/storage/${property.image}'
+            : 'https://via.placeholder.com/400x250?text=No+Image';
 
     return Stack(
       children: [
@@ -321,7 +322,7 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
             ),
           ),
         ),
-        
+
         // Gradient Overlay
         Container(
           height: 300,
@@ -339,7 +340,7 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
             ),
           ),
         ),
-        
+
         // Property Type Badge
         Positioned(
           top: 100,
@@ -347,9 +348,10 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
-              color: property.isKost 
-                  ? Colors.blue.withOpacity(0.8) 
-                  : Colors.amber.withOpacity(0.8),
+              color:
+                  property.isKost
+                      ? Colors.blue.withOpacity(0.8)
+                      : Colors.amber.withOpacity(0.8),
               borderRadius: BorderRadius.circular(20),
               boxShadow: [
                 BoxShadow(
@@ -380,7 +382,7 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
             ),
           ),
         ),
-        
+
         // Property Name and Address
         Positioned(
           bottom: 16,
@@ -407,11 +409,7 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
               const SizedBox(height: 4),
               Row(
                 children: [
-                  const Icon(
-                    Icons.location_on,
-                    color: Colors.white,
-                    size: 16,
-                  ),
+                  const Icon(Icons.location_on, color: Colors.white, size: 16),
                   const SizedBox(width: 4),
                   Expanded(
                     child: Text(
@@ -452,10 +450,7 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
             children: [
               const Text(
                 'Harga',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey,
-                ),
+                style: TextStyle(fontSize: 14, color: Colors.grey),
               ),
               const SizedBox(height: 4),
               Row(
@@ -478,40 +473,26 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
               ),
               Text(
                 'per ${property.isKost ? 'bulan' : 'malam'}',
-                style: const TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey,
-                ),
+                style: const TextStyle(fontSize: 12, color: Colors.grey),
               ),
             ],
           ),
-          
+
           // Vertical Divider
-          Container(
-            height: 40,
-            width: 1,
-            color: Colors.grey.withOpacity(0.3),
-          ),
-          
+          Container(height: 40, width: 1, color: Colors.grey.withOpacity(0.3)),
+
           // Available Rooms
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text(
                 'Ketersediaan',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey,
-                ),
+                style: TextStyle(fontSize: 14, color: Colors.grey),
               ),
               const SizedBox(height: 4),
               Row(
                 children: [
-                  const Icon(
-                    Icons.meeting_room,
-                    color: Colors.blue,
-                    size: 20,
-                  ),
+                  const Icon(Icons.meeting_room, color: Colors.blue, size: 20),
                   const SizedBox(width: 4),
                   Text(
                     '${property.availableRooms}',
@@ -525,40 +506,26 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
               ),
               Text(
                 property.isKost ? 'kamar tersedia' : 'unit tersedia',
-                style: const TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey,
-                ),
+                style: const TextStyle(fontSize: 12, color: Colors.grey),
               ),
             ],
           ),
-          
+
           // Vertical Divider
-          Container(
-            height: 40,
-            width: 1,
-            color: Colors.grey.withOpacity(0.3),
-          ),
-          
+          Container(height: 40, width: 1, color: Colors.grey.withOpacity(0.3)),
+
           // Rating
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text(
                 'Rating',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey,
-                ),
+                style: TextStyle(fontSize: 14, color: Colors.grey),
               ),
               const SizedBox(height: 4),
               Row(
                 children: [
-                  const Icon(
-                    Icons.star,
-                    color: Colors.amber,
-                    size: 20,
-                  ),
+                  const Icon(Icons.star, color: Colors.amber, size: 20),
                   const SizedBox(width: 4),
                   Text(
                     _averageRating.toString(),
@@ -572,10 +539,7 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
               ),
               Text(
                 '($_reviewCount ulasan)',
-                style: const TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey,
-                ),
+                style: const TextStyle(fontSize: 12, color: Colors.grey),
               ),
             ],
           ),
@@ -619,10 +583,7 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
         decoration: BoxDecoration(
           color: color.withOpacity(0.1),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: color.withOpacity(0.3),
-            width: 1,
-          ),
+          border: Border.all(color: color.withOpacity(0.3), width: 1),
         ),
         child: Row(
           children: [
@@ -632,11 +593,7 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
                 color: color.withOpacity(0.2),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: Icon(
-                icon,
-                color: color,
-                size: 20,
-              ),
+              child: Icon(icon, color: color, size: 20),
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -677,11 +634,7 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
         children: [
           Row(
             children: [
-              const Icon(
-                Icons.description,
-                size: 20,
-                color: Colors.indigo,
-              ),
+              const Icon(Icons.description, size: 20, color: Colors.indigo),
               const SizedBox(width: 8),
               const Text(
                 'Deskripsi',
@@ -708,10 +661,7 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
               property.description.isNotEmpty
                   ? property.description
                   : 'Tidak ada deskripsi tersedia',
-              style: const TextStyle(
-                fontSize: 14,
-                height: 1.5,
-              ),
+              style: const TextStyle(fontSize: 14, height: 1.5),
             ),
           ),
         ],
@@ -727,11 +677,7 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
         children: [
           Row(
             children: [
-              const Icon(
-                Icons.rule,
-                size: 20,
-                color: Colors.red,
-              ),
+              const Icon(Icons.rule, size: 20, color: Colors.red),
               const SizedBox(width: 8),
               const Text(
                 'Peraturan',
@@ -749,17 +695,11 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
             decoration: BoxDecoration(
               color: Colors.red.withOpacity(0.05),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: Colors.red.withOpacity(0.1),
-                width: 1,
-              ),
+              border: Border.all(color: Colors.red.withOpacity(0.1), width: 1),
             ),
             child: Text(
               property.rules!,
-              style: const TextStyle(
-                fontSize: 14,
-                height: 1.5,
-              ),
+              style: const TextStyle(fontSize: 14, height: 1.5),
             ),
           ),
         ],
@@ -789,17 +729,16 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
 
         if (_reviews.isEmpty) {
           return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16.0,
+              vertical: 8.0,
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
                   children: [
-                    const Icon(
-                      Icons.star,
-                      size: 20,
-                      color: Colors.amber,
-                    ),
+                    const Icon(Icons.star, size: 20, color: Colors.amber),
                     const SizedBox(width: 8),
                     const Text(
                       'Ulasan',
@@ -845,11 +784,7 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
             children: [
               Row(
                 children: [
-                  const Icon(
-                    Icons.star,
-                    size: 20,
-                    color: Colors.amber,
-                  ),
+                  const Icon(Icons.star, size: 20, color: Colors.amber),
                   const SizedBox(width: 8),
                   const Text(
                     'Ulasan',
@@ -865,10 +800,11 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => ReviewsScreen(
-                            propertyId: property.id,
-                            propertyName: property.name,
-                          ),
+                          builder:
+                              (context) => ReviewsScreen(
+                                propertyId: property.id,
+                                propertyName: property.name,
+                              ),
                         ),
                       );
                     },
@@ -880,18 +816,17 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
               Row(
                 children: [
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.amber,
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: Row(
                       children: [
-                        const Icon(
-                          Icons.star,
-                          color: Colors.white,
-                          size: 16,
-                        ),
+                        const Icon(Icons.star, color: Colors.white, size: 16),
                         const SizedBox(width: 4),
                         Text(
                           _averageRating.toStringAsFixed(1),
@@ -906,14 +841,15 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
                   const SizedBox(width: 8),
                   Text(
                     '($_reviewCount ulasan)',
-                    style: const TextStyle(
-                      color: Colors.grey,
-                    ),
+                    style: const TextStyle(color: Colors.grey),
                   ),
                 ],
               ),
               const SizedBox(height: 12),
-              ..._reviews.take(5).map((review) => _buildReviewItem(review)).toList(),
+              ..._reviews
+                  .take(5)
+                  .map((review) => _buildReviewItem(review))
+                  .toList(),
               if (_reviewCount > 5)
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -923,10 +859,11 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => ReviewsScreen(
-                              propertyId: property.id,
-                              propertyName: property.name,
-                            ),
+                            builder:
+                                (context) => ReviewsScreen(
+                                  propertyId: property.id,
+                                  propertyName: property.name,
+                                ),
                           ),
                         );
                       },
@@ -948,7 +885,7 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
   Widget _buildReviewItem(dynamic review) {
     final DateTime createdAt = DateTime.parse(review['created_at']);
     final String formattedDate = DateFormat('dd MMM yyyy').format(createdAt);
-    
+
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(12),
@@ -970,9 +907,13 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
             children: [
               CircleAvatar(
                 radius: 20,
-                backgroundImage: review['user'] != null && review['user']['profile_picture'] != null
-                    ? NetworkImage('${Constants.baseUrl}/storage/${review['user']['profile_picture']}')
-                    : const NetworkImage('https://via.placeholder.com/40'),
+                backgroundImage:
+                    review['user'] != null &&
+                            review['user']['profile_picture'] != null
+                        ? NetworkImage(
+                          '${Constants.baseUrl}/storage/${review['user']['profile_picture']}',
+                        )
+                        : const NetworkImage('https://via.placeholder.com/40'),
                 backgroundColor: Colors.grey[200],
               ),
               const SizedBox(width: 12),
@@ -981,34 +922,25 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      review['user'] != null ? review['user']['name'] : 'Pengguna',
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                      ),
+                      review['user'] != null
+                          ? review['user']['name']
+                          : 'Pengguna',
+                      style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
                     Text(
                       formattedDate,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey[600],
-                      ),
+                      style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                     ),
                   ],
                 ),
               ),
               Row(
                 children: [
-                  const Icon(
-                    Icons.star,
-                    color: Colors.amber,
-                    size: 16,
-                  ),
+                  const Icon(Icons.star, color: Colors.amber, size: 16),
                   const SizedBox(width: 4),
                   Text(
                     review['rating'].toString(),
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ],
               ),
@@ -1017,10 +949,7 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
           const SizedBox(height: 8),
           Text(
             review['comment'],
-            style: const TextStyle(
-              fontSize: 14,
-              height: 1.4,
-            ),
+            style: const TextStyle(fontSize: 14, height: 1.4),
           ),
         ],
       ),
@@ -1035,11 +964,7 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
         children: [
           Row(
             children: [
-              const Icon(
-                Icons.location_on,
-                size: 20,
-                color: Colors.orange,
-              ),
+              const Icon(Icons.location_on, size: 20, color: Colors.orange),
               const SizedBox(width: 8),
               const Text(
                 'Lokasi',
@@ -1055,10 +980,7 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
                   onPressed: () {
                     _launchMaps(property.latitude!, property.longitude!);
                   },
-                  icon: const Icon(
-                    Icons.directions,
-                    size: 16,
-                  ),
+                  icon: const Icon(Icons.directions, size: 16),
                   label: const Text('Petunjuk Arah'),
                   style: TextButton.styleFrom(
                     foregroundColor: Colors.blue,
@@ -1080,48 +1002,45 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
                 ),
               ],
             ),
-            child: property.latitude != null && property.longitude != null
-                ? ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    child: _OSMMapWidget(
-                      latitude: double.parse(property.latitude.toString()),
-                      longitude: double.parse(property.longitude.toString()),
-                    ),
-                  )
-                : Container(
-                    decoration: BoxDecoration(
-                      color: Colors.grey[200],
+            child:
+                property.latitude != null && property.longitude != null
+                    ? ClipRRect(
                       borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: const Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.location_off,
-                            color: Colors.grey,
-                            size: 40,
-                          ),
-                          SizedBox(height: 8),
-                          Text(
-                            'Lokasi tidak tersedia',
-                            style: TextStyle(color: Colors.grey),
-                          ),
-                        ],
+                      child: _OSMMapWidget(
+                        latitude: double.parse(property.latitude.toString()),
+                        longitude: double.parse(property.longitude.toString()),
+                      ),
+                    )
+                    : Container(
+                      decoration: BoxDecoration(
+                        color: Colors.grey[200],
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.location_off,
+                              color: Colors.grey,
+                              size: 40,
+                            ),
+                            SizedBox(height: 8),
+                            Text(
+                              'Lokasi tidak tersedia',
+                              style: TextStyle(color: Colors.grey),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                  ),
           ),
           if (_locationName != null)
             Padding(
               padding: const EdgeInsets.only(top: 8.0),
               child: Row(
                 children: [
-                  const Icon(
-                    Icons.info_outline,
-                    size: 14,
-                    color: Colors.grey,
-                  ),
+                  const Icon(Icons.info_outline, size: 14, color: Colors.grey),
                   const SizedBox(width: 4),
                   Expanded(
                     child: Text(
@@ -1145,7 +1064,7 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
     final Uri googleMapsUrl = Uri.parse(
       'https://www.google.com/maps/dir/?api=1&destination=$latitude,$longitude',
     );
-    
+
     if (await canLaunchUrl(googleMapsUrl)) {
       await launchUrl(googleMapsUrl, mode: LaunchMode.externalApplication);
     } else {
@@ -1196,7 +1115,7 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
             ),
           ),
           const SizedBox(width: 12),
-          
+
           // Main Action Buttons - Tampilkan kedua tombol untuk semua tipe properti
           Expanded(
             child: Row(
@@ -1208,17 +1127,18 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => RoomListScreen(
-                            propertyId: widget.propertyId,
-                            propertyTypeId: property.propertyTypeId,
-                          ),
+                          builder:
+                              (context) => RoomListScreen(
+                                propertyId: widget.propertyId,
+                                propertyTypeId: property.propertyTypeId,
+                              ),
                         ),
                       );
                     },
                     icon: const Icon(Icons.meeting_room),
                     label: Text(property.isKost ? 'Lihat Kamar' : 'Lihat Unit'),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue,
+                      backgroundColor: Color(0xFF4CAF50),
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(
@@ -1228,9 +1148,9 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
                     ),
                   ),
                 ),
-                
+
                 const SizedBox(width: 8),
-                
+
                 // Tombol Pesan Sekarang - Untuk Homestay
                 if (!property.isKost)
                   Expanded(
@@ -1239,10 +1159,11 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => PropertyBookingScreen(
-                              propertyId: widget.propertyId,
-                              property: property,
-                            ),
+                            builder:
+                                (context) => PropertyBookingScreen(
+                                  propertyId: widget.propertyId,
+                                  property: property,
+                                ),
                           ),
                         );
                       },
@@ -1269,11 +1190,15 @@ class _PropertyDetailScreenState extends State<PropertyDetailScreen> {
 
   Future<void> _getLocationName(double latitude, double longitude) async {
     try {
-      List<Placemark> placemarks = await placemarkFromCoordinates(latitude, longitude);
+      List<Placemark> placemarks = await placemarkFromCoordinates(
+        latitude,
+        longitude,
+      );
       setState(() {
-        _locationName = placemarks.isNotEmpty 
-            ? '${placemarks[0].name}, ${placemarks[0].locality}, ${placemarks[0].subAdministrativeArea}' 
-            : 'Lokasi tidak dikenal';
+        _locationName =
+            placemarks.isNotEmpty
+                ? '${placemarks[0].name}, ${placemarks[0].locality}, ${placemarks[0].subAdministrativeArea}'
+                : 'Lokasi tidak dikenal';
       });
     } catch (e) {
       setState(() {
@@ -1287,10 +1212,7 @@ class _OSMMapWidget extends StatefulWidget {
   final double latitude;
   final double longitude;
 
-  const _OSMMapWidget({
-    required this.latitude,
-    required this.longitude,
-  });
+  const _OSMMapWidget({required this.latitude, required this.longitude});
 
   @override
   State<_OSMMapWidget> createState() => _OSMMapWidgetState();
@@ -1306,7 +1228,8 @@ class _OSMMapWidgetState extends State<_OSMMapWidget> {
     mapController = MapController();
     // Panggil fungsi untuk mendapatkan nama lokasi saat peta diinisialisasi
     Future.delayed(Duration.zero, () {
-      final screenState = context.findAncestorStateOfType<_PropertyDetailScreenState>();
+      final screenState =
+          context.findAncestorStateOfType<_PropertyDetailScreenState>();
       if (screenState != null) {
         screenState._getLocationName(widget.latitude, widget.longitude);
       }
@@ -1366,11 +1289,7 @@ class _OSMMapWidgetState extends State<_OSMMapWidget> {
                   padding: const EdgeInsets.all(8),
                   constraints: const BoxConstraints(),
                 ),
-                Container(
-                  height: 1,
-                  width: 20,
-                  color: Colors.grey[300],
-                ),
+                Container(height: 1, width: 20, color: Colors.grey[300]),
                 IconButton(
                   onPressed: () {
                     setState(() => zoomLevel -= 1);

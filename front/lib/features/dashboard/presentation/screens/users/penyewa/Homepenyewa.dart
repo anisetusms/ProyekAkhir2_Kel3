@@ -6,6 +6,7 @@ import 'package:front/features/dashboard/presentation/screens/users/penyewa/serv
 import 'package:front/features/dashboard/presentation/screens/users/penyewa/wishlist_manager.dart';
 import 'package:front/features/dashboard/presentation/screens/users/penyewa/property_detail_screen.dart';
 import 'package:front/features/dashboard/presentation/screens/users/penyewa/all_properties_screen.dart';
+import 'package:front/features/dashboard/presentation/screens/users/penyewa/widgets/property_rating.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
@@ -229,22 +230,11 @@ class _DashboardPageState extends State<DashboardPage> {
                               fontSize: 14,
                             ),
                           ),
-                          Row(
-                            children: [
-                              const Icon(
-                                Icons.star,
-                                size: 14,
-                                color: Colors.orange,
-                              ),
-                              const SizedBox(width: 2),
-                              Text(
-                                '5.0',
-                                style: TextStyle(
-                                  color: Colors.grey[600],
-                                  fontSize: 12,
-                                ),
-                              ),
-                            ],
+                          // Ganti rating statis dengan widget PropertyRating
+                          PropertyRating(
+                            propertyId: property.id,
+                            iconSize: 14,
+                            textSize: 12,
                           ),
                         ],
                       ),
@@ -377,19 +367,12 @@ class _DashboardPageState extends State<DashboardPage> {
                               fontSize: 14,
                             ),
                           ),
-                          Row(
-                            children: [
-                              const Icon(
-                                Icons.star,
-                                size: 16,
-                                color: Colors.orange,
-                              ),
-                              const SizedBox(width: 4),
-                              Text(
-                                '5.0',
-                                style: TextStyle(color: Colors.grey[600]),
-                              ),
-                            ],
+                          // Ganti rating statis dengan widget PropertyRating
+                          PropertyRating(
+                            propertyId: property.id,
+                            iconSize: 16,
+                            textSize: 14,
+                            showCount: true,
                           ),
                         ],
                       ),

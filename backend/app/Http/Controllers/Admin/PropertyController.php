@@ -76,7 +76,7 @@ class PropertyController extends Controller
         $totalRevenue = Booking::whereHas('property', function ($query) use ($user_id) {
             $query->where('user_id', $user_id);
         })->whereIn('status', ['confirmed', 'completed'])->sum('total_price');
-        
+
         // Hanya mengambil pemesanan yang terkait dengan properti yang dimiliki oleh pengguna
         $latestBookings = Booking::whereIn('property_id', Property::where('user_id', $user_id)->pluck('id'))
             ->latest() // Urutkan berdasarkan tanggal pembuatan pemesanan terbaru
@@ -93,21 +93,21 @@ class PropertyController extends Controller
             ->groupBy(DB::raw('MONTH(bookings.created_at)'))
             ->orderBy('month')
             ->get();
-            
+
         $months = [];
         $revenues = [];
-        
+
         // Inisialisasi array untuk 12 bulan
         for ($i = 1; $i <= 12; $i++) {
             $months[] = date('F', mktime(0, 0, 0, $i, 1));
             $revenues[$i] = 0;
         }
-        
+
         // Isi data pendapatan yang ada
         foreach ($monthlyRevenue as $data) {
             $revenues[$data->month] = $data->revenue;
         }
-        
+
         // Konversi ke array untuk chart.js
         $revenueData = array_values($revenues);
 
@@ -117,14 +117,14 @@ class PropertyController extends Controller
 
         // Mengirim data ke tampilan (view)
         return view('admin.properties.dashboard', compact(
-            'totalProperties', 
-            'activeProperties', 
-            'pendingProperties', 
-            'latestBookings', 
-            'totalViews', 
-            'totalMessages', 
-            'pendingBookings', 
-            'inactiveProperties', 
+            'totalProperties',
+            'activeProperties',
+            'pendingProperties',
+            'latestBookings',
+            'totalViews',
+            'totalMessages',
+            'pendingBookings',
+            'inactiveProperties',
             'totalRevenue',
             'months',
             'revenueData'
@@ -424,7 +424,7 @@ class PropertyController extends Controller
     {
         try {
             $cities = City::where('prov_id', $provinceId)
-                ->select('id', 'city_name')
+                ->select('id', 'city_name as name') // Ubah city_name menjadi name
                 ->get();
             return response()->json($cities);
         } catch (\Exception $e) {
@@ -439,7 +439,7 @@ class PropertyController extends Controller
     {
         try {
             $districts = District::where('city_id', $cityId)
-                ->select('id', 'dis_name')
+                ->select('id', 'dis_name as name') // Ubah dis_name menjadi name
                 ->get();
             return response()->json($districts);
         } catch (\Exception $e) {
@@ -454,7 +454,7 @@ class PropertyController extends Controller
     {
         try {
             $subdistricts = Subdistrict::where('dis_id', $districtId)
-                ->select('id', 'subdis_name')
+                ->select('id', 'subdis_name as name') // Ubah subdis_name menjadi name
                 ->get();
             return response()->json($subdistricts);
         } catch (\Exception $e) {

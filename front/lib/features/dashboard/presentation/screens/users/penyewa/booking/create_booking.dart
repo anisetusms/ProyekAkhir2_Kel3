@@ -25,10 +25,12 @@ class CreateBookingEnhancedScreen extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _CreateBookingEnhancedScreenState createState() => _CreateBookingEnhancedScreenState();
+  _CreateBookingEnhancedScreenState createState() =>
+      _CreateBookingEnhancedScreenState();
 }
 
-class _CreateBookingEnhancedScreenState extends State<CreateBookingEnhancedScreen> {
+class _CreateBookingEnhancedScreenState
+    extends State<CreateBookingEnhancedScreen> {
   final _formKey = GlobalKey<FormState>();
   final _pageController = PageController();
   File? _ktpImage;
@@ -40,7 +42,8 @@ class _CreateBookingEnhancedScreenState extends State<CreateBookingEnhancedScree
   final TextEditingController _guestNameController = TextEditingController();
   final TextEditingController _guestPhoneController = TextEditingController();
   final TextEditingController _ktpController = TextEditingController();
-  final TextEditingController _specialRequestsController = TextEditingController();
+  final TextEditingController _specialRequestsController =
+      TextEditingController();
   bool _isForOthers = false;
   int _propertyTypeId = 1; // Default to Kost
   String? _errorMessage;
@@ -51,20 +54,29 @@ class _CreateBookingEnhancedScreenState extends State<CreateBookingEnhancedScree
   void initState() {
     super.initState();
     _bookingRepository = BookingRepository(apiClient: ApiClient());
-    
+
     // Set tanggal check-in ke hari ini tanpa komponen waktu
     final now = DateTime.now();
     _checkInDate = DateTime(now.year, now.month, now.day);
-    
+
     // Set default checkout date based on property type
-    if (widget.propertyTypeId == 2) { // Homestay
+    if (widget.propertyTypeId == 2) {
+      // Homestay
       // Default to 30 days for homestay
-      _checkOutDate = DateTime(_checkInDate.year, _checkInDate.month, _checkInDate.day + 30);
+      _checkOutDate = DateTime(
+        _checkInDate.year,
+        _checkInDate.month,
+        _checkInDate.day + 1,
+      );
     } else {
-      // Default to 2 days for kost (untuk memastikan selisih minimal 1 hari)
-      _checkOutDate = DateTime(_checkInDate.year, _checkInDate.month, _checkInDate.day + 2);
+      // Default to 1 days for kost (untuk memastikan selisih minimal 1 hari)
+      _checkOutDate = DateTime(
+        _checkInDate.year,
+        _checkInDate.month,
+        _checkInDate.day + 30,
+      );
     }
-    
+
     // If propertyTypeId is provided, use it directly
     if (widget.propertyTypeId != null) {
       _propertyTypeId = widget.propertyTypeId!;
@@ -73,9 +85,11 @@ class _CreateBookingEnhancedScreenState extends State<CreateBookingEnhancedScree
       // Otherwise fetch property type
       _fetchPropertyType();
     }
-    
+
     // Debug log untuk melihat tanggal awal
-    debugPrint('Initial dates: ${DateFormat('yyyy-MM-dd').format(_checkInDate)} to ${DateFormat('yyyy-MM-dd').format(_checkOutDate)}');
+    debugPrint(
+      'Initial dates: ${DateFormat('yyyy-MM-dd').format(_checkInDate)} to ${DateFormat('yyyy-MM-dd').format(_checkOutDate)}',
+    );
     debugPrint('Initial days: ${_calculateDays()}');
   }
 
@@ -85,24 +99,36 @@ class _CreateBookingEnhancedScreenState extends State<CreateBookingEnhancedScree
       _isLoadingPropertyType = true;
       _errorMessage = null;
     });
-    
+
     try {
-      final property = await _bookingRepository.getPropertyDetails(widget.propertyId);
+      final property = await _bookingRepository.getPropertyDetails(
+        widget.propertyId,
+      );
       setState(() {
         _propertyTypeId = property.propertyTypeId;
         _isLoadingPropertyType = false;
-        
+
         // Update checkout date based on property type
         if (_isHomestay) {
           // For homestay, default to 30 days
-          _checkOutDate = DateTime(_checkInDate.year, _checkInDate.month, _checkInDate.day + 30);
+          _checkOutDate = DateTime(
+            _checkInDate.year,
+            _checkInDate.month,
+            _checkInDate.day + 30,
+          );
         } else {
           // For kost, default to 2 days (untuk memastikan selisih minimal 1 hari)
-          _checkOutDate = DateTime(_checkInDate.year, _checkInDate.month, _checkInDate.day + 2);
+          _checkOutDate = DateTime(
+            _checkInDate.year,
+            _checkInDate.month,
+            _checkInDate.day + 2,
+          );
         }
-        
+
         // Debug log setelah update tanggal
-        debugPrint('Updated dates after property fetch: ${DateFormat('yyyy-MM-dd').format(_checkInDate)} to ${DateFormat('yyyy-MM-dd').format(_checkOutDate)}');
+        debugPrint(
+          'Updated dates after property fetch: ${DateFormat('yyyy-MM-dd').format(_checkInDate)} to ${DateFormat('yyyy-MM-dd').format(_checkOutDate)}',
+        );
         debugPrint('Updated days: ${_calculateDays()}');
       });
     } catch (e) {
@@ -119,32 +145,50 @@ class _CreateBookingEnhancedScreenState extends State<CreateBookingEnhancedScree
   // Hitung selisih hari sesuai dengan Carbon::diffInDays di server
   int _calculateDays() {
     // Pastikan tanggal tidak memiliki komponen waktu
-    final startDate = DateTime(_checkInDate.year, _checkInDate.month, _checkInDate.day);
-    final endDate = DateTime(_checkOutDate.year, _checkOutDate.month, _checkOutDate.day);
-    
+    final startDate = DateTime(
+      _checkInDate.year,
+      _checkInDate.month,
+      _checkInDate.day,
+    );
+    final endDate = DateTime(
+      _checkOutDate.year,
+      _checkOutDate.month,
+      _checkOutDate.day,
+    );
+
     // Hitung selisih dalam hari
     return endDate.difference(startDate).inDays;
   }
 
   double _calculateTotalPrice() {
     final days = _calculateDays();
-    
+
     if (widget.isWholePropertyBooking) {
       // Logic for whole property booking price would go here
       // This would need to be fetched from the property data
       return 0.0; // Placeholder
     } else if (widget.room != null) {
       // Single room booking
-      return widget.room!.price * days;
+      if (_isHomestay) {
+        // Homestay (per day)
+        return widget.room!.price * days; // Price per day * number of days
+      } else {
+        // Kost (per month) -> Assuming 30 days in a month
+        return widget.room!.price; // Price per month (30 days)
+      }
     } else if (widget.rooms != null && widget.rooms!.isNotEmpty) {
       // Multiple room booking
       double total = 0;
       for (var room in widget.rooms!) {
-        total += room.price;
+        if (_isHomestay) {
+          total += room.price * days; // Homestay price per day
+        } else {
+          total += room.price; // Kost price per month
+        }
       }
-      return total * days;
+      return total;
     }
-    
+
     return 0.0;
   }
 
@@ -159,10 +203,10 @@ class _CreateBookingEnhancedScreenState extends State<CreateBookingEnhancedScree
       setState(() {
         _ktpImage = File(pickedFile.path);
       });
-      
+
       // Haptic feedback when image is selected
       HapticFeedback.mediumImpact();
-      
+
       // Show success snackbar
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -175,12 +219,23 @@ class _CreateBookingEnhancedScreenState extends State<CreateBookingEnhancedScree
   }
 
   Future<void> _selectDate(BuildContext context, bool isCheckIn) async {
-    final DateTime today = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
-    
+    final DateTime today = DateTime(
+      DateTime.now().year,
+      DateTime.now().month,
+      DateTime.now().day,
+    );
+
     final picked = await showDatePicker(
       context: context,
       initialDate: isCheckIn ? _checkInDate : _checkOutDate,
-      firstDate: isCheckIn ? today : DateTime(_checkInDate.year, _checkInDate.month, _checkInDate.day + 1),
+      firstDate:
+          isCheckIn
+              ? today
+              : DateTime(
+                _checkInDate.year,
+                _checkInDate.month,
+                _checkInDate.day + 1,
+              ),
       lastDate: DateTime(DateTime.now().year + 2),
       builder: (context, child) {
         return Theme(
@@ -203,47 +258,69 @@ class _CreateBookingEnhancedScreenState extends State<CreateBookingEnhancedScree
         if (isCheckIn) {
           // Set check-in date without time component
           _checkInDate = DateTime(picked.year, picked.month, picked.day);
-          
+
           // Ensure checkout is after checkin by at least 1 day
           final days = _calculateDays();
           debugPrint('After check-in update, days: $days');
-          
+
           if (days < 1) {
             if (_isHomestay) {
-              _checkOutDate = DateTime(_checkInDate.year, _checkInDate.month, _checkInDate.day + 30);
+              _checkOutDate = DateTime(
+                _checkInDate.year,
+                _checkInDate.month,
+                _checkInDate.day + 30,
+              );
             } else {
-              _checkOutDate = DateTime(_checkInDate.year, _checkInDate.month, _checkInDate.day + 2);
+              _checkOutDate = DateTime(
+                _checkInDate.year,
+                _checkInDate.month,
+                _checkInDate.day + 2,
+              );
             }
-            debugPrint('Updated check-out date to: ${DateFormat('yyyy-MM-dd').format(_checkOutDate)}');
+            debugPrint(
+              'Updated check-out date to: ${DateFormat('yyyy-MM-dd').format(_checkOutDate)}',
+            );
           }
         } else {
           // Set check-out date without time component
           _checkOutDate = DateTime(picked.year, picked.month, picked.day);
-          
+
           // Ensure the selected checkout date is at least 1 day after checkin
           final days = _calculateDays();
           debugPrint('After check-out update, days: $days');
-          
+
           if (days < 1) {
             // Show error message
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
-                content: Text('Tanggal check-out harus minimal 1 hari setelah check-in'),
+                content: Text(
+                  'Tanggal check-out harus minimal 1 hari setelah check-in',
+                ),
                 backgroundColor: Colors.red,
               ),
             );
-            
+
             // Reset to valid date
             if (_isHomestay) {
-              _checkOutDate = DateTime(_checkInDate.year, _checkInDate.month, _checkInDate.day + 30);
+              _checkOutDate = DateTime(
+                _checkInDate.year,
+                _checkInDate.month,
+                _checkInDate.day + 30,
+              );
             } else {
-              _checkOutDate = DateTime(_checkInDate.year, _checkInDate.month, _checkInDate.day + 2);
+              _checkOutDate = DateTime(
+                _checkInDate.year,
+                _checkInDate.month,
+                _checkInDate.day + 2,
+              );
             }
-            debugPrint('Reset check-out date to: ${DateFormat('yyyy-MM-dd').format(_checkOutDate)}');
+            debugPrint(
+              'Reset check-out date to: ${DateFormat('yyyy-MM-dd').format(_checkOutDate)}',
+            );
           }
         }
       });
-      
+
       // Haptic feedback when date is selected
       HapticFeedback.selectionClick();
     }
@@ -286,7 +363,7 @@ class _CreateBookingEnhancedScreenState extends State<CreateBookingEnhancedScree
       );
       return;
     }
-    
+
     if (!_termsAccepted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -296,15 +373,17 @@ class _CreateBookingEnhancedScreenState extends State<CreateBookingEnhancedScree
       );
       return;
     }
-    
+
     // Validasi tanggal dengan lebih ketat
     final days = _calculateDays();
     debugPrint('Days before submit: $days');
-    
+
     if (days < 1) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Tanggal check-out harus minimal 1 hari setelah check-in'),
+          content: Text(
+            'Tanggal check-out harus minimal 1 hari setelah check-in',
+          ),
           backgroundColor: Colors.red,
         ),
       );
@@ -328,9 +407,11 @@ class _CreateBookingEnhancedScreenState extends State<CreateBookingEnhancedScree
       }
 
       // Debug log untuk melihat data yang akan dikirim
-      debugPrint('Submitting booking with dates: ${DateFormat('yyyy-MM-dd').format(_checkInDate)} to ${DateFormat('yyyy-MM-dd').format(_checkOutDate)}');
+      debugPrint(
+        'Submitting booking with dates: ${DateFormat('yyyy-MM-dd').format(_checkInDate)} to ${DateFormat('yyyy-MM-dd').format(_checkOutDate)}',
+      );
       debugPrint('Days: $days');
-      
+
       final booking = await _bookingRepository.createBooking(
         propertyId: widget.propertyId,
         roomIds: roomIds,
@@ -341,14 +422,15 @@ class _CreateBookingEnhancedScreenState extends State<CreateBookingEnhancedScree
         guestPhone: _isForOthers ? _guestPhoneController.text : null,
         ktpImage: _ktpImage!,
         identityNumber: _ktpController.text,
-        specialRequests: _specialRequestsController.text.isNotEmpty 
-            ? _specialRequestsController.text 
-            : null,
+        specialRequests:
+            _specialRequestsController.text.isNotEmpty
+                ? _specialRequestsController.text
+                : null,
       );
-      
+
       // Haptic feedback for successful booking
       HapticFeedback.heavyImpact();
-      
+
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
           builder: (_) => BookingSuccessScreen(booking: booking),
@@ -359,10 +441,10 @@ class _CreateBookingEnhancedScreenState extends State<CreateBookingEnhancedScree
         _isLoading = false;
         _errorMessage = e.toString();
       });
-      
+
       // Haptic feedback for error
       HapticFeedback.vibrate();
-      
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Gagal membuat booking: $e'),
@@ -374,18 +456,17 @@ class _CreateBookingEnhancedScreenState extends State<CreateBookingEnhancedScree
             onPressed: () {
               showDialog(
                 context: context,
-                builder: (context) => AlertDialog(
-                  title: const Text('Detail Error'),
-                  content: SingleChildScrollView(
-                    child: Text(e.toString()),
-                  ),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(context),
-                      child: const Text('Tutup'),
+                builder:
+                    (context) => AlertDialog(
+                      title: const Text('Detail Error'),
+                      content: SingleChildScrollView(child: Text(e.toString())),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context),
+                          child: const Text('Tutup'),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
               );
             },
           ),
@@ -403,10 +484,7 @@ class _CreateBookingEnhancedScreenState extends State<CreateBookingEnhancedScree
     // Show loading indicator while fetching property type
     if (_isLoadingPropertyType) {
       return Scaffold(
-        appBar: AppBar(
-          title: const Text('Buat Booking'),
-          elevation: 0,
-        ),
+        appBar: AppBar(title: const Text('Buat Booking'), elevation: 0),
         body: const Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -419,12 +497,15 @@ class _CreateBookingEnhancedScreenState extends State<CreateBookingEnhancedScree
         ),
       );
     }
-    
+
     final days = _calculateDays();
     final totalPrice = _calculateTotalPrice();
-    final bookingType = widget.isWholePropertyBooking 
-        ? 'Seluruh Properti' 
-        : (widget.room != null ? 'Kamar ${widget.room!.roomNumber}' : 'Multiple Kamar');
+    final bookingType =
+        widget.isWholePropertyBooking
+            ? 'Seluruh Properti'
+            : (widget.room != null
+                ? 'Kamar ${widget.room!.roomNumber}'
+                : 'Multiple Kamar');
     final currencyFormat = NumberFormat.currency(
       locale: 'id_ID',
       symbol: 'Rp',
@@ -443,200 +524,237 @@ class _CreateBookingEnhancedScreenState extends State<CreateBookingEnhancedScree
             onPressed: () {
               showDialog(
                 context: context,
-                builder: (context) => AlertDialog(
-                  title: const Text('Informasi Booking'),
-                  content: const SingleChildScrollView(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text('• Durasi minimal pemesanan adalah 1 hari'),
-                        SizedBox(height: 8),
-                        Text('• Pembayaran dilakukan setelah booking dikonfirmasi'),
-                        SizedBox(height: 8),
-                        Text('• Pastikan data yang dimasukkan sudah benar'),
-                        SizedBox(height: 8),
-                        Text('• Foto KTP digunakan untuk verifikasi identitas'),
+                builder:
+                    (context) => AlertDialog(
+                      title: const Text('Informasi Booking'),
+                      content: const SingleChildScrollView(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text('• Durasi minimal pemesanan adalah 1 hari'),
+                            SizedBox(height: 8),
+                            Text(
+                              '• Pembayaran dilakukan setelah booking dikonfirmasi',
+                            ),
+                            SizedBox(height: 8),
+                            Text('• Pastikan data yang dimasukkan sudah benar'),
+                            SizedBox(height: 8),
+                            Text(
+                              '• Foto KTP digunakan untuk verifikasi identitas',
+                            ),
+                          ],
+                        ),
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context),
+                          child: const Text('Mengerti'),
+                        ),
                       ],
                     ),
-                  ),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(context),
-                      child: const Text('Mengerti'),
-                    ),
-                  ],
-                ),
               );
             },
           ),
         ],
       ),
-      body: _isLoading 
-          ? const Center(child: CircularProgressIndicator())
-          : Form(
-              key: _formKey,
-              child: Column(
-                children: [
-                  // Progress indicator
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    child: Row(
-                      children: [
-                        for (int i = 0; i < 3; i++)
-                          Expanded(
-                            child: Container(
-                              margin: const EdgeInsets.symmetric(horizontal: 4),
-                              height: 4,
-                              decoration: BoxDecoration(
-                                color: i <= _currentStep 
-                                    ? Theme.of(context).primaryColor 
-                                    : Colors.grey.shade300,
-                                borderRadius: BorderRadius.circular(2),
+      body:
+          _isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : Form(
+                key: _formKey,
+                child: Column(
+                  children: [
+                    // Progress indicator
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 8,
+                      ),
+                      child: Row(
+                        children: [
+                          for (int i = 0; i < 3; i++)
+                            Expanded(
+                              child: Container(
+                                margin: const EdgeInsets.symmetric(
+                                  horizontal: 4,
+                                ),
+                                height: 4,
+                                decoration: BoxDecoration(
+                                  color:
+                                      i <= _currentStep
+                                          ? Theme.of(context).primaryColor
+                                          : Colors.grey.shade300,
+                                  borderRadius: BorderRadius.circular(2),
+                                ),
                               ),
                             ),
-                          ),
-                      ],
-                    ),
-                  ),
-                  
-                  // Step title
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          _currentStep == 0 
-                              ? 'Detail Pemesanan' 
-                              : _currentStep == 1 
-                                  ? 'Informasi Pemesan' 
-                                  : 'Konfirmasi',
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        Text(
-                          'Langkah ${_currentStep + 1}/3',
-                          style: TextStyle(
-                            color: Colors.grey.shade600,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  
-                  // Error message if any
-                  if (_errorMessage != null)
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(12),
-                      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                      decoration: BoxDecoration(
-                        color: Colors.red[50],
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: Colors.red),
+                        ],
                       ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                    ),
+
+                    // Step title
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 8,
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text(
-                            'Error:',
-                            style: TextStyle(
+                          Text(
+                            _currentStep == 0
+                                ? 'Detail Pemesanan'
+                                : _currentStep == 1
+                                ? 'Informasi Pemesan'
+                                : 'Konfirmasi',
+                            style: const TextStyle(
+                              fontSize: 18,
                               fontWeight: FontWeight.bold,
-                              color: Colors.red,
                             ),
                           ),
-                          const SizedBox(height: 4),
                           Text(
-                            _errorMessage!,
-                            style: TextStyle(color: Colors.red[800]),
+                            'Langkah ${_currentStep + 1}/3',
+                            style: TextStyle(color: Colors.grey.shade600),
                           ),
                         ],
                       ),
                     ),
-                  
-                  // Page content
-                  Expanded(
-                    child: PageView(
-                      controller: _pageController,
-                      physics: const NeverScrollableScrollPhysics(),
-                      children: [
-                        // Page 1: Booking Details
-                        _buildBookingDetailsPage(bookingType, days, totalPrice, currencyFormat),
-                        
-                        // Page 2: Guest Information
-                        _buildGuestInformationPage(),
-                        
-                        // Page 3: Confirmation
-                        _buildConfirmationPage(bookingType, days, totalPrice, currencyFormat),
-                      ],
-                    ),
-                  ),
-                  
-                  // Navigation buttons
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.05),
-                          blurRadius: 10,
-                          offset: const Offset(0, -5),
+
+                    // Error message if any
+                    if (_errorMessage != null)
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(12),
+                        margin: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
                         ),
-                      ],
+                        decoration: BoxDecoration(
+                          color: Colors.red[50],
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: Colors.red),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Error:',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.red,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              _errorMessage!,
+                              style: TextStyle(color: Colors.red[800]),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                    // Page content
+                    Expanded(
+                      child: PageView(
+                        controller: _pageController,
+                        physics: const NeverScrollableScrollPhysics(),
+                        children: [
+                          // Page 1: Booking Details
+                          _buildBookingDetailsPage(
+                            bookingType,
+                            days,
+                            totalPrice,
+                            currencyFormat,
+                          ),
+
+                          // Page 2: Guest Information
+                          _buildGuestInformationPage(),
+
+                          // Page 3: Confirmation
+                          _buildConfirmationPage(
+                            bookingType,
+                            days,
+                            totalPrice,
+                            currencyFormat,
+                          ),
+                        ],
+                      ),
                     ),
-                    child: Row(
-                      children: [
-                        if (_currentStep > 0)
+
+                    // Navigation buttons
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.05),
+                            blurRadius: 10,
+                            offset: const Offset(0, -5),
+                          ),
+                        ],
+                      ),
+                      child: Row(
+                        children: [
+                          if (_currentStep > 0)
+                            Expanded(
+                              child: OutlinedButton(
+                                onPressed: _prevStep,
+                                style: OutlinedButton.styleFrom(
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 16,
+                                  ),
+                                  side: BorderSide(
+                                    color: Theme.of(context).primaryColor,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                ),
+                                child: const Text('Kembali'),
+                              ),
+                            ),
+                          if (_currentStep > 0) const SizedBox(width: 16),
                           Expanded(
-                            child: OutlinedButton(
-                              onPressed: _prevStep,
-                              style: OutlinedButton.styleFrom(
-                                padding: const EdgeInsets.symmetric(vertical: 16),
-                                side: BorderSide(color: Theme.of(context).primaryColor),
+                            child: ElevatedButton(
+                              onPressed:
+                                  _currentStep < 2 ? _nextStep : _submitBooking,
+                              style: ElevatedButton.styleFrom(
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 16,
+                                ),
+                                backgroundColor: Theme.of(context).primaryColor,
+                                foregroundColor: Colors.white,
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(8),
                                 ),
+                                elevation: 0,
                               ),
-                              child: const Text('Kembali'),
-                            ),
-                          ),
-                        if (_currentStep > 0)
-                          const SizedBox(width: 16),
-                        Expanded(
-                          child: ElevatedButton(
-                            onPressed: _currentStep < 2 ? _nextStep : _submitBooking,
-                            style: ElevatedButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(vertical: 16),
-                              backgroundColor: Theme.of(context).primaryColor,
-                              foregroundColor: Colors.white,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              elevation: 0,
-                            ),
-                            child: Text(
-                              _currentStep < 2 ? 'Lanjutkan' : 'Buat Booking',
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
+                              child: Text(
+                                _currentStep < 2 ? 'Lanjutkan' : 'Buat Booking',
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
     );
   }
 
-  Widget _buildBookingDetailsPage(String bookingType, int days, double totalPrice, NumberFormat currencyFormat) {
+  Widget _buildBookingDetailsPage(
+    String bookingType,
+    int days,
+    double totalPrice,
+    NumberFormat currencyFormat,
+  ) {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -658,7 +776,9 @@ class _CreateBookingEnhancedScreenState extends State<CreateBookingEnhancedScree
                       Container(
                         padding: const EdgeInsets.all(10),
                         decoration: BoxDecoration(
-                          color: Theme.of(context).primaryColor.withOpacity(0.1),
+                          color: Theme.of(
+                            context,
+                          ).primaryColor.withOpacity(0.1),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Icon(
@@ -679,16 +799,25 @@ class _CreateBookingEnhancedScreenState extends State<CreateBookingEnhancedScree
                             ),
                             const SizedBox(height: 4),
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 2,
+                              ),
                               decoration: BoxDecoration(
-                                color: _isHomestay ? Colors.amber[100] : Colors.blue[100],
+                                color:
+                                    _isHomestay
+                                        ? Colors.amber[100]
+                                        : Colors.blue[100],
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: Text(
                                 _isHomestay ? 'Homestay' : 'Kost',
                                 style: TextStyle(
                                   fontSize: 12,
-                                  color: _isHomestay ? Colors.amber[900] : Colors.blue[900],
+                                  color:
+                                      _isHomestay
+                                          ? Colors.amber[900]
+                                          : Colors.blue[900],
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
@@ -702,7 +831,11 @@ class _CreateBookingEnhancedScreenState extends State<CreateBookingEnhancedScree
                   if (widget.room != null) ...[
                     Row(
                       children: [
-                        const Icon(Icons.meeting_room_outlined, color: Colors.grey, size: 20),
+                        const Icon(
+                          Icons.meeting_room_outlined,
+                          color: Colors.grey,
+                          size: 20,
+                        ),
                         const SizedBox(width: 8),
                         Text('Tipe Kamar: ${widget.room!.roomType}'),
                       ],
@@ -710,9 +843,15 @@ class _CreateBookingEnhancedScreenState extends State<CreateBookingEnhancedScree
                     const SizedBox(height: 8),
                     Row(
                       children: [
-                        const Icon(Icons.attach_money, color: Colors.grey, size: 20),
+                        const Icon(
+                          Icons.attach_money,
+                          color: Colors.grey,
+                          size: 20,
+                        ),
                         const SizedBox(width: 8),
-                        Text('Harga: Rp ${NumberFormat("#,###").format(widget.room!.price)}/hari'),
+                        Text(
+                          'Harga: Rp ${NumberFormat("#,###").format(widget.room!.price)}/hari',
+                        ),
                       ],
                     ),
                     const SizedBox(height: 16),
@@ -736,16 +875,25 @@ class _CreateBookingEnhancedScreenState extends State<CreateBookingEnhancedScree
                             InkWell(
                               onTap: () => _selectDate(context, true),
                               child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 12,
+                                ),
                                 decoration: BoxDecoration(
-                                  border: Border.all(color: Colors.grey.shade300),
+                                  border: Border.all(
+                                    color: Colors.grey.shade300,
+                                  ),
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: Row(
                                   children: [
                                     const Icon(Icons.calendar_today, size: 16),
                                     const SizedBox(width: 8),
-                                    Text(DateFormat('dd MMM yyyy').format(_checkInDate)),
+                                    Text(
+                                      DateFormat(
+                                        'dd MMM yyyy',
+                                      ).format(_checkInDate),
+                                    ),
                                   ],
                                 ),
                               ),
@@ -769,16 +917,25 @@ class _CreateBookingEnhancedScreenState extends State<CreateBookingEnhancedScree
                             InkWell(
                               onTap: () => _selectDate(context, false),
                               child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 12,
+                                ),
                                 decoration: BoxDecoration(
-                                  border: Border.all(color: Colors.grey.shade300),
+                                  border: Border.all(
+                                    color: Colors.grey.shade300,
+                                  ),
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: Row(
                                   children: [
                                     const Icon(Icons.calendar_today, size: 16),
                                     const SizedBox(width: 8),
-                                    Text(DateFormat('dd MMM yyyy').format(_checkOutDate)),
+                                    Text(
+                                      DateFormat(
+                                        'dd MMM yyyy',
+                                      ).format(_checkOutDate),
+                                    ),
                                   ],
                                 ),
                               ),
@@ -878,7 +1035,9 @@ class _CreateBookingEnhancedScreenState extends State<CreateBookingEnhancedScree
                       Icon(Icons.check_circle, color: Colors.green, size: 16),
                       SizedBox(width: 8),
                       Expanded(
-                        child: Text('Pastikan tanggal check-in dan check-out sudah benar'),
+                        child: Text(
+                          'Pastikan tanggal check-in dan check-out sudah benar',
+                        ),
                       ),
                     ],
                   ),
@@ -933,7 +1092,9 @@ class _CreateBookingEnhancedScreenState extends State<CreateBookingEnhancedScree
                       Container(
                         padding: const EdgeInsets.all(10),
                         decoration: BoxDecoration(
-                          color: Theme.of(context).primaryColor.withOpacity(0.1),
+                          color: Theme.of(
+                            context,
+                          ).primaryColor.withOpacity(0.1),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Icon(
@@ -1069,24 +1230,33 @@ class _CreateBookingEnhancedScreenState extends State<CreateBookingEnhancedScree
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
                         border: Border.all(
-                          color: _ktpImage == null ? Colors.grey.shade300 : Colors.green,
+                          color:
+                              _ktpImage == null
+                                  ? Colors.grey.shade300
+                                  : Colors.green,
                         ),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Column(
                         children: [
                           Icon(
-                            _ktpImage == null ? Icons.upload_file : Icons.check_circle,
+                            _ktpImage == null
+                                ? Icons.upload_file
+                                : Icons.check_circle,
                             size: 48,
-                            color: _ktpImage == null ? Colors.grey : Colors.green,
+                            color:
+                                _ktpImage == null ? Colors.grey : Colors.green,
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            _ktpImage == null 
-                                ? 'Unggah Foto KTP (Wajib)' 
+                            _ktpImage == null
+                                ? 'Unggah Foto KTP (Wajib)'
                                 : 'KTP berhasil diunggah',
                             style: TextStyle(
-                              color: _ktpImage == null ? Colors.grey : Colors.green,
+                              color:
+                                  _ktpImage == null
+                                      ? Colors.grey
+                                      : Colors.green,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -1186,7 +1356,12 @@ class _CreateBookingEnhancedScreenState extends State<CreateBookingEnhancedScree
     );
   }
 
-  Widget _buildConfirmationPage(String bookingType, int days, double totalPrice, NumberFormat currencyFormat) {
+  Widget _buildConfirmationPage(
+    String bookingType,
+    int days,
+    double totalPrice,
+    NumberFormat currencyFormat,
+  ) {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -1205,10 +1380,7 @@ class _CreateBookingEnhancedScreenState extends State<CreateBookingEnhancedScree
                 children: [
                   const Text(
                     'Ringkasan Booking',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18,
-                    ),
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
                   ),
                   const SizedBox(height: 16),
                   _buildConfirmationItem(
@@ -1251,8 +1423,8 @@ class _CreateBookingEnhancedScreenState extends State<CreateBookingEnhancedScree
                   const Divider(),
                   _buildConfirmationItem(
                     'Nomor KTP',
-                    _ktpController.text.isEmpty 
-                        ? 'Belum diisi' 
+                    _ktpController.text.isEmpty
+                        ? 'Belum diisi'
                         : _ktpController.text,
                     Icons.credit_card,
                   ),
@@ -1304,10 +1476,7 @@ class _CreateBookingEnhancedScreenState extends State<CreateBookingEnhancedScree
                 children: [
                   const Text(
                     'Metode Pembayaran',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                    ),
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                   ),
                   const SizedBox(height: 16),
                   Container(
@@ -1376,30 +1545,40 @@ class _CreateBookingEnhancedScreenState extends State<CreateBookingEnhancedScree
                       onPressed: () {
                         showDialog(
                           context: context,
-                          builder: (context) => AlertDialog(
-                            title: const Text('Syarat dan Ketentuan'),
-                            content: const SingleChildScrollView(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Text('1. Pembatalan booking dikenakan biaya sesuai ketentuan'),
-                                  SizedBox(height: 8),
-                                  Text('2. Identitas yang diberikan harus valid dan dapat diverifikasi'),
-                                  SizedBox(height: 8),
-                                  Text('3. Penyewa wajib mematuhi peraturan yang berlaku di properti'),
-                                  SizedBox(height: 8),
-                                  Text('4. Pembayaran harus dilakukan sesuai dengan ketentuan yang berlaku'),
+                          builder:
+                              (context) => AlertDialog(
+                                title: const Text('Syarat dan Ketentuan'),
+                                content: const SingleChildScrollView(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Text(
+                                        '1. Pembatalan booking dikenakan biaya sesuai ketentuan',
+                                      ),
+                                      SizedBox(height: 8),
+                                      Text(
+                                        '2. Identitas yang diberikan harus valid dan dapat diverifikasi',
+                                      ),
+                                      SizedBox(height: 8),
+                                      Text(
+                                        '3. Penyewa wajib mematuhi peraturan yang berlaku di properti',
+                                      ),
+                                      SizedBox(height: 8),
+                                      Text(
+                                        '4. Pembayaran harus dilakukan sesuai dengan ketentuan yang berlaku',
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () => Navigator.pop(context),
+                                    child: const Text('Tutup'),
+                                  ),
                                 ],
                               ),
-                            ),
-                            actions: [
-                              TextButton(
-                                onPressed: () => Navigator.pop(context),
-                                child: const Text('Tutup'),
-                              ),
-                            ],
-                          ),
                         );
                       },
                       style: TextButton.styleFrom(
@@ -1438,17 +1617,12 @@ class _CreateBookingEnhancedScreenState extends State<CreateBookingEnhancedScree
               children: [
                 Text(
                   label,
-                  style: TextStyle(
-                    color: Colors.grey.shade600,
-                    fontSize: 12,
-                  ),
+                  style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   value,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w500,
-                  ),
+                  style: const TextStyle(fontWeight: FontWeight.w500),
                 ),
               ],
             ),

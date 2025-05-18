@@ -596,21 +596,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
   bool _isLoadingNotifications = true; // Menandakan apakah notifikasi sedang dimuat
 
   // Warna tema
-  final Color primaryColor = const Color(
-    0xFF8E44AD,
+  final Color primaryColor = const Color(0xFF4CAF50,
   ); // Ungu seperti di screenshot
-  final Color blueCardColor = const Color(0xFFE3F2FD);
+  final Color blueCardColor = const Color(0xFFE8F5E9);
   final Color greenCardColor = const Color(0xFFE8F5E9);
   final Color purpleCardColor = const Color(0xFFF3E5F5);
   final Color yellowCardColor = const Color(0xFFFFF8E1);
   final Color addPropertyColor = const Color(
     0xFF4CAF50,
   ); // Hijau untuk tombol tambah properti
-  final Color viewPropertiesColor = const Color(
-    0xFF2196F3,
+  final Color viewPropertiesColor = const Color(0xFF4CAF50,
   ); // Biru untuk tombol lihat properti
-  final Color manageBookingsColor = const Color(
-    0xFF9C27B0,
+  final Color manageBookingsColor = const Color(0xFF4CAF50,
   ); // Ungu untuk tombol kelola pemesanan
 
   @override
@@ -731,7 +728,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       expandedHeight: 100,
       floating: false,
       pinned: true,
-      backgroundColor: primaryColor,
+      backgroundColor: Color(0xFF4CAF50),
       flexibleSpace: FlexibleSpaceBar(
         title: const Text(
           'Dashboard',
