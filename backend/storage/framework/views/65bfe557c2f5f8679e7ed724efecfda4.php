@@ -79,7 +79,9 @@ unset($__errorArgs, $__bag); ?>
                         </div>
 
                         <div class="form-group">
-                            <label for="price">Harga (Rp) <span class="text-danger">*</span></label>
+                            <label for="price">Harga (Rp) <span class="text-danger">*</span><br>
+                                <small class="text-muted">Masukkan harga per bulan jika tipe properti adalah Kost, dan harga per hari jika tipe properti adalah Homestay.</small>
+                            </label>
                             <input type="number" class="form-control <?php $__errorArgs = ['price'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
@@ -88,7 +90,7 @@ $message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
 unset($__errorArgs, $__bag); ?>"
-                                id="price" name="price" value="<?php echo e(old('price')); ?>" min="0" required>
+                                id="price" name="price" value="<?php echo e(old('price')); ?>" min="0" required placeholder="Contoh: 700000">
                             <?php $__errorArgs = ['price'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :

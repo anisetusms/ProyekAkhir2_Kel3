@@ -596,7 +596,7 @@ class _RoomDetailScreenState extends State<RoomDetailScreen> {
                         if (roomDetail.size != null) ...[
                           const Icon(Icons.square_foot, color: Colors.blue),
                           const SizedBox(width: 8),
-                          Text(roomDetail.size!),
+                          Text('${roomDetail.size} m²'),
                         ],
                       ],
                     ),

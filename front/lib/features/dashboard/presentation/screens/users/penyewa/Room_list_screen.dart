@@ -168,11 +168,9 @@ class _RoomListScreenState extends State<RoomListScreen> {
     // Menghitung harga berdasarkan tipe properti
     String priceText = 'Rp ${_formatPrice(room.price)}';
     if (widget.propertyTypeId == 1) {
-      // Jika tipe properti adalah kost, tampilkan per bulan
       priceText =
           'Rp ${_formatPrice(room.price)}/bulan'; 
     } else {
-      // Jika tipe properti adalah homestay, tampilkan per hari
       priceText = 'Rp ${_formatPrice(room.price)}/hari';
     }
 
@@ -184,7 +182,6 @@ class _RoomListScreenState extends State<RoomListScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Image section with placeholder
           Stack(
             children: [
               Container(
@@ -217,7 +214,6 @@ class _RoomListScreenState extends State<RoomListScreen> {
                         )
                         : _buildPlaceholderImage(),
               ),
-              // Availability badge
               Positioned(
                 top: 12,
                 right: 12,
@@ -242,7 +238,6 @@ class _RoomListScreenState extends State<RoomListScreen> {
               ),
             ],
           ),
-          // Content section
           Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
@@ -297,7 +292,7 @@ class _RoomListScreenState extends State<RoomListScreen> {
                             size: 20,
                           ),
                           const SizedBox(width: 8),
-                          Text(room.size!),
+                          Text('${room.size} m²'),
                         ],
                       ],
                     ),

@@ -21,22 +21,22 @@ USE `railway`;
 DROP TABLE IF EXISTS `booking_rooms`;
 
 CREATE TABLE `booking_rooms` (
-  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
-  `booking_id` bigint unsigned NOT NULL,
-  `room_id` bigint unsigned NOT NULL,
-  `price` decimal(12,2) NOT NULL COMMENT 'Harga saat booking',
-  `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL,
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `booking_id` BIGINT UNSIGNED NOT NULL,
+  `room_id` BIGINT UNSIGNED NOT NULL,
+  `price` DECIMAL(12,2) NOT NULL COMMENT 'Harga saat booking',
+  `created_at` TIMESTAMP NULL DEFAULT NULL,
+  `updated_at` TIMESTAMP NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `booking_rooms_booking_id_foreign` (`booking_id`),
   KEY `booking_rooms_room_id_foreign` (`room_id`),
   CONSTRAINT `booking_rooms_booking_id_foreign` FOREIGN KEY (`booking_id`) REFERENCES `bookings` (`id`) ON DELETE CASCADE,
   CONSTRAINT `booking_rooms_room_id_foreign` FOREIGN KEY (`room_id`) REFERENCES `rooms` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=33 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=INNODB AUTO_INCREMENT=33 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 /*Data for the table `booking_rooms` */
 
-insert  into `booking_rooms`(`id`,`booking_id`,`room_id`,`price`,`created_at`,`updated_at`) values 
+INSERT  INTO `booking_rooms`(`id`,`booking_id`,`room_id`,`price`,`created_at`,`updated_at`) VALUES 
 (2,2,24,500000.00,'2025-04-30 19:41:53','2025-04-30 19:41:53'),
 (3,3,25,50000.00,'2025-04-30 19:43:01','2025-04-30 19:43:01'),
 (4,4,27,4000.00,'2025-04-30 19:47:09','2025-04-30 19:47:09'),
@@ -57,24 +57,24 @@ insert  into `booking_rooms`(`id`,`booking_id`,`room_id`,`price`,`created_at`,`u
 DROP TABLE IF EXISTS `bookings`;
 
 CREATE TABLE `bookings` (
-  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
-  `property_id` bigint unsigned NOT NULL,
-  `user_id` bigint unsigned NOT NULL,
-  `is_for_others` tinyint(1) NOT NULL DEFAULT '0',
-  `check_in` date NOT NULL,
-  `check_out` date NOT NULL,
-  `total_price` decimal(12,2) NOT NULL,
-  `status` enum('pending','confirmed','cancelled','completed') NOT NULL DEFAULT 'pending',
-  `payment_proof` varchar(255) DEFAULT NULL,
-  `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL,
-  `guest_name` varchar(255) DEFAULT NULL COMMENT 'Nama tamu jika berbeda dengan pemesan',
-  `guest_phone` varchar(20) DEFAULT NULL COMMENT 'Kontak tamu',
-  `ktp_image` varchar(255) DEFAULT NULL COMMENT 'Path foto KTP',
-  `identity_number` varchar(20) DEFAULT NULL COMMENT 'Nomor KTP/NIK',
-  `booking_group` char(36) DEFAULT NULL COMMENT 'UUID untuk grouping multi-properti',
-  `special_requests` text COMMENT 'Catatan tambahan',
-  `customer_id` bigint unsigned DEFAULT NULL,
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `property_id` BIGINT UNSIGNED NOT NULL,
+  `user_id` BIGINT UNSIGNED NOT NULL,
+  `is_for_others` TINYINT(1) NOT NULL DEFAULT '0',
+  `check_in` DATE NOT NULL,
+  `check_out` DATE NOT NULL,
+  `total_price` DECIMAL(12,2) NOT NULL,
+  `status` ENUM('pending','confirmed','cancelled','completed') NOT NULL DEFAULT 'pending',
+  `payment_proof` VARCHAR(255) DEFAULT NULL,
+  `created_at` TIMESTAMP NULL DEFAULT NULL,
+  `updated_at` TIMESTAMP NULL DEFAULT NULL,
+  `guest_name` VARCHAR(255) DEFAULT NULL COMMENT 'Nama tamu jika berbeda dengan pemesan',
+  `guest_phone` VARCHAR(20) DEFAULT NULL COMMENT 'Kontak tamu',
+  `ktp_image` VARCHAR(255) DEFAULT NULL COMMENT 'Path foto KTP',
+  `identity_number` VARCHAR(20) DEFAULT NULL COMMENT 'Nomor KTP/NIK',
+  `booking_group` CHAR(36) DEFAULT NULL COMMENT 'UUID untuk grouping multi-properti',
+  `special_requests` TEXT COMMENT 'Catatan tambahan',
+  `customer_id` BIGINT UNSIGNED DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `bookings_property_id_foreign` (`property_id`),
   KEY `bookings_user_id_foreign` (`user_id`),
@@ -82,11 +82,11 @@ CREATE TABLE `bookings` (
   CONSTRAINT `bookings_customer_id_foreign` FOREIGN KEY (`customer_id`) REFERENCES `customers` (`id`) ON DELETE SET NULL,
   CONSTRAINT `bookings_property_id_foreign` FOREIGN KEY (`property_id`) REFERENCES `properties` (`id`),
   CONSTRAINT `bookings_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=58 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=INNODB AUTO_INCREMENT=58 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 /*Data for the table `bookings` */
 
-insert  into `bookings`(`id`,`property_id`,`user_id`,`is_for_others`,`check_in`,`check_out`,`total_price`,`status`,`payment_proof`,`created_at`,`updated_at`,`guest_name`,`guest_phone`,`ktp_image`,`identity_number`,`booking_group`,`special_requests`,`customer_id`) values 
+INSERT  INTO `bookings`(`id`,`property_id`,`user_id`,`is_for_others`,`check_in`,`check_out`,`total_price`,`status`,`payment_proof`,`created_at`,`updated_at`,`guest_name`,`guest_phone`,`ktp_image`,`identity_number`,`booking_group`,`special_requests`,`customer_id`) VALUES 
 (2,35,5,0,'2025-05-01','2025-05-05',2000000.00,'pending',NULL,'2025-04-30 19:41:52','2025-04-30 19:41:52','Danbel','0987678945','ktp/KmaJDLFtUs9i9WEqyC5NvvvkNkEUOiBLv5JlcGfx.png','5654345643452342','9c79e0cf-120a-468c-bf65-f0f320f452c5','jsngsn',NULL),
 (3,35,5,0,'2025-05-01','2025-05-05',200000.00,'pending',NULL,'2025-04-30 19:43:01','2025-04-30 19:43:01','Danbel','0987678945','ktp/nc6JJdpha34odErrSBCzSMDcWljzchvcKAUMBUBa.png','5654345643452342','7104d597-da1a-4329-84b9-9b2807b49ca2','jsngsn',NULL),
 (4,34,5,0,'2025-05-01','2025-05-05',16000.00,'completed',NULL,'2025-04-30 19:47:08','2025-05-12 14:31:14','Danbel','0987678945','ktp/1RlOvafCL3B69ac5lsP0WXOAudE8PoittpXwPOMj.png','5654345643452342','c616b2a5-15f0-494c-a83b-6db1b5f4bfe5','jsngsn',NULL),
@@ -133,13 +133,13 @@ insert  into `bookings`(`id`,`property_id`,`user_id`,`is_for_others`,`check_in`,
 DROP TABLE IF EXISTS `cache`;
 
 CREATE TABLE `cache` (
-  `key` varchar(255) NOT NULL,
-  `value` text NOT NULL,
-  `expiration` int NOT NULL,
-  `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL,
+  `key` VARCHAR(255) NOT NULL,
+  `value` TEXT NOT NULL,
+  `expiration` INT NOT NULL,
+  `created_at` TIMESTAMP NULL DEFAULT NULL,
+  `updated_at` TIMESTAMP NULL DEFAULT NULL,
   PRIMARY KEY (`key`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=INNODB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 /*Data for the table `cache` */
 
@@ -148,19 +148,19 @@ CREATE TABLE `cache` (
 DROP TABLE IF EXISTS `cities`;
 
 CREATE TABLE `cities` (
-  `id` bigint unsigned NOT NULL,
-  `city_name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `prov_id` bigint unsigned NOT NULL,
-  `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL,
+  `id` BIGINT UNSIGNED NOT NULL,
+  `city_name` VARCHAR(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `prov_id` BIGINT UNSIGNED NOT NULL,
+  `created_at` TIMESTAMP NULL DEFAULT NULL,
+  `updated_at` TIMESTAMP NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `fk_cities_province_new` (`prov_id`),
   CONSTRAINT `fk_cities_province_new` FOREIGN KEY (`prov_id`) REFERENCES `provinces` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=INNODB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 /*Data for the table `cities` */
 
-insert  into `cities`(`id`,`city_name`,`prov_id`,`created_at`,`updated_at`) values 
+INSERT  INTO `cities`(`id`,`city_name`,`prov_id`,`created_at`,`updated_at`) VALUES 
 (1,'Medan',2,'2025-04-10 02:34:42','2025-04-10 02:34:42'),
 (2,'Binjai',2,'2025-04-10 02:34:42','2025-04-10 02:34:42'),
 (3,'Tebing Tinggi',2,'2025-04-10 02:34:42','2025-04-10 02:34:42'),
@@ -172,18 +172,18 @@ insert  into `cities`(`id`,`city_name`,`prov_id`,`created_at`,`updated_at`) valu
 DROP TABLE IF EXISTS `customers`;
 
 CREATE TABLE `customers` (
-  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) NOT NULL,
-  `phone` varchar(255) NOT NULL,
-  `identity_number` varchar(16) NOT NULL,
-  `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL,
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(255) NOT NULL,
+  `phone` VARCHAR(255) NOT NULL,
+  `identity_number` VARCHAR(16) NOT NULL,
+  `created_at` TIMESTAMP NULL DEFAULT NULL,
+  `updated_at` TIMESTAMP NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=INNODB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 /*Data for the table `customers` */
 
-insert  into `customers`(`id`,`name`,`phone`,`identity_number`,`created_at`,`updated_at`) values 
+INSERT  INTO `customers`(`id`,`name`,`phone`,`identity_number`,`created_at`,`updated_at`) VALUES 
 (1,'djwwjjwjjw','1234679806434','1234567890123456','2025-05-09 15:33:40','2025-05-11 08:03:29'),
 (2,'ghfgj','08521408958','0852741963123654','2025-05-09 17:43:12','2025-05-09 17:43:12'),
 (3,'Anisetys','082276735592','1236547890123456','2025-05-11 02:13:01','2025-05-11 02:13:01');
@@ -193,19 +193,19 @@ insert  into `customers`(`id`,`name`,`phone`,`identity_number`,`created_at`,`upd
 DROP TABLE IF EXISTS `districts`;
 
 CREATE TABLE `districts` (
-  `id` bigint unsigned NOT NULL,
-  `dis_name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `city_id` bigint unsigned NOT NULL,
-  `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL,
+  `id` BIGINT UNSIGNED NOT NULL,
+  `dis_name` VARCHAR(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `city_id` BIGINT UNSIGNED NOT NULL,
+  `created_at` TIMESTAMP NULL DEFAULT NULL,
+  `updated_at` TIMESTAMP NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `fk_districts_city_new` (`city_id`),
   CONSTRAINT `fk_districts_city_new` FOREIGN KEY (`city_id`) REFERENCES `cities` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=INNODB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 /*Data for the table `districts` */
 
-insert  into `districts`(`id`,`dis_name`,`city_id`,`created_at`,`updated_at`) values 
+INSERT  INTO `districts`(`id`,`dis_name`,`city_id`,`created_at`,`updated_at`) VALUES 
 (1,'Ajibata',5,'2025-04-10 02:38:00','2025-04-10 02:38:00'),
 (2,'Balige',5,'2025-04-10 02:38:00','2025-04-10 02:38:00'),
 (3,'Habinsaran',5,'2025-04-10 02:38:00','2025-04-10 02:38:00'),
@@ -222,13 +222,13 @@ insert  into `districts`(`id`,`dis_name`,`city_id`,`created_at`,`updated_at`) va
 DROP TABLE IF EXISTS `facilities`;
 
 CREATE TABLE `facilities` (
-  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) NOT NULL,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(255) NOT NULL,
+  `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `id` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=INNODB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 /*Data for the table `facilities` */
 
@@ -237,24 +237,24 @@ CREATE TABLE `facilities` (
 DROP TABLE IF EXISTS `homestay_details`;
 
 CREATE TABLE `homestay_details` (
-  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
-  `property_id` bigint unsigned NOT NULL,
-  `total_units` int NOT NULL,
-  `available_units` int NOT NULL,
-  `minimum_stay` int DEFAULT '1',
-  `maximum_guest` int NOT NULL,
-  `checkin_time` time NOT NULL,
-  `checkout_time` time NOT NULL,
-  `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL,
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `property_id` BIGINT UNSIGNED NOT NULL,
+  `total_units` INT NOT NULL,
+  `available_units` INT NOT NULL,
+  `minimum_stay` INT DEFAULT '1',
+  `maximum_guest` INT NOT NULL,
+  `checkin_time` TIME NOT NULL,
+  `checkout_time` TIME NOT NULL,
+  `created_at` TIMESTAMP NULL DEFAULT NULL,
+  `updated_at` TIMESTAMP NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `property_id` (`property_id`),
   CONSTRAINT `homestay_details_ibfk_1` FOREIGN KEY (`property_id`) REFERENCES `properties` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=INNODB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 /*Data for the table `homestay_details` */
 
-insert  into `homestay_details`(`id`,`property_id`,`total_units`,`available_units`,`minimum_stay`,`maximum_guest`,`checkin_time`,`checkout_time`,`created_at`,`updated_at`) values 
+INSERT  INTO `homestay_details`(`id`,`property_id`,`total_units`,`available_units`,`minimum_stay`,`maximum_guest`,`checkin_time`,`checkout_time`,`created_at`,`updated_at`) VALUES 
 (1,10,4,2,1,10,'16:00:00','15:00:00','2025-04-17 09:15:12','2025-04-17 09:15:12'),
 (2,35,10,5,4,8,'10:00:00','10:00:00','2025-04-30 09:30:19','2025-05-10 16:09:45'),
 (3,40,5,1,1,2,'10:00:00','10:00:00','2025-05-10 23:47:22','2025-05-12 13:38:27'),
@@ -265,24 +265,24 @@ insert  into `homestay_details`(`id`,`property_id`,`total_units`,`available_unit
 DROP TABLE IF EXISTS `kost_details`;
 
 CREATE TABLE `kost_details` (
-  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
-  `property_id` bigint unsigned NOT NULL,
-  `kost_type` enum('putra','putri','campur') COLLATE utf8mb4_unicode_ci NOT NULL,
-  `total_rooms` int NOT NULL,
-  `available_rooms` int NOT NULL,
-  `rules` text COLLATE utf8mb4_unicode_ci NOT NULL,
-  `meal_included` tinyint(1) DEFAULT '0',
-  `laundry_included` tinyint(1) DEFAULT '0',
-  `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL,
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `property_id` BIGINT UNSIGNED NOT NULL,
+  `kost_type` ENUM('putra','putri','campur') COLLATE utf8mb4_unicode_ci NOT NULL,
+  `total_rooms` INT NOT NULL,
+  `available_rooms` INT NOT NULL,
+  `rules` TEXT COLLATE utf8mb4_unicode_ci NOT NULL,
+  `meal_included` TINYINT(1) DEFAULT '0',
+  `laundry_included` TINYINT(1) DEFAULT '0',
+  `created_at` TIMESTAMP NULL DEFAULT NULL,
+  `updated_at` TIMESTAMP NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `property_id` (`property_id`),
   CONSTRAINT `kost_details_ibfk_1` FOREIGN KEY (`property_id`) REFERENCES `properties` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=32 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=INNODB AUTO_INCREMENT=32 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 /*Data for the table `kost_details` */
 
-insert  into `kost_details`(`id`,`property_id`,`kost_type`,`total_rooms`,`available_rooms`,`rules`,`meal_included`,`laundry_included`,`created_at`,`updated_at`) values 
+INSERT  INTO `kost_details`(`id`,`property_id`,`kost_type`,`total_rooms`,`available_rooms`,`rules`,`meal_included`,`laundry_included`,`created_at`,`updated_at`) VALUES 
 (1,2,'putra',5,2,'ihfu',1,1,'2025-04-17 02:30:21','2025-04-17 02:30:21'),
 (2,3,'campur',40,6,'jas slebew',1,1,'2025-04-17 06:53:35','2025-04-17 06:53:35'),
 (3,4,'campur',34,5,'yah',1,1,'2025-04-17 07:50:16','2025-04-17 07:50:16'),
@@ -314,15 +314,15 @@ insert  into `kost_details`(`id`,`property_id`,`kost_type`,`total_rooms`,`availa
 DROP TABLE IF EXISTS `migrations`;
 
 CREATE TABLE `migrations` (
-  `id` int unsigned NOT NULL AUTO_INCREMENT,
-  `migration` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `batch` int NOT NULL,
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `migration` VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `batch` INT NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=37 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=INNODB AUTO_INCREMENT=37 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 /*Data for the table `migrations` */
 
-insert  into `migrations`(`id`,`migration`,`batch`) values 
+INSERT  INTO `migrations`(`id`,`migration`,`batch`) VALUES 
 (1,'2025_04_08_154706_create_user_types_table',1),
 (2,'2025_04_08_154727_create_user_roles_table',1),
 (3,'2025_04_08_154735_create_users_table',1),
@@ -358,23 +358,23 @@ insert  into `migrations`(`id`,`migration`,`batch`) values
 DROP TABLE IF EXISTS `notifications`;
 
 CREATE TABLE `notifications` (
-  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
-  `user_id` bigint unsigned NOT NULL,
-  `type` varchar(255) NOT NULL,
-  `title` varchar(255) NOT NULL,
-  `message` text NOT NULL,
-  `reference_id` bigint unsigned DEFAULT NULL,
-  `is_read` tinyint(1) DEFAULT '0',
-  `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL,
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `user_id` BIGINT UNSIGNED NOT NULL,
+  `type` VARCHAR(255) NOT NULL,
+  `title` VARCHAR(255) NOT NULL,
+  `message` TEXT NOT NULL,
+  `reference_id` BIGINT UNSIGNED DEFAULT NULL,
+  `is_read` TINYINT(1) DEFAULT '0',
+  `created_at` TIMESTAMP NULL DEFAULT NULL,
+  `updated_at` TIMESTAMP NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `user_id` (`user_id`),
   CONSTRAINT `notifications_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=INNODB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 /*Data for the table `notifications` */
 
-insert  into `notifications`(`id`,`user_id`,`type`,`title`,`message`,`reference_id`,`is_read`,`created_at`,`updated_at`) values 
+INSERT  INTO `notifications`(`id`,`user_id`,`type`,`title`,`message`,`reference_id`,`is_read`,`created_at`,`updated_at`) VALUES 
 (1,46,'booking_confirmed','Pemesanan Anda telah dikonfirmasi','Pemesanan Anda untuk Pope Francis telah dikonfirmasi oleh pemilik.',44,0,'2025-05-10 11:18:27','2025-05-10 11:18:27'),
 (6,46,'booking_completed','Pemesanan Anda telah selesai','Pemesanan Anda untuk Pope Francis telah diselesaikan.',44,1,'2025-05-10 15:32:53','2025-05-12 12:34:15'),
 (9,5,'booking_completed','Pemesanan Anda telah selesai','Pemesanan Anda untuk qwertyui telah diselesaikan.',4,0,'2025-05-12 14:31:15','2025-05-12 14:31:15'),
@@ -393,24 +393,24 @@ insert  into `notifications`(`id`,`user_id`,`type`,`title`,`message`,`reference_
 DROP TABLE IF EXISTS `personal_access_tokens`;
 
 CREATE TABLE `personal_access_tokens` (
-  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
-  `tokenable_type` varchar(255) NOT NULL,
-  `tokenable_id` bigint unsigned NOT NULL,
-  `name` varchar(255) NOT NULL,
-  `token` varchar(64) NOT NULL,
-  `abilities` text,
-  `last_used_at` timestamp NULL DEFAULT NULL,
-  `expires_at` timestamp NULL DEFAULT NULL,
-  `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL,
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `tokenable_type` VARCHAR(255) NOT NULL,
+  `tokenable_id` BIGINT UNSIGNED NOT NULL,
+  `name` VARCHAR(255) NOT NULL,
+  `token` VARCHAR(64) NOT NULL,
+  `abilities` TEXT,
+  `last_used_at` TIMESTAMP NULL DEFAULT NULL,
+  `expires_at` TIMESTAMP NULL DEFAULT NULL,
+  `created_at` TIMESTAMP NULL DEFAULT NULL,
+  `updated_at` TIMESTAMP NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `personal_access_tokens_token_unique` (`token`),
   KEY `personal_access_tokens_tokenable_type_tokenable_id_index` (`tokenable_type`,`tokenable_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=874 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=INNODB AUTO_INCREMENT=874 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 /*Data for the table `personal_access_tokens` */
 
-insert  into `personal_access_tokens`(`id`,`tokenable_type`,`tokenable_id`,`name`,`token`,`abilities`,`last_used_at`,`expires_at`,`created_at`,`updated_at`) values 
+INSERT  INTO `personal_access_tokens`(`id`,`tokenable_type`,`tokenable_id`,`name`,`token`,`abilities`,`last_used_at`,`expires_at`,`created_at`,`updated_at`) VALUES 
 (1,'App\\Models\\User',1,'api-token','5ef5fcf04e9b4cf2891b240abcaeb11e31a2e507d6115139ba4a5fb7b86f8864','[\"*\"]',NULL,NULL,'2025-04-10 09:38:49','2025-04-10 09:38:49'),
 (2,'App\\Models\\User',1,'api-token','a019a2b222835a943237794192b071c1ce34ef84f9d1b2e22642bd9f6c1b062e','[\"*\"]',NULL,NULL,'2025-04-10 09:41:18','2025-04-10 09:41:18'),
 (3,'App\\Models\\User',1,'api-token','d6453ded4719e6283b5a4bb3081a8e58a9626808828c4c506cd9d73f2cb8f978','[\"*\"]',NULL,NULL,'2025-04-10 09:43:46','2025-04-10 09:43:46'),
@@ -1280,26 +1280,26 @@ insert  into `personal_access_tokens`(`id`,`tokenable_type`,`tokenable_id`,`name
 DROP TABLE IF EXISTS `properties`;
 
 CREATE TABLE `properties` (
-  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `description` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `user_id` bigint unsigned NOT NULL,
-  `province_id` bigint unsigned NOT NULL,
-  `city_id` bigint unsigned NOT NULL,
-  `district_id` bigint unsigned NOT NULL,
-  `subdistrict_id` bigint unsigned NOT NULL,
-  `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL,
-  `isDeleted` tinyint(1) NOT NULL DEFAULT '0',
-  `price` decimal(10,2) NOT NULL DEFAULT '0.00',
-  `image` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `property_type_id` bigint unsigned NOT NULL,
-  `capacity` int DEFAULT '1',
-  `available_rooms` int NOT NULL DEFAULT '1',
-  `rules` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
-  `address` text COLLATE utf8mb4_unicode_ci NOT NULL,
-  `latitude` decimal(10,8) NOT NULL,
-  `longitude` decimal(11,8) NOT NULL,
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `description` TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `user_id` BIGINT UNSIGNED NOT NULL,
+  `province_id` BIGINT UNSIGNED NOT NULL,
+  `city_id` BIGINT UNSIGNED NOT NULL,
+  `district_id` BIGINT UNSIGNED NOT NULL,
+  `subdistrict_id` BIGINT UNSIGNED NOT NULL,
+  `created_at` TIMESTAMP NULL DEFAULT NULL,
+  `updated_at` TIMESTAMP NULL DEFAULT NULL,
+  `isDeleted` TINYINT(1) NOT NULL DEFAULT '0',
+  `price` DECIMAL(10,2) NOT NULL DEFAULT '0.00',
+  `image` VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `property_type_id` BIGINT UNSIGNED NOT NULL,
+  `capacity` INT DEFAULT '1',
+  `available_rooms` INT NOT NULL DEFAULT '1',
+  `rules` TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `address` TEXT COLLATE utf8mb4_unicode_ci NOT NULL,
+  `latitude` DECIMAL(10,8) NOT NULL,
+  `longitude` DECIMAL(11,8) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `properties_user_id_foreign` (`user_id`),
   KEY `properties_subdistrict_id_foreign` (`subdistrict_id`),
@@ -1313,11 +1313,11 @@ CREATE TABLE `properties` (
   CONSTRAINT `properties_province_id_foreign` FOREIGN KEY (`province_id`) REFERENCES `provinces` (`id`) ON DELETE CASCADE,
   CONSTRAINT `properties_subdistrict_id_foreign` FOREIGN KEY (`subdistrict_id`) REFERENCES `subdistricts` (`id`) ON DELETE CASCADE,
   CONSTRAINT `properties_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=44 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=INNODB AUTO_INCREMENT=44 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 /*Data for the table `properties` */
 
-insert  into `properties`(`id`,`name`,`description`,`user_id`,`province_id`,`city_id`,`district_id`,`subdistrict_id`,`created_at`,`updated_at`,`isDeleted`,`price`,`image`,`property_type_id`,`capacity`,`available_rooms`,`rules`,`address`,`latitude`,`longitude`) values 
+INSERT  INTO `properties`(`id`,`name`,`description`,`user_id`,`province_id`,`city_id`,`district_id`,`subdistrict_id`,`created_at`,`updated_at`,`isDeleted`,`price`,`image`,`property_type_id`,`capacity`,`available_rooms`,`rules`,`address`,`latitude`,`longitude`) VALUES 
 (1,'Dangbel Kost','Menyala Simangulampe',1,2,5,2,5,'2025-04-14 14:03:05','2025-04-17 13:57:37',1,1500000.00,'property_images/6EGzTfNZbwA0bYnyYu312GexxSlGKDQyAFfIVpjw.png',1,45,5,'tidak bisa bawa pacar','dangbel jov lov',-2.54994412,118.00483858),
 (2,'Kost Tony','test ja',1,2,5,2,6,'2025-04-17 02:30:21','2025-04-17 02:30:21',0,700000.00,'properties/R9fiAqHPh4lGy1E2hCsmCmoAiUlENREUm9f9CPHh.png',1,5,2,'ihfu','simangulampe',-2.54890000,118.01490000),
 (3,'Homestay Gun','test aja',1,2,5,9,2,'2025-04-17 06:53:35','2025-04-17 06:53:35',0,800000.00,'properties/mblk0TCeDDT9Sn7cJl5tIovbCWSLaXHNzzV8MP8a.png',1,10,6,'jas slebew','simangulampe',-2.54890000,118.01490000),
@@ -1354,23 +1354,23 @@ insert  into `properties`(`id`,`name`,`description`,`user_id`,`province_id`,`cit
 DROP TABLE IF EXISTS `property_availability`;
 
 CREATE TABLE `property_availability` (
-  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
-  `property_id` bigint unsigned NOT NULL,
-  `date` date NOT NULL COMMENT 'Tanggal ketersediaan',
-  `status` enum('available','booked','maintenance') NOT NULL DEFAULT 'available',
-  `booking_id` bigint unsigned DEFAULT NULL,
-  `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL,
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `property_id` BIGINT UNSIGNED NOT NULL,
+  `date` DATE NOT NULL COMMENT 'Tanggal ketersediaan',
+  `status` ENUM('available','booked','maintenance') NOT NULL DEFAULT 'available',
+  `booking_id` BIGINT UNSIGNED DEFAULT NULL,
+  `created_at` TIMESTAMP NULL DEFAULT NULL,
+  `updated_at` TIMESTAMP NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `property_availability_property_id_date_unique` (`property_id`,`date`),
   KEY `property_availability_booking_id_foreign` (`booking_id`),
   CONSTRAINT `property_availability_booking_id_foreign` FOREIGN KEY (`booking_id`) REFERENCES `bookings` (`id`) ON DELETE SET NULL,
   CONSTRAINT `property_availability_property_id_foreign` FOREIGN KEY (`property_id`) REFERENCES `properties` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=178 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=INNODB AUTO_INCREMENT=178 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 /*Data for the table `property_availability` */
 
-insert  into `property_availability`(`id`,`property_id`,`date`,`status`,`booking_id`,`created_at`,`updated_at`) values 
+INSERT  INTO `property_availability`(`id`,`property_id`,`date`,`status`,`booking_id`,`created_at`,`updated_at`) VALUES 
 (1,35,'2025-05-01','booked',3,'2025-04-30 19:41:53','2025-04-30 19:43:01'),
 (2,35,'2025-05-02','booked',3,'2025-04-30 19:41:54','2025-04-30 19:43:02'),
 (3,35,'2025-05-03','booked',3,'2025-04-30 19:41:54','2025-04-30 19:43:02'),
@@ -1554,11 +1554,11 @@ insert  into `property_availability`(`id`,`property_id`,`date`,`status`,`booking
 DROP TABLE IF EXISTS `property_facility`;
 
 CREATE TABLE `property_facility` (
-  `property_id` bigint unsigned NOT NULL,
-  `facility_id` bigint unsigned NOT NULL,
+  `property_id` BIGINT UNSIGNED NOT NULL,
+  `facility_id` BIGINT UNSIGNED NOT NULL,
   PRIMARY KEY (`property_id`,`facility_id`),
   CONSTRAINT `property_facility_ibfk_1` FOREIGN KEY (`property_id`) REFERENCES `properties` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=INNODB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 /*Data for the table `property_facility` */
 
@@ -1567,19 +1567,19 @@ CREATE TABLE `property_facility` (
 DROP TABLE IF EXISTS `property_images`;
 
 CREATE TABLE `property_images` (
-  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
-  `property_id` bigint unsigned NOT NULL,
-  `url` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL,
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `property_id` BIGINT UNSIGNED NOT NULL,
+  `url` VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `created_at` TIMESTAMP NULL DEFAULT NULL,
+  `updated_at` TIMESTAMP NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `property_images_property_id_foreign` (`property_id`),
   CONSTRAINT `property_images_property_id_foreign` FOREIGN KEY (`property_id`) REFERENCES `properties` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=INNODB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 /*Data for the table `property_images` */
 
-insert  into `property_images`(`id`,`property_id`,`url`,`created_at`,`updated_at`) values 
+INSERT  INTO `property_images`(`id`,`property_id`,`url`,`created_at`,`updated_at`) VALUES 
 (4,1,'property_images/pkBRZq4xuYNQnn5kRngOIL50XyEejh9XLBCWFpPo.png','2025-04-14 14:03:13','2025-04-14 14:03:13'),
 (5,1,'property_images/AgMhSbLEUe8sHKZ9UA9YFkdUdQsLKvUCfYVi7bHG.png','2025-04-14 14:03:14','2025-04-14 14:03:14'),
 (6,1,'property_images/oqEkK3L5QCKMfQW9iXvGDzrfGKIFWDKMF9xRcZ24.png','2025-04-14 14:03:15','2025-04-14 14:03:15'),
@@ -1596,15 +1596,15 @@ insert  into `property_images`(`id`,`property_id`,`url`,`created_at`,`updated_at
 DROP TABLE IF EXISTS `property_prices`;
 
 CREATE TABLE `property_prices` (
-  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
-  `property_id` bigint unsigned NOT NULL,
-  `price` decimal(12,2) NOT NULL,
-  `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL,
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `property_id` BIGINT UNSIGNED NOT NULL,
+  `price` DECIMAL(12,2) NOT NULL,
+  `created_at` TIMESTAMP NULL DEFAULT NULL,
+  `updated_at` TIMESTAMP NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `property_prices_property_id_foreign` (`property_id`),
   CONSTRAINT `property_prices_property_id_foreign` FOREIGN KEY (`property_id`) REFERENCES `properties` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=INNODB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 /*Data for the table `property_prices` */
 
@@ -1613,17 +1613,17 @@ CREATE TABLE `property_prices` (
 DROP TABLE IF EXISTS `property_types`;
 
 CREATE TABLE `property_types` (
-  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `description` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `description` TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=INNODB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 /*Data for the table `property_types` */
 
-insert  into `property_types`(`id`,`name`,`description`,`created_at`,`updated_at`) values 
+INSERT  INTO `property_types`(`id`,`name`,`description`,`created_at`,`updated_at`) VALUES 
 (1,'Kos','Tempat tinggal sewa per kamar yang cocok untuk mahasiswa atau pekerja.','2025-04-09 10:42:00','2025-04-09 10:42:00'),
 (2,'Homestay','Penginapan sementara seperti rumah tinggal, cocok untuk wisatawan atau keluarga.','2025-04-09 10:42:00','2025-04-09 10:42:00');
 
@@ -1632,18 +1632,18 @@ insert  into `property_types`(`id`,`name`,`description`,`created_at`,`updated_at
 DROP TABLE IF EXISTS `provinces`;
 
 CREATE TABLE `provinces` (
-  `id` bigint unsigned NOT NULL,
-  `prov_name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `locationid` int DEFAULT NULL,
-  `status` tinyint(1) NOT NULL DEFAULT '1',
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `id` BIGINT UNSIGNED NOT NULL,
+  `prov_name` VARCHAR(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `locationid` INT DEFAULT NULL,
+  `status` TINYINT(1) NOT NULL DEFAULT '1',
+  `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=INNODB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 /*Data for the table `provinces` */
 
-insert  into `provinces`(`id`,`prov_name`,`locationid`,`status`,`created_at`,`updated_at`) values 
+INSERT  INTO `provinces`(`id`,`prov_name`,`locationid`,`status`,`created_at`,`updated_at`) VALUES 
 (1,'Aceh',NULL,1,'2025-04-10 02:33:05','2025-04-10 02:33:05'),
 (2,'Sumatera Utara',NULL,1,'2025-04-10 02:33:05','2025-04-10 02:33:05'),
 (3,'Sumatera Barat',NULL,1,'2025-04-10 02:33:05','2025-04-10 02:33:05'),
@@ -1688,17 +1688,17 @@ insert  into `provinces`(`id`,`prov_name`,`locationid`,`status`,`created_at`,`up
 DROP TABLE IF EXISTS `recent_searches`;
 
 CREATE TABLE `recent_searches` (
-  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
-  `user_id` bigint unsigned DEFAULT NULL,
-  `keyword` varchar(255) NOT NULL,
-  `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL,
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `user_id` BIGINT UNSIGNED DEFAULT NULL,
+  `keyword` VARCHAR(255) NOT NULL,
+  `created_at` TIMESTAMP NULL DEFAULT NULL,
+  `updated_at` TIMESTAMP NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=166 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=INNODB AUTO_INCREMENT=166 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 /*Data for the table `recent_searches` */
 
-insert  into `recent_searches`(`id`,`user_id`,`keyword`,`created_at`,`updated_at`) values 
+INSERT  INTO `recent_searches`(`id`,`user_id`,`keyword`,`created_at`,`updated_at`) VALUES 
 (1,NULL,'sitoluama','2025-05-02 14:23:54','2025-05-02 14:23:54'),
 (2,NULL,'sitoluama','2025-05-02 14:25:19','2025-05-02 14:25:19'),
 (3,NULL,'homestay','2025-05-02 14:26:06','2025-05-02 14:26:06'),
@@ -1870,23 +1870,23 @@ insert  into `recent_searches`(`id`,`user_id`,`keyword`,`created_at`,`updated_at
 DROP TABLE IF EXISTS `reviews`;
 
 CREATE TABLE `reviews` (
-  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
-  `booking_id` bigint unsigned DEFAULT NULL,
-  `property_id` bigint unsigned DEFAULT NULL,
-  `rating` int NOT NULL,
-  `comment` varchar(255) DEFAULT NULL,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `booking_id` BIGINT UNSIGNED DEFAULT NULL,
+  `property_id` BIGINT UNSIGNED DEFAULT NULL,
+  `rating` INT NOT NULL,
+  `comment` VARCHAR(255) DEFAULT NULL,
+  `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `booking_id` (`booking_id`),
   KEY `property_id` (`property_id`),
   CONSTRAINT `reviews_ibfk_1` FOREIGN KEY (`booking_id`) REFERENCES `bookings` (`id`),
   CONSTRAINT `reviews_ibfk_2` FOREIGN KEY (`property_id`) REFERENCES `properties` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=INNODB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 /*Data for the table `reviews` */
 
-insert  into `reviews`(`id`,`booking_id`,`property_id`,`rating`,`comment`,`created_at`,`updated_at`) values 
+INSERT  INTO `reviews`(`id`,`booking_id`,`property_id`,`rating`,`comment`,`created_at`,`updated_at`) VALUES 
 (1,28,26,5,'bagus banget bang','2025-05-14 14:41:34','2025-05-14 14:41:34'),
 (2,28,26,4,'bagus sih','2025-05-14 14:53:31','2025-05-14 14:53:31'),
 (3,28,26,4,'sangat bagus','2025-05-14 15:16:14','2025-05-14 15:16:14'),
@@ -1900,19 +1900,19 @@ insert  into `reviews`(`id`,`booking_id`,`property_id`,`rating`,`comment`,`creat
 DROP TABLE IF EXISTS `room_facilities`;
 
 CREATE TABLE `room_facilities` (
-  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
-  `room_id` bigint unsigned NOT NULL,
-  `facility_name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL,
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `room_id` BIGINT UNSIGNED NOT NULL,
+  `facility_name` VARCHAR(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `created_at` TIMESTAMP NULL DEFAULT NULL,
+  `updated_at` TIMESTAMP NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `room_id` (`room_id`),
   CONSTRAINT `room_facilities_ibfk_1` FOREIGN KEY (`room_id`) REFERENCES `rooms` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=121 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=INNODB AUTO_INCREMENT=121 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 /*Data for the table `room_facilities` */
 
-insert  into `room_facilities`(`id`,`room_id`,`facility_name`,`created_at`,`updated_at`) values 
+INSERT  INTO `room_facilities`(`id`,`room_id`,`facility_name`,`created_at`,`updated_at`) VALUES 
 (28,3,'lemari','2025-04-17 13:33:40','2025-04-17 13:33:40'),
 (29,3,'meja belajar','2025-04-17 13:33:40','2025-04-17 13:33:40'),
 (35,1,'lemari','2025-04-17 13:48:26','2025-04-17 13:48:26'),
@@ -1973,21 +1973,21 @@ insert  into `room_facilities`(`id`,`room_id`,`facility_name`,`created_at`,`upda
 DROP TABLE IF EXISTS `room_images`;
 
 CREATE TABLE `room_images` (
-  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
-  `room_id` bigint unsigned NOT NULL,
-  `image_url` varchar(255) NOT NULL,
-  `is_main` tinyint(1) NOT NULL DEFAULT '0',
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `room_id` BIGINT UNSIGNED NOT NULL,
+  `image_url` VARCHAR(255) NOT NULL,
+  `is_main` TINYINT(1) NOT NULL DEFAULT '0',
+  `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `idx_room_images_room_id` (`room_id`),
   KEY `idx_room_images_is_main` (`is_main`),
   CONSTRAINT `room_images_ibfk_1` FOREIGN KEY (`room_id`) REFERENCES `rooms` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=71 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=INNODB AUTO_INCREMENT=71 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 /*Data for the table `room_images` */
 
-insert  into `room_images`(`id`,`room_id`,`image_url`,`is_main`,`created_at`,`updated_at`) values 
+INSERT  INTO `room_images`(`id`,`room_id`,`image_url`,`is_main`,`created_at`,`updated_at`) VALUES 
 (1,18,'room_images/oWkCa3UicRtpwQmu8fws5ArPYUcDZmHyh4gJS0nQ.png',1,'2025-04-29 04:24:26','2025-04-29 04:24:26'),
 (2,18,'room_images/gallery/RG9j9gYaUzCUA0FGc78HOdHAGaWcuL2y9JLayHLz.png',0,'2025-04-29 04:24:27','2025-04-29 04:24:27'),
 (7,20,'room_images/gallery/vpiD8sjkD85kofI9QUEPwY6D1qbbVPBsIzR5XpoG.png',0,'2025-04-29 04:33:55','2025-04-29 04:33:55'),
@@ -2059,25 +2059,25 @@ insert  into `room_images`(`id`,`room_id`,`image_url`,`is_main`,`created_at`,`up
 DROP TABLE IF EXISTS `rooms`;
 
 CREATE TABLE `rooms` (
-  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
-  `property_id` bigint unsigned NOT NULL,
-  `room_type` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `room_number` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `price` decimal(12,2) NOT NULL,
-  `size` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `capacity` int NOT NULL DEFAULT '1',
-  `is_available` tinyint(1) DEFAULT '1',
-  `description` text COLLATE utf8mb4_unicode_ci,
-  `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL,
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `property_id` BIGINT UNSIGNED NOT NULL,
+  `room_type` VARCHAR(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `room_number` VARCHAR(50) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `price` DECIMAL(12,2) NOT NULL,
+  `size` VARCHAR(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `capacity` INT NOT NULL DEFAULT '1',
+  `is_available` TINYINT(1) DEFAULT '1',
+  `description` TEXT COLLATE utf8mb4_unicode_ci,
+  `created_at` TIMESTAMP NULL DEFAULT NULL,
+  `updated_at` TIMESTAMP NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `property_id` (`property_id`),
   CONSTRAINT `rooms_ibfk_1` FOREIGN KEY (`property_id`) REFERENCES `properties` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=40 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=INNODB AUTO_INCREMENT=40 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 /*Data for the table `rooms` */
 
-insert  into `rooms`(`id`,`property_id`,`room_type`,`room_number`,`price`,`size`,`capacity`,`is_available`,`description`,`created_at`,`updated_at`) values 
+INSERT  INTO `rooms`(`id`,`property_id`,`room_type`,`room_number`,`price`,`size`,`capacity`,`is_available`,`description`,`created_at`,`updated_at`) VALUES 
 (1,2,'premium','43',3000000.00,'4X5',2,0,'test aja','2025-04-17 04:12:41','2025-04-17 13:48:25'),
 (3,2,'kosongan','12',500000.00,'4X3',2,0,'test aja','2025-04-17 13:33:40','2025-05-09 17:43:13'),
 (4,10,'premium','1',2000000.00,'4X6',3,1,'test aja','2025-04-17 15:08:31','2025-05-12 07:38:14'),
@@ -2118,20 +2118,20 @@ insert  into `rooms`(`id`,`property_id`,`room_type`,`room_number`,`price`,`size`
 DROP TABLE IF EXISTS `sessions`;
 
 CREATE TABLE `sessions` (
-  `id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `user_id` bigint unsigned DEFAULT NULL,
-  `ip_address` varchar(45) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `user_agent` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
-  `payload` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `last_activity` int NOT NULL,
+  `id` VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `user_id` BIGINT UNSIGNED DEFAULT NULL,
+  `ip_address` VARCHAR(45) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `user_agent` TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `payload` LONGTEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `last_activity` INT NOT NULL,
   PRIMARY KEY (`id`),
   KEY `sessions_user_id_index` (`user_id`),
   KEY `sessions_last_activity_index` (`last_activity`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=INNODB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 /*Data for the table `sessions` */
 
-insert  into `sessions`(`id`,`user_id`,`ip_address`,`user_agent`,`payload`,`last_activity`) values 
+INSERT  INTO `sessions`(`id`,`user_id`,`ip_address`,`user_agent`,`payload`,`last_activity`) VALUES 
 ('4br65Q48oA91z1pchR4XlhHetbox10DRVSDHd1fC',1,'127.0.0.1','Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36','YTo0OntzOjY6Il90b2tlbiI7czo0MDoibE5JUG80ak04b0NzYm9qbnBnUnlHdEhQTEo0bm1CTmYzbWtHQWxBeiI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6NTU6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9hZG1pbi9wcm9wZXJ0aWVzL2Jvb2tpbmdzL3BlbmRpbmciO31zOjY6Il9mbGFzaCI7YToyOntzOjM6Im9sZCI7YTowOnt9czozOiJuZXciO2E6MDp7fX1zOjUwOiJsb2dpbl93ZWJfNTliYTM2YWRkYzJiMmY5NDAxNTgwZjAxNGM3ZjU4ZWE0ZTMwOTg5ZCI7aToxO30=',1747300067),
 ('8x4e0NFOkuEM56pCHPcqjX1RCU8jbp81L9d4QciT',3,'127.0.0.1','Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36','YTo0OntzOjY6Il90b2tlbiI7czo0MDoiSHVsQzExNlB4NUdLV2Fvd2ZJaGlyWEEzcEhSQmRxQ2lrd1RCNGk4NSI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6NDM6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9zdXBlci1hZG1pbi9kYXNoYm9hcmQiO31zOjY6Il9mbGFzaCI7YToyOntzOjM6Im9sZCI7YTowOnt9czozOiJuZXciO2E6MDp7fX1zOjUwOiJsb2dpbl93ZWJfNTliYTM2YWRkYzJiMmY5NDAxNTgwZjAxNGM3ZjU4ZWE0ZTMwOTg5ZCI7aTozO30=',1747293535),
 ('B1UqSMT5ca5KMZ98ySe7NBLviNhejis7hcqKDWhX',3,'127.0.0.1','Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36','YTo0OntzOjY6Il90b2tlbiI7czo0MDoidmtiNmF1TURvY25IQ3JkSGVDVjU0RHdFZFFDOVFBNTZFa29OVldSOCI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6NDM6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9zdXBlci1hZG1pbi9kYXNoYm9hcmQiO31zOjY6Il9mbGFzaCI7YToyOntzOjM6Im9sZCI7YTowOnt9czozOiJuZXciO2E6MDp7fX1zOjUwOiJsb2dpbl93ZWJfNTliYTM2YWRkYzJiMmY5NDAxNTgwZjAxNGM3ZjU4ZWE0ZTMwOTg5ZCI7aTozO30=',1747293093),
@@ -2170,19 +2170,19 @@ insert  into `sessions`(`id`,`user_id`,`ip_address`,`user_agent`,`payload`,`last
 DROP TABLE IF EXISTS `subdistricts`;
 
 CREATE TABLE `subdistricts` (
-  `id` bigint unsigned NOT NULL,
-  `subdis_name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `dis_id` bigint unsigned NOT NULL,
-  `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL,
+  `id` BIGINT UNSIGNED NOT NULL,
+  `subdis_name` VARCHAR(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `dis_id` BIGINT UNSIGNED NOT NULL,
+  `created_at` TIMESTAMP NULL DEFAULT NULL,
+  `updated_at` TIMESTAMP NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `fk_subdistricts_district_new` (`dis_id`),
   CONSTRAINT `fk_subdistricts_district_new` FOREIGN KEY (`dis_id`) REFERENCES `districts` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=INNODB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 /*Data for the table `subdistricts` */
 
-insert  into `subdistricts`(`id`,`subdis_name`,`dis_id`,`created_at`,`updated_at`) values 
+INSERT  INTO `subdistricts`(`id`,`subdis_name`,`dis_id`,`created_at`,`updated_at`) VALUES 
 (1,'Desa Laguboti',9,'2025-04-10 02:39:31','2025-04-10 02:39:31'),
 (2,'Desa Sosor Dolok',9,'2025-04-10 02:39:31','2025-04-10 02:39:31'),
 (3,'Desa Sitoluama',9,'2025-04-10 02:39:31','2025-04-10 02:39:31'),
@@ -2196,16 +2196,16 @@ insert  into `subdistricts`(`id`,`subdis_name`,`dis_id`,`created_at`,`updated_at
 DROP TABLE IF EXISTS `user_roles`;
 
 CREATE TABLE `user_roles` (
-  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL,
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `created_at` TIMESTAMP NULL DEFAULT NULL,
+  `updated_at` TIMESTAMP NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=INNODB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 /*Data for the table `user_roles` */
 
-insert  into `user_roles`(`id`,`name`,`created_at`,`updated_at`) values 
+INSERT  INTO `user_roles`(`id`,`name`,`created_at`,`updated_at`) VALUES 
 (1,'Super Admin',NULL,NULL),
 (2,'Owner',NULL,NULL),
 (3,'Admin Platform',NULL,NULL),
@@ -2216,16 +2216,16 @@ insert  into `user_roles`(`id`,`name`,`created_at`,`updated_at`) values
 DROP TABLE IF EXISTS `user_types`;
 
 CREATE TABLE `user_types` (
-  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL,
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `created_at` TIMESTAMP NULL DEFAULT NULL,
+  `updated_at` TIMESTAMP NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=INNODB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 /*Data for the table `user_types` */
 
-insert  into `user_types`(`id`,`name`,`created_at`,`updated_at`) values 
+INSERT  INTO `user_types`(`id`,`name`,`created_at`,`updated_at`) VALUES 
 (1,'Super Admin',NULL,NULL),
 (2,'Owner',NULL,NULL),
 (3,'Admin Platform',NULL,NULL),
@@ -2236,21 +2236,21 @@ insert  into `user_types`(`id`,`name`,`created_at`,`updated_at`) values
 DROP TABLE IF EXISTS `users`;
 
 CREATE TABLE `users` (
-  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `username` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `gender` enum('Pria','Wanita') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `phone` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `address` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `profile_picture` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `email` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `password` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `is_banned` tinyint(1) NOT NULL DEFAULT '0',
-  `user_type_id` bigint unsigned DEFAULT NULL,
-  `user_role_id` bigint unsigned NOT NULL,
-  `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL,
-  `status` enum('pending','approved') COLLATE utf8mb4_unicode_ci DEFAULT 'pending',
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `username` VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `gender` ENUM('Pria','Wanita') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `phone` VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `address` VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `profile_picture` VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `email` VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `password` VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `is_banned` TINYINT(1) NOT NULL DEFAULT '0',
+  `user_type_id` BIGINT UNSIGNED DEFAULT NULL,
+  `user_role_id` BIGINT UNSIGNED NOT NULL,
+  `created_at` TIMESTAMP NULL DEFAULT NULL,
+  `updated_at` TIMESTAMP NULL DEFAULT NULL,
+  `status` ENUM('pending','approved') COLLATE utf8mb4_unicode_ci DEFAULT 'pending',
   PRIMARY KEY (`id`),
   UNIQUE KEY `users_email_unique` (`email`),
   UNIQUE KEY `users_username_unique` (`username`),
@@ -2258,11 +2258,11 @@ CREATE TABLE `users` (
   KEY `users_user_type_id_foreign` (`user_type_id`),
   CONSTRAINT `users_user_role_id_foreign` FOREIGN KEY (`user_role_id`) REFERENCES `user_roles` (`id`) ON DELETE CASCADE,
   CONSTRAINT `users_user_type_id_foreign` FOREIGN KEY (`user_type_id`) REFERENCES `user_types` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=62 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=INNODB AUTO_INCREMENT=62 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 /*Data for the table `users` */
 
-insert  into `users`(`id`,`name`,`username`,`gender`,`phone`,`address`,`profile_picture`,`email`,`password`,`is_banned`,`user_type_id`,`user_role_id`,`created_at`,`updated_at`,`status`) values 
+INSERT  INTO `users`(`id`,`name`,`username`,`gender`,`phone`,`address`,`profile_picture`,`email`,`password`,`is_banned`,`user_type_id`,`user_role_id`,`created_at`,`updated_at`,`status`) VALUES 
 (1,'Anisetus','manaluu','Pria','082276735593','Siborongborong','1747213818.jpg','bambang@gmail.com','$2y$12$Dd/0vPU2XT8W2YbXut5uAuYB2EPOZn0vSLG32cOX40a8bXkes.Iqq',0,2,2,'2025-04-16 21:50:45','2025-05-15 01:18:36','approved'),
 (2,'adminplatform','adminplatform','Pria','081234567891','Aekraja No. 1','3cbb4b41-73c8-4fcc-987f-e6f93ef1dc2a.jpg','adminplatform@gmail.com','$2y$12$0tUWaBuZWhy4DN9WiJ5r/ufxsUVPKR8pybNTBHrqJek1jga81nDw.',0,3,3,'2025-04-14 13:50:47','2025-04-18 03:28:50',NULL),
 (3,'superadmin','superadmin','Pria','081234567892','Jl. Superadmin No. 7','84ffabac-df39-4024-8d2a-fed08e34f3ef.jpg','superadmin@gmail.com','$2y$12$1AEGzwMcNQP4LfkOShpA2.2Q8G9.JyfzPGPrHmVChwghSVlVU388W',0,1,1,'2025-04-14 13:50:49','2025-05-15 04:37:48',NULL),
@@ -2316,21 +2316,21 @@ insert  into `users`(`id`,`name`,`username`,`gender`,`phone`,`address`,`profile_
 DROP TABLE IF EXISTS `wishlists`;
 
 CREATE TABLE `wishlists` (
-  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
-  `user_id` bigint unsigned NOT NULL,
-  `property_id` bigint unsigned NOT NULL,
-  `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL,
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `user_id` BIGINT UNSIGNED NOT NULL,
+  `property_id` BIGINT UNSIGNED NOT NULL,
+  `created_at` TIMESTAMP NULL DEFAULT NULL,
+  `updated_at` TIMESTAMP NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `wishlists_user_id_property_id_unique` (`user_id`,`property_id`),
   KEY `wishlists_property_id_foreign` (`property_id`),
   CONSTRAINT `wishlists_property_id_foreign` FOREIGN KEY (`property_id`) REFERENCES `properties` (`id`) ON DELETE CASCADE,
   CONSTRAINT `wishlists_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=57 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=INNODB AUTO_INCREMENT=57 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 /*Data for the table `wishlists` */
 
-insert  into `wishlists`(`id`,`user_id`,`property_id`,`created_at`,`updated_at`) values 
+INSERT  INTO `wishlists`(`id`,`user_id`,`property_id`,`created_at`,`updated_at`) VALUES 
 (21,4,35,'2025-04-30 14:14:49','2025-04-30 14:14:49'),
 (30,46,36,'2025-05-06 07:54:32','2025-05-06 07:54:32'),
 (33,5,37,'2025-05-06 08:37:58','2025-05-06 08:37:58'),

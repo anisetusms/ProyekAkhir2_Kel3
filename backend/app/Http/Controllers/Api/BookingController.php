@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use App\Models\Customer;
-use App\Models\Notification;    
+use App\Models\Notification;
 use Illuminate\Support\Facades\Auth;
 
 class BookingController extends Controller
@@ -143,14 +143,23 @@ class BookingController extends Controller
             $totalPrice = 0;
             $rooms = collect();
 
+            // Hitung durasi berdasarkan tipe properti
+            $isHomestay = $property->type === 'homestay'; // Pastikan field type bernama 'type'
+
+            $duration = $isHomestay
+                ? $checkIn->diffInDays($checkOut)
+                : max(1, $checkIn->diffInMonths($checkOut)); // minimal 1 bulan untuk kost
+
             if (!empty($request->room_ids)) {
                 $rooms = Room::whereIn('id', $request->room_ids)->get();
+
                 foreach ($rooms as $room) {
-                    $totalPrice += $room->price * $checkIn->diffInDays($checkOut);
+                    $totalPrice += $room->price * $duration;
                 }
             } else {
-                $totalPrice = $property->price * $checkIn->diffInDays($checkOut);
+                $totalPrice = $property->price * $duration;
             }
+
 
             // Membuat booking ID unik
             $bookingGroup = Str::uuid();
@@ -226,7 +235,7 @@ class BookingController extends Controller
             $propertyName = $property->name;
             $checkIn = Carbon::parse($booking->check_in)->format('d M Y');
             $checkOut = Carbon::parse($booking->check_out)->format('d M Y');
-            
+
             Notification::create([
                 'user_id' => $ownerId,
                 'type' => 'booking_new',

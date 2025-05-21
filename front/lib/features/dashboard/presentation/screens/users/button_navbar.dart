@@ -10,7 +10,6 @@ import 'package:front/features/dashboard/presentation/screens/users/penyewa/prof
 import 'package:front/features/dashboard/presentation/screens/users/owner/profil.dart';
 import 'package:front/features/dashboard/presentation/screens/users/owner/admin_booking_list_screen.dart';
 import 'package:front/features/dashboard/presentation/screens/users/penyewa/Daftar_booking_screen.dart';
-  
 
 class BottomBar extends StatefulWidget {
   const BottomBar({super.key});
@@ -21,7 +20,7 @@ class BottomBar extends StatefulWidget {
 
 class _BottomBarState extends State<BottomBar> {
   late int _selectedIndex = 0;
-  int? _role; // Nullable sampai SharedPreferences dimuat
+  int? _role;
   bool _isLoggedIn = false;
 
   @override
@@ -34,41 +33,44 @@ class _BottomBarState extends State<BottomBar> {
   Future<void> _loadUserData() async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
-    
+
     setState(() {
       _role = prefs.getInt('user_role_id') ?? 4; // 2 = Owner, 4 = Customer
       _isLoggedIn = token != null && token.isNotEmpty;
     });
   }
-  
+
   // Fungsi untuk memeriksa apakah user sudah login
   Future<bool> _checkLoginStatus() async {
     if (_isLoggedIn) return true;
-    
+
     // Jika belum login, tampilkan dialog konfirmasi
     final result = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Login Diperlukan'),
-        content: const Text('Anda perlu login untuk mengakses fitur ini. Apakah Anda ingin login sekarang?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Nanti'),
+      builder:
+          (context) => AlertDialog(
+            title: const Text('Login Diperlukan'),
+            content: const Text(
+              'Anda perlu login untuk mengakses fitur ini. Apakah Anda ingin login sekarang?',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text('Nanti'),
+              ),
+              ElevatedButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                child: const Text('Login'),
+              ),
+            ],
           ),
-          ElevatedButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Login'),
-          ),
-        ],
-      ),
     );
-    
+
     // Jika user memilih login, arahkan ke halaman login
     if (result == true) {
       Get.toNamed('/login');
     }
-    
+
     return false;
   }
 
@@ -86,20 +88,23 @@ class _BottomBarState extends State<BottomBar> {
         currentIndex: _selectedIndex,
         onTap: (index) async {
           // Cek apakah perlu login untuk mengakses tab tertentu
-          if (_role == 4) { // Customer
-            if (index == 2 || index == 3) { // Booking atau Profile
+          if (_role == 4) {
+            // Customer
+            if ((index == 2 || index == 3) && !_isLoggedIn) {
               final canProceed = await _checkLoginStatus();
               if (!canProceed) return;
             }
           }
-          
+
           setState(() {
             _selectedIndex = index;
           });
         },
         selectedItemColor: Colors.black, // Color for selected item (icon color)
         unselectedItemColor: Colors.grey, // Color for unselected items
-        selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold), // Bold label when selected
+        selectedLabelStyle: const TextStyle(
+          fontWeight: FontWeight.bold,
+        ), // Bold label when selected
       ),
       body: _getBody(),
     );
@@ -107,7 +112,8 @@ class _BottomBarState extends State<BottomBar> {
 
   // Mengambil menu bottom navigation sesuai role
   List<BottomNavigationBarItem> _getBottomNavItems() {
-    if (_role == 2) { // Owner
+    if (_role == 2) {
+      // Owner
       return [
         _bottomNavigationBarItem('Home', 'assets/icons/h.svg'),
         _bottomNavigationBarItem('Properti', 'assets/icons/Vector.svg'),
@@ -115,14 +121,16 @@ class _BottomBarState extends State<BottomBar> {
         _bottomNavigationBarItem('Ulasan', 'assets/icons/ulasan.svg'),
         _bottomNavigationBarItem('Profile', 'assets/icons/profil.svg'),
       ];
-    } else if (_role == 4) { // Customer
+    } else if (_role == 4) {
+      // Customer
       return [
         _bottomNavigationBarItem('Home', 'assets/icons/h.svg'),
         _bottomNavigationBarItem('Pencarian', 'assets/icons/Search.svg'),
         _bottomNavigationBarItem('Booking', 'assets/icons/pesanan_owner.svg'),
         _bottomNavigationBarItem('Profile', 'assets/icons/profil.svg'),
       ];
-    } else { // Default
+    } else {
+      // Default
       return [
         _bottomNavigationBarItem('Home', 'assets/icons/home_icon.svg'),
         _bottomNavigationBarItem('Profile', 'assets/icons/profile_icon.svg'),
@@ -131,7 +139,10 @@ class _BottomBarState extends State<BottomBar> {
   }
 
   // Fungsi untuk membuat BottomNavigationBarItem dengan SVG
-  BottomNavigationBarItem _bottomNavigationBarItem(String label, String svgPath) {
+  BottomNavigationBarItem _bottomNavigationBarItem(
+    String label,
+    String svgPath,
+  ) {
     return BottomNavigationBarItem(
       icon: SvgPicture.asset(
         svgPath,
@@ -153,7 +164,8 @@ class _BottomBarState extends State<BottomBar> {
 
   // Halaman yang akan ditampilkan berdasarkan tab yang dipilih
   Widget _getBody() {
-    if (_role == 2) { // Owner
+    if (_role == 2) {
+      // Owner
       switch (_selectedIndex) {
         case 0:
           return DashboardScreen();
@@ -168,7 +180,8 @@ class _BottomBarState extends State<BottomBar> {
         default:
           return DashboardScreen();
       }
-    } else { // Customer
+    } else {
+      // Customer
       switch (_selectedIndex) {
         case 0:
           return const DashboardPage();
@@ -176,12 +189,12 @@ class _BottomBarState extends State<BottomBar> {
           return const SearchScreen();
         case 2:
           // Jika belum login, tampilkan halaman login required
-          return _isLoggedIn 
+          return _isLoggedIn
               ? const BookingListScreen()
               : _buildLoginRequiredScreen('booking');
         case 3:
           // Jika belum login, tampilkan halaman login required
-          return _isLoggedIn 
+          return _isLoggedIn
               ? const ProfileUser()
               : _buildLoginRequiredScreen('profil');
         default:
@@ -189,7 +202,7 @@ class _BottomBarState extends State<BottomBar> {
       }
     }
   }
-  
+
   // Widget untuk menampilkan halaman yang memerlukan login
   Widget _buildLoginRequiredScreen(String feature) {
     return Center(
@@ -198,11 +211,7 @@ class _BottomBarState extends State<BottomBar> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.lock_outline,
-              size: 80,
-              color: Colors.grey[400],
-            ),
+            Icon(Icons.lock_outline, size: 80, color: Colors.grey[400]),
             const SizedBox(height: 24),
             Text(
               'Login Diperlukan',
@@ -216,10 +225,7 @@ class _BottomBarState extends State<BottomBar> {
             const SizedBox(height: 16),
             Text(
               'Anda perlu login untuk melihat ${feature == 'booking' ? 'daftar booking' : 'profil'} Anda',
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.grey[600],
-              ),
+              style: TextStyle(fontSize: 16, color: Colors.grey[600]),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 32),
@@ -238,10 +244,7 @@ class _BottomBarState extends State<BottomBar> {
                 ),
                 child: const Text(
                   'Login Sekarang',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
               ),
             ),
@@ -252,10 +255,7 @@ class _BottomBarState extends State<BottomBar> {
               },
               child: const Text(
                 'Belum punya akun? Daftar di sini',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.blue,
-                ),
+                style: TextStyle(fontSize: 14, color: Colors.blue),
               ),
             ),
           ],

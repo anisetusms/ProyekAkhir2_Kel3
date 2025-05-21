@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:front/features/property/data/models/notification_model.dart';
 import 'package:front/features/dashboard/presentation/screens/users/owner/service/notification_service.dart';
+import 'package:front/core/utils/theme_config.dart';
 
 class NotificationScreen extends StatefulWidget {
   static const routeName = '/notifications';
@@ -106,7 +107,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Notifikasi'),
-        backgroundColor: Theme.of(context).primaryColor,
+        backgroundColor: Color(0xFF4CAF50),
         foregroundColor: Colors.white,
         actions: [
           if (_notifications != null && _notifications!.isNotEmpty)

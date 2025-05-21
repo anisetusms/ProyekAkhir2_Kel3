@@ -52,9 +52,11 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="price">Harga (Rp) <span class="text-danger">*</span></label>
+                            <label for="price">Harga (Rp) <span class="text-danger">*</span><br>
+                                <small class="text-muted">Masukkan harga per bulan jika tipe properti adalah Kost, dan harga per hari jika tipe properti adalah Homestay.</small>
+                            </label>
                             <input type="number" class="form-control @error('price') is-invalid @enderror"
-                                id="price" name="price" value="{{ old('price') }}" min="0" required>
+                                id="price" name="price" value="{{ old('price') }}" min="0" required placeholder="Contoh: 700000">
                             @error('price')
                             <div class="invalid-feedback">{{ $message }}</div>
                             @enderror

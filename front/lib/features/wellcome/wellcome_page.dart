@@ -66,7 +66,7 @@ class _WelcomePageState extends State<WelcomePage> with SingleTickerProviderStat
 
     // Jika bukan pertama kali, langsung ke bottombar setelah delay singkat
     if (!_isFirstTime) {
-      Future.delayed(const Duration(seconds: 10), () {
+      Future.delayed(const Duration(seconds: 30), () {
         if (mounted && !_hasNavigated) {
           Get.offAllNamed('/bottombar');
         }

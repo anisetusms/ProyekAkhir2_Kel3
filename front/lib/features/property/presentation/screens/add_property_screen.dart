@@ -160,7 +160,7 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
       var response = await request.send();
       var responseBody = await response.stream.bytesToString();
       var parsedResponse = jsonDecode(responseBody);
-if (response.statusCode == 200 &&
+      if (response.statusCode == 200 &&
           parsedResponse['message'] == 'Properti berhasil dibuat') {
         Navigator.pushReplacement(
           context,
@@ -168,7 +168,6 @@ if (response.statusCode == 200 &&
             builder: (context) => PropertyListScreen(),
           ), // Ganti ke layar daftar properti setelah sukses
         );
-      
       } else {
         setState(
           () =>
@@ -258,6 +257,8 @@ if (response.statusCode == 200 &&
     TextInputType? keyboardType,
     String? Function(String?)? validator,
     bool required = false,
+    bool isPriceField =
+        false, // Added flag to check if the field is price-related
   }) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16.0),
@@ -269,6 +270,17 @@ if (response.statusCode == 200 &&
             style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
           ),
           SizedBox(height: 4),
+          if (isPriceField) // Show custom message if it's the price field
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Masukkan harga per bulan jika tipe properti adalah Kost, dan harga per hari jika tipe properti adalah Homestay.',
+                  style: TextStyle(fontSize: 12, color: Colors.grey),
+                ),
+                SizedBox(height: 8),
+              ],
+            ),
           TextFormField(
             controller: controller,
             maxLines: maxLines,
@@ -284,6 +296,10 @@ if (response.statusCode == 200 &&
               ),
               filled: true,
               fillColor: Colors.grey[50],
+              hintText:
+                  isPriceField
+                      ? 'Contoh: 500000'
+                      : null, 
             ),
             validator:
                 validator ??
@@ -447,6 +463,7 @@ if (response.statusCode == 200 &&
                 controller: _priceController,
                 keyboardType: TextInputType.number,
                 required: true,
+                isPriceField: true, // Mark the field as price-related
               ),
               _buildFormField(
                 label: 'Alamat',

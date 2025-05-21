@@ -1,3 +1,718 @@
+// import 'package:flutter/material.dart';
+// import 'package:image_picker/image_picker.dart';
+// import 'package:front/features/dashboard/presentation/screens/users/penyewa/booking/booking_repository.dart';
+// import 'package:front/features/dashboard/presentation/screens/users/penyewa/booking/BookingSuccessScreen.dart';
+// import 'package:front/core/network/api_client.dart';
+// import 'package:front/features/room/data/models/new_room_model.dart';
+// import 'package:intl/intl.dart';
+// import 'dart:io';
+// import 'package:flutter/services.dart';
+
+// class CreateBookingEnhancedScreen extends StatefulWidget {
+//   final int propertyId;
+//   final int? propertyTypeId;
+//   final Room? room;
+//   final List<Room>? rooms;
+//   final bool isWholePropertyBooking;
+
+//   const CreateBookingEnhancedScreen({
+//     Key? key,
+//     required this.propertyId,
+//     this.room,
+//     this.rooms,
+//     this.propertyTypeId,
+//     this.isWholePropertyBooking = false,
+//   }) : super(key: key);
+
+//   @override
+//   _CreateBookingEnhancedScreenState createState() =>
+//       _CreateBookingEnhancedScreenState();
+// }
+
+// class _CreateBookingEnhancedScreenState
+//     extends State<CreateBookingEnhancedScreen> {
+//   final _formKey = GlobalKey<FormState>();
+//   final _pageController = PageController();
+//   File? _ktpImage;
+//   bool _isLoading = false;
+//   bool _isLoadingPropertyType = true;
+//   late BookingRepository _bookingRepository;
+//   late DateTime _checkInDate;
+//   late DateTime _checkOutDate;
+//   final TextEditingController _guestNameController = TextEditingController();
+//   final TextEditingController _guestPhoneController = TextEditingController();
+//   final TextEditingController _ktpController = TextEditingController();
+//   final TextEditingController _specialRequestsController =
+//       TextEditingController();
+//   bool _isForOthers = false;
+//   int _propertyTypeId = 1; // Default to Kost
+//   String? _errorMessage;
+//   int _currentStep = 0;
+//   bool _termsAccepted = false;
+
+//   @override
+//   void initState() {
+//     super.initState();
+//     _bookingRepository = BookingRepository(apiClient: ApiClient());
+
+//     final now = DateTime.now();
+//     _checkInDate = DateTime(now.year, now.month, now.day);
+
+//     // Set default checkout date based on property type
+//     if (widget.propertyTypeId == 2) {
+//       // Homestay - default to 1 day
+//       _checkOutDate = DateTime(
+//         _checkInDate.year,
+//         _checkInDate.month,
+//         _checkInDate.day + 1,
+//       );
+//     } else {
+//       // Kost - default to 30 days (1 month)
+//       _checkOutDate = DateTime(
+//         _checkInDate.year,
+//         _checkInDate.month,
+//         _checkInDate.day + 30,
+//       );
+//     }
+
+//     // If propertyTypeId is provided, use it directly
+//     if (widget.propertyTypeId != null) {
+//       _propertyTypeId = widget.propertyTypeId!;
+//       _isLoadingPropertyType = false;
+//     } else {
+//       // Otherwise fetch property type
+//       _fetchPropertyType();
+//     }
+
+//     // Debug log untuk melihat tanggal awal
+//     debugPrint(
+//       'Initial dates: ${DateFormat('yyyy-MM-dd').format(_checkInDate)} to ${DateFormat('yyyy-MM-dd').format(_checkOutDate)}',
+//     );
+//     debugPrint('Initial days: ${_calculateDays()}');
+//   }
+
+//   // Fetch property type from server
+//   Future<void> _fetchPropertyType() async {
+//     setState(() {
+//       _isLoadingPropertyType = true;
+//       _errorMessage = null;
+//     });
+
+//     try {
+//       final property = await _bookingRepository.getPropertyDetails(
+//         widget.propertyId,
+//       );
+//       setState(() {
+//         _propertyTypeId = property.propertyTypeId;
+//         _isLoadingPropertyType = false;
+
+//         // Update checkout date based on property type
+//         if (_isHomestay) {
+//           // For homestay, default to 30 days
+//           _checkOutDate = DateTime(
+//             _checkInDate.year,
+//             _checkInDate.month,
+//             _checkInDate.day + 30,
+//           );
+//         } else {
+//           // For kost, default to 2 days (untuk memastikan selisih minimal 1 hari)
+//           _checkOutDate = DateTime(
+//             _checkInDate.year,
+//             _checkInDate.month,
+//             _checkInDate.day + 2,
+//           );
+//         }
+
+//         // Debug log setelah update tanggal
+//         debugPrint(
+//           'Updated dates after property fetch: ${DateFormat('yyyy-MM-dd').format(_checkInDate)} to ${DateFormat('yyyy-MM-dd').format(_checkOutDate)}',
+//         );
+//         debugPrint('Updated days: ${_calculateDays()}');
+//       });
+//     } catch (e) {
+//       setState(() {
+//         _isLoadingPropertyType = false;
+//         _errorMessage = 'Gagal memuat tipe properti: $e';
+//       });
+//     }
+//   }
+
+//   // Getter for convenience
+//   bool get _isHomestay => _propertyTypeId == 2;
+
+//   // Hitung selisih hari sesuai dengan Carbon::diffInDays di server
+//   int _calculateDays() {
+//     // Pastikan tanggal tidak memiliki komponen waktu
+//     final startDate = DateTime(
+//       _checkInDate.year,
+//       _checkInDate.month,
+//       _checkInDate.day,
+//     );
+//     final endDate = DateTime(
+//       _checkOutDate.year,
+//       _checkOutDate.month,
+//       _checkOutDate.day,
+//     );
+
+//     // Hitung selisih dalam hari
+//     return endDate.difference(startDate).inDays;
+//   }
+
+//   double _calculateTotalPrice() {
+//     final days = _calculateDays();
+
+//     if (widget.isWholePropertyBooking) {
+//       // Logic for whole property booking price would go here
+//       // This would need to be fetched from the property data
+//       return 0.0; // Placeholder
+//     } else if (widget.room != null) {
+//       // Single room booking
+//       if (_isHomestay) {
+//         return widget.room!.price * days; // Price per day * number of days
+//       } else {
+//         // For Kost, price is per month (30 days)
+//         // Calculate number of months (rounded up)
+//         int months = (days / 30).ceil();
+//         return widget.room!.price * months;
+//       }
+//     } else if (widget.rooms != null && widget.rooms!.isNotEmpty) {
+//       // Multiple room booking
+//       double total = 0;
+//       for (var room in widget.rooms!) {
+//         if (_isHomestay) {
+//           total += room.price * days; // Homestay price per day
+//         } else {
+//           // For Kost, price is per month (30 days)
+//           int months = (days / 30).ceil();
+//           total += room.price * months;
+//         }
+//       }
+//       return total;
+//     }
+
+//     return 0.0;
+//   }
+
+//   Future<void> _pickKTPImage() async {
+//     final picker = ImagePicker();
+//     final pickedFile = await picker.pickImage(
+//       source: ImageSource.gallery,
+//       imageQuality: 70,
+//     );
+
+//     if (pickedFile != null) {
+//       setState(() {
+//         _ktpImage = File(pickedFile.path);
+//       });
+
+//       // Haptic feedback when image is selected
+//       HapticFeedback.mediumImpact();
+
+//       // Show success snackbar
+//       ScaffoldMessenger.of(context).showSnackBar(
+//         const SnackBar(
+//           content: Text('KTP berhasil diunggah'),
+//           backgroundColor: Colors.green,
+//           duration: Duration(seconds: 2),
+//         ),
+//       );
+//     }
+//   }
+
+//   Future<void> _selectDate(BuildContext context, bool isCheckIn) async {
+//     final DateTime today = DateTime(
+//       DateTime.now().year,
+//       DateTime.now().month,
+//       DateTime.now().day,
+//     );
+
+//     final picked = await showDatePicker(
+//       context: context,
+//       initialDate: isCheckIn ? _checkInDate : _checkOutDate,
+//       firstDate:
+//           isCheckIn
+//               ? today
+//               : DateTime(
+//                 _checkInDate.year,
+//                 _checkInDate.month,
+//                 _checkInDate.day +
+//                     (_isHomestay ? 1 : 30), // Minimum 30 days for Kost
+//               ),
+//       lastDate: DateTime(DateTime.now().year + 2),
+//       builder: (context, child) {
+//         return Theme(
+//           data: Theme.of(context).copyWith(
+//             colorScheme: ColorScheme.light(
+//               primary: Theme.of(context).primaryColor,
+//               onPrimary: Colors.white,
+//               surface: Colors.white,
+//               onSurface: Colors.black,
+//             ),
+//             dialogBackgroundColor: Colors.white,
+//           ),
+//           child: child!,
+//         );
+//       },
+//     );
+
+//     if (picked != null) {
+//       setState(() {
+//         if (isCheckIn) {
+//           _checkInDate = DateTime(picked.year, picked.month, picked.day);
+
+//           // For Kost, set checkout to at least 30 days later
+//           if (!_isHomestay) {
+//             _checkOutDate = DateTime(
+//               _checkInDate.year,
+//               _checkInDate.month,
+//               _checkInDate.day + 30,
+//             );
+//           } else {
+//             // For Homestay, default to 1 day later
+//             _checkOutDate = DateTime(
+//               _checkInDate.year,
+//               _checkInDate.month,
+//               _checkInDate.day + 1,
+//             );
+//           }
+//         } else {
+//           // Only allow date changes for Homestay
+//           if (_isHomestay) {
+//             _checkOutDate = DateTime(picked.year, picked.month, picked.day);
+
+//             // Ensure at least 1 day difference
+//             if (_calculateDays() < 1) {
+//               ScaffoldMessenger.of(context).showSnackBar(
+//                 const SnackBar(
+//                   content: Text(
+//                     'Tanggal check-out harus minimal 1 hari setelah check-in',
+//                   ),
+//                   backgroundColor: Colors.red,
+//                 ),
+//               );
+//               _checkOutDate = DateTime(
+//                 _checkInDate.year,
+//                 _checkInDate.month,
+//                 _checkInDate.day + 1,
+//               );
+//             }
+//           } else {
+//             // For Kost, show message that checkout is fixed based on checkin
+//             ScaffoldMessenger.of(context).showSnackBar(
+//               const SnackBar(
+//                 content: Text(
+//                   'Untuk Kost, durasi booking adalah per bulan (30 hari)',
+//                 ),
+//                 backgroundColor: Colors.blue,
+//               ),
+//             );
+//           }
+//         }
+//       });
+
+//       HapticFeedback.selectionClick();
+//     }
+//   }
+
+//   void _nextStep() {
+//     if (_currentStep < 2) {
+//       setState(() {
+//         _currentStep++;
+//       });
+//       _pageController.animateToPage(
+//         _currentStep,
+//         duration: const Duration(milliseconds: 300),
+//         curve: Curves.easeInOut,
+//       );
+//     }
+//   }
+
+//   void _prevStep() {
+//     if (_currentStep > 0) {
+//       setState(() {
+//         _currentStep--;
+//       });
+//       _pageController.animateToPage(
+//         _currentStep,
+//         duration: const Duration(milliseconds: 300),
+//         curve: Curves.easeInOut,
+//       );
+//     }
+//   }
+
+//   Future<void> _submitBooking() async {
+//     if (!_formKey.currentState!.validate()) return;
+//     if (_ktpImage == null) {
+//       ScaffoldMessenger.of(context).showSnackBar(
+//         const SnackBar(
+//           content: Text('Harap unggah foto KTP'),
+//           backgroundColor: Colors.red,
+//         ),
+//       );
+//       return;
+//     }
+
+//     if (!_isHomestay) {
+//       final days = _calculateDays();
+//       if (days % 30 != 0) {
+//         ScaffoldMessenger.of(context).showSnackBar(
+//           const SnackBar(
+//             content: Text(
+//               'Untuk Kost, durasi booking harus kelipatan 30 hari (1 bulan)',
+//             ),
+//             backgroundColor: Colors.red,
+//           ),
+//         );
+//         return;
+//       }
+//     }
+
+//     if (!_termsAccepted) {
+//       ScaffoldMessenger.of(context).showSnackBar(
+//         const SnackBar(
+//           content: Text('Harap setujui syarat dan ketentuan'),
+//           backgroundColor: Colors.red,
+//         ),
+//       );
+//       return;
+//     }
+
+//     // Validasi tanggal dengan lebih ketat
+//     final days = _calculateDays();
+//     debugPrint('Days before submit: $days');
+
+//     if (days < 1) {
+//       ScaffoldMessenger.of(context).showSnackBar(
+//         const SnackBar(
+//           content: Text(
+//             'Tanggal check-out harus minimal 1 hari setelah check-in',
+//           ),
+//           backgroundColor: Colors.red,
+//         ),
+//       );
+//       return;
+//     }
+
+//     setState(() {
+//       _isLoading = true;
+//       _errorMessage = null;
+//     });
+
+//     try {
+//       // Prepare room IDs if booking specific rooms
+//       List<int>? roomIds;
+//       if (!widget.isWholePropertyBooking) {
+//         if (widget.room != null) {
+//           roomIds = [widget.room!.id];
+//         } else if (widget.rooms != null && widget.rooms!.isNotEmpty) {
+//           roomIds = widget.rooms!.map((room) => room.id).toList();
+//         }
+//       }
+
+//       debugPrint(
+//         'Submitting booking with dates: ${DateFormat('yyyy-MM-dd').format(_checkInDate)} to ${DateFormat('yyyy-MM-dd').format(_checkOutDate)}',
+//       );
+//       debugPrint('Days: $days');
+
+//       final booking = await _bookingRepository.createBooking(
+//         propertyId: widget.propertyId,
+//         roomIds: roomIds,
+//         checkIn: _checkInDate,
+//         checkOut: _checkOutDate,
+//         isForOthers: _isForOthers,
+//         guestName: _isForOthers ? _guestNameController.text : null,
+//         guestPhone: _isForOthers ? _guestPhoneController.text : null,
+//         ktpImage: _ktpImage!,
+//         identityNumber: _ktpController.text,
+//         specialRequests:
+//             _specialRequestsController.text.isNotEmpty
+//                 ? _specialRequestsController.text
+//                 : null,
+//       );
+
+//       // Haptic feedback for successful booking
+//       HapticFeedback.heavyImpact();
+
+//       Navigator.of(context).pushReplacement(
+//         MaterialPageRoute(
+//           builder: (_) => BookingSuccessScreen(booking: booking),
+//         ),
+//       );
+//     } catch (e) {
+//       setState(() {
+//         _isLoading = false;
+//         _errorMessage = e.toString();
+//       });
+
+//       // Haptic feedback for error
+//       HapticFeedback.vibrate();
+
+//       ScaffoldMessenger.of(context).showSnackBar(
+//         SnackBar(
+//           content: Text('Gagal membuat booking: $e'),
+//           backgroundColor: Colors.red,
+//           duration: const Duration(seconds: 5),
+//           action: SnackBarAction(
+//             label: 'Detail',
+//             textColor: Colors.white,
+//             onPressed: () {
+//               showDialog(
+//                 context: context,
+//                 builder:
+//                     (context) => AlertDialog(
+//                       title: const Text('Detail Error'),
+//                       content: SingleChildScrollView(child: Text(e.toString())),
+//                       actions: [
+//                         TextButton(
+//                           onPressed: () => Navigator.pop(context),
+//                           child: const Text('Tutup'),
+//                         ),
+//                       ],
+//                     ),
+//               );
+//             },
+//           ),
+//         ),
+//       );
+//     } finally {
+//       setState(() {
+//         _isLoading = false;
+//       });
+//     }
+//   }
+
+//   @override
+//   Widget build(BuildContext context) {
+//     // Show loading indicator while fetching property type
+//     if (_isLoadingPropertyType) {
+//       return Scaffold(
+//         appBar: AppBar(title: const Text('Buat Booking'), elevation: 0),
+//         body: const Center(
+//           child: Column(
+//             mainAxisAlignment: MainAxisAlignment.center,
+//             children: [
+//               CircularProgressIndicator(),
+//               SizedBox(height: 16),
+//               Text('Memuat informasi properti...'),
+//             ],
+//           ),
+//         ),
+//       );
+//     }
+
+//     final days = _calculateDays();
+//     final totalPrice = _calculateTotalPrice();
+//     final bookingType =
+//         widget.isWholePropertyBooking
+//             ? 'Seluruh Properti'
+//             : (widget.room != null
+//                 ? 'Kamar ${widget.room!.roomNumber}'
+//                 : 'Multiple Kamar');
+//     final currencyFormat = NumberFormat.currency(
+//       locale: 'id_ID',
+//       symbol: 'Rp',
+//       decimalDigits: 0,
+//     );
+
+//     return Scaffold(
+//       appBar: AppBar(
+//         title: const Text('Buat Booking'),
+//         elevation: 0,
+//         backgroundColor: Theme.of(context).primaryColor,
+//         foregroundColor: Colors.white,
+//         actions: [
+//           IconButton(
+//             icon: const Icon(Icons.info_outline),
+//             onPressed: () {
+//               showDialog(
+//                 context: context,
+//                 builder:
+//                     (context) => AlertDialog(
+//                       title: const Text('Informasi Booking'),
+//                       content: const SingleChildScrollView(
+//                         child: Column(
+//                           crossAxisAlignment: CrossAxisAlignment.start,
+//                           mainAxisSize: MainAxisSize.min,
+//                           children: [
+//                             Text('• Durasi minimal pemesanan adalah 1 hari'),
+//                             SizedBox(height: 8),
+//                             Text(
+//                               '• Pembayaran dilakukan setelah booking dikonfirmasi',
+//                             ),
+//                             SizedBox(height: 8),
+//                             Text('• Pastikan data yang dimasukkan sudah benar'),
+//                             SizedBox(height: 8),
+//                             Text(
+//                               '• Foto KTP digunakan untuk verifikasi identitas',
+//                             ),
+//                           ],
+//                         ),
+//                       ),
+//                       actions: [
+//                         TextButton(
+//                           onPressed: () => Navigator.pop(context),
+//                           child: const Text('Mengerti'),
+//                         ),
+//                       ],
+//                     ),
+//               );
+//             },
+//           ),
+//         ],
+//       ),
+//       body:
+//           _isLoading
+//               ? const Center(child: CircularProgressIndicator())
+//               : Form(
+//                 key: _formKey,
+//                 child: Column(
+//                   children: [
+//                     // Progress indicator
+//                     Container(
+//                       padding: const EdgeInsets.symmetric(
+//                         horizontal: 16,
+//                         vertical: 8,
+//                       ),
+//                       child: Row(
+//                         children: [
+//                           for (int i = 0; i < 3; i++)
+//                             Expanded(
+//                               child: Container(
+//                                 margin: const EdgeInsets.symmetric(
+//                                   horizontal: 4,
+//                                 ),
+//                                 height: 4,
+//                                 decoration: BoxDecoration(
+//                                   color:
+//                                       i <= _currentStep
+//                                           ? Theme.of(context).primaryColor
+//                                           : Colors.grey.shade300,
+//                                   borderRadius: BorderRadius.circular(2),
+//                                 ),
+//                               ),
+//                             ),
+//                         ],
+//                       ),
+//                     ),
+
+//                     // Step title
+//                     Padding(
+//                       padding: const EdgeInsets.symmetric(
+//                         horizontal: 16,
+//                         vertical: 8,
+//                       ),
+//                       child: Row(
+//                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//                         children: [
+//                           Text(
+//                             _currentStep == 0
+//                                 ? 'Detail Pemesanan'
+//                                 : _currentStep == 1
+//                                 ? 'Informasi Pemesan'
+//                                 : 'Konfirmasi',
+//                             style: const TextStyle(
+//                               fontSize: 18,
+//                               fontWeight: FontWeight.bold,
+//                             ),
+//                           ),
+//                           Text(
+//                             'Langkah ${_currentStep + 1}/3',
+//                             style: TextStyle(color: Colors.grey.shade600),
+//                           ),
+//                         ],
+//                       ),
+//                     ),
+
+//                     // Error message if any
+//                     if (_errorMessage != null)
+//                       Container(
+//                         width: double.infinity,
+//                         padding: const EdgeInsets.all(12),
+//                         margin: const EdgeInsets.symmetric(
+//                           horizontal: 16,
+//                           vertical: 8,
+//                         ),
+//                         decoration: BoxDecoration(
+//                           color: Colors.red[50],
+//                           borderRadius: BorderRadius.circular(8),
+//                           border: Border.all(color: Colors.red),
+//                         ),
+//                         child: Column(
+//                           crossAxisAlignment: CrossAxisAlignment.start,
+//                           children: [
+//                             const Text(
+//                               'Error:',
+//                               style: TextStyle(
+//                                 fontWeight: FontWeight.bold,
+//                                 color: Colors.red,
+//                               ),
+//                             ),
+//                             const SizedBox(height: 4),
+//                             Text(
+//                               _errorMessage!,
+//                               style: TextStyle(color: Colors.red[800]),
+//                             ),
+//                           ],
+//                         ),
+//                       ),
+
+//                     // Page content
+//                     Expanded(
+//                       child: PageView(
+//                         controller: _pageController,
+//                         physics: const NeverScrollableScrollPhysics(),
+//                         children: [
+//                           // Page 1: Booking Details
+//                           _buildBookingDetailsPage(
+//                             bookingType,
+//                             days,
+//                             totalPrice,
+//                             currencyFormat,
+//                           ),
+//                           _buildGuestInformationPage(),
+//                           _buildConfirmationPage(
+//                             bookingType,
+//                             days,
+//                             totalPrice,
+//                             currencyFormat,
+//                           ),
+//                         ],
+//                       ),
+//                     ),
+
+//                     Container(
+//                       padding: const EdgeInsets.all(16),
+//                       decoration: BoxDecoration(
+//                         color: Colors.white,
+//                         boxShadow: [
+//                           BoxShadow(
+//                             color: Colors.black.withOpacity(0.05),
+//                             blurRadius: 10,
+//                             offset: const Offset(0, -5),
+//                           ),
+//                         ],
+//                       ),
+//                       child: Row(
+//                         children: [
+//                           if (_currentStep > 0)
+//                             Expanded(
+//                               child: OutlinedButton(
+//                                 onPressed: _prevStep,
+//                                 style: OutlinedButton.styleFrom(
+//                                   padding: const EdgeInsets.symmetric(
+//                                     vertical: 16,
+//                                   ),
+//                                   side: BorderSide(
+//                                     color: Theme.of(context).primaryColor,
+//                                   ),
+//                                   shape: RoundedRectangleBorder(
+//                                     borderRadius: BorderRadius.circular(8),
+//                                   ),
+//                                 ),
+//                                 child: const Text('Kembali'),
+//                               ),
+//                             ),
+//                           if (_currentStep > 0) const SizedBox(width: 16),
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:front/features/dashboard/presentation/screens/users/penyewa/booking/booking_repository.dart';
@@ -49,31 +764,30 @@ class _CreateBookingEnhancedScreenState
   String? _errorMessage;
   int _currentStep = 0;
   bool _termsAccepted = false;
+  int _selectedMonth = 1; // Default 1 bulan untuk Kost
 
   @override
   void initState() {
     super.initState();
     _bookingRepository = BookingRepository(apiClient: ApiClient());
 
-    // Set tanggal check-in ke hari ini tanpa komponen waktu
     final now = DateTime.now();
     _checkInDate = DateTime(now.year, now.month, now.day);
 
     // Set default checkout date based on property type
     if (widget.propertyTypeId == 2) {
-      // Homestay
-      // Default to 30 days for homestay
+      // Homestay - default to 1 day
       _checkOutDate = DateTime(
         _checkInDate.year,
         _checkInDate.month,
         _checkInDate.day + 1,
       );
     } else {
-      // Default to 1 days for kost (untuk memastikan selisih minimal 1 hari)
+      // Kost - default to 30 days (1 month)
       _checkOutDate = DateTime(
         _checkInDate.year,
-        _checkInDate.month,
-        _checkInDate.day + 30,
+        _checkInDate.month + _selectedMonth,
+        _checkInDate.day,
       );
     }
 
@@ -85,12 +799,6 @@ class _CreateBookingEnhancedScreenState
       // Otherwise fetch property type
       _fetchPropertyType();
     }
-
-    // Debug log untuk melihat tanggal awal
-    debugPrint(
-      'Initial dates: ${DateFormat('yyyy-MM-dd').format(_checkInDate)} to ${DateFormat('yyyy-MM-dd').format(_checkOutDate)}',
-    );
-    debugPrint('Initial days: ${_calculateDays()}');
   }
 
   // Fetch property type from server
@@ -110,26 +818,18 @@ class _CreateBookingEnhancedScreenState
 
         // Update checkout date based on property type
         if (_isHomestay) {
-          // For homestay, default to 30 days
           _checkOutDate = DateTime(
             _checkInDate.year,
             _checkInDate.month,
-            _checkInDate.day + 30,
+            _checkInDate.day + 1,
           );
         } else {
-          // For kost, default to 2 days (untuk memastikan selisih minimal 1 hari)
           _checkOutDate = DateTime(
             _checkInDate.year,
-            _checkInDate.month,
-            _checkInDate.day + 2,
+            _checkInDate.month + _selectedMonth,
+            _checkInDate.day,
           );
         }
-
-        // Debug log setelah update tanggal
-        debugPrint(
-          'Updated dates after property fetch: ${DateFormat('yyyy-MM-dd').format(_checkInDate)} to ${DateFormat('yyyy-MM-dd').format(_checkOutDate)}',
-        );
-        debugPrint('Updated days: ${_calculateDays()}');
       });
     } catch (e) {
       setState(() {
@@ -139,56 +839,46 @@ class _CreateBookingEnhancedScreenState
     }
   }
 
-  // Getter for convenience
   bool get _isHomestay => _propertyTypeId == 2;
 
-  // Hitung selisih hari sesuai dengan Carbon::diffInDays di server
   int _calculateDays() {
-    // Pastikan tanggal tidak memiliki komponen waktu
-    final startDate = DateTime(
-      _checkInDate.year,
-      _checkInDate.month,
-      _checkInDate.day,
-    );
-    final endDate = DateTime(
-      _checkOutDate.year,
-      _checkOutDate.month,
-      _checkOutDate.day,
-    );
-
-    // Hitung selisih dalam hari
-    return endDate.difference(startDate).inDays;
+    if (_isHomestay) {
+      final startDate = DateTime(
+        _checkInDate.year,
+        _checkInDate.month,
+        _checkInDate.day,
+      );
+      final endDate = DateTime(
+        _checkOutDate.year,
+        _checkOutDate.month,
+        _checkOutDate.day,
+      );
+      return endDate.difference(startDate).inDays;
+    } else {
+      return 30 * _selectedMonth;
+    }
   }
 
   double _calculateTotalPrice() {
-    final days = _calculateDays();
-
     if (widget.isWholePropertyBooking) {
-      // Logic for whole property booking price would go here
-      // This would need to be fetched from the property data
       return 0.0; // Placeholder
     } else if (widget.room != null) {
-      // Single room booking
       if (_isHomestay) {
-        // Homestay (per day)
-        return widget.room!.price * days; // Price per day * number of days
+        return widget.room!.price * _calculateDays();
       } else {
-        // Kost (per month) -> Assuming 30 days in a month
-        return widget.room!.price; // Price per month (30 days)
+        return widget.room!.price * _selectedMonth;
       }
     } else if (widget.rooms != null && widget.rooms!.isNotEmpty) {
-      // Multiple room booking
       double total = 0;
       for (var room in widget.rooms!) {
         if (_isHomestay) {
-          total += room.price * days; // Homestay price per day
+          total += room.price * _calculateDays();
         } else {
-          total += room.price; // Kost price per month
+          total += room.price * _selectedMonth;
         }
       }
       return total;
     }
-
     return 0.0;
   }
 
@@ -203,11 +893,7 @@ class _CreateBookingEnhancedScreenState
       setState(() {
         _ktpImage = File(pickedFile.path);
       });
-
-      // Haptic feedback when image is selected
       HapticFeedback.mediumImpact();
-
-      // Show success snackbar
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('KTP berhasil diunggah'),
@@ -219,6 +905,8 @@ class _CreateBookingEnhancedScreenState
   }
 
   Future<void> _selectDate(BuildContext context, bool isCheckIn) async {
+    if (!_isHomestay && !isCheckIn) return;
+
     final DateTime today = DateTime(
       DateTime.now().year,
       DateTime.now().month,
@@ -228,14 +916,7 @@ class _CreateBookingEnhancedScreenState
     final picked = await showDatePicker(
       context: context,
       initialDate: isCheckIn ? _checkInDate : _checkOutDate,
-      firstDate:
-          isCheckIn
-              ? today
-              : DateTime(
-                _checkInDate.year,
-                _checkInDate.month,
-                _checkInDate.day + 1,
-              ),
+      firstDate: isCheckIn ? today : _checkInDate.add(const Duration(days: 1)),
       lastDate: DateTime(DateTime.now().year + 2),
       builder: (context, child) {
         return Theme(
@@ -255,75 +936,71 @@ class _CreateBookingEnhancedScreenState
 
     if (picked != null) {
       setState(() {
-        if (isCheckIn) {
-          // Set check-in date without time component
-          _checkInDate = DateTime(picked.year, picked.month, picked.day);
-
-          // Ensure checkout is after checkin by at least 1 day
-          final days = _calculateDays();
-          debugPrint('After check-in update, days: $days');
-
-          if (days < 1) {
-            if (_isHomestay) {
-              _checkOutDate = DateTime(
-                _checkInDate.year,
-                _checkInDate.month,
-                _checkInDate.day + 30,
-              );
-            } else {
-              _checkOutDate = DateTime(
-                _checkInDate.year,
-                _checkInDate.month,
-                _checkInDate.day + 2,
-              );
-            }
-            debugPrint(
-              'Updated check-out date to: ${DateFormat('yyyy-MM-dd').format(_checkOutDate)}',
-            );
-          }
-        } else {
-          // Set check-out date without time component
-          _checkOutDate = DateTime(picked.year, picked.month, picked.day);
-
-          // Ensure the selected checkout date is at least 1 day after checkin
-          final days = _calculateDays();
-          debugPrint('After check-out update, days: $days');
-
-          if (days < 1) {
-            // Show error message
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text(
-                  'Tanggal check-out harus minimal 1 hari setelah check-in',
-                ),
-                backgroundColor: Colors.red,
-              ),
-            );
-
-            // Reset to valid date
-            if (_isHomestay) {
-              _checkOutDate = DateTime(
-                _checkInDate.year,
-                _checkInDate.month,
-                _checkInDate.day + 30,
-              );
-            } else {
-              _checkOutDate = DateTime(
-                _checkInDate.year,
-                _checkInDate.month,
-                _checkInDate.day + 2,
-              );
-            }
-            debugPrint(
-              'Reset check-out date to: ${DateFormat('yyyy-MM-dd').format(_checkOutDate)}',
-            );
-          }
+        _checkInDate = DateTime(picked.year, picked.month, picked.day);
+        if (!_isHomestay) {
+          _checkOutDate = DateTime(
+            _checkInDate.year,
+            _checkInDate.month + _selectedMonth,
+            _checkInDate.day,
+          );
         }
       });
-
-      // Haptic feedback when date is selected
       HapticFeedback.selectionClick();
     }
+  }
+
+  Widget _buildMonthSelector() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Durasi Sewa',
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 8),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: List.generate(12, (index) {
+            final month = index + 1;
+            return ChoiceChip(
+              label: Text('$month Bulan'),
+              selected: _selectedMonth == month,
+              selectedColor: Theme.of(context).primaryColor,
+              onSelected: (selected) {
+                setState(() {
+                  _selectedMonth = month;
+                  _checkOutDate = DateTime(
+                    _checkInDate.year,
+                    _checkInDate.month + month,
+                    _checkInDate.day,
+                  );
+                });
+                HapticFeedback.selectionClick();
+              },
+            );
+          }),
+        ),
+        const SizedBox(height: 16),
+        Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: Colors.grey.shade100,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text('Total Durasi:'),
+              Text(
+                '$_selectedMonth Bulan (${_calculateDays()} Hari)',
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
   }
 
   void _nextStep() {
@@ -374,29 +1051,12 @@ class _CreateBookingEnhancedScreenState
       return;
     }
 
-    // Validasi tanggal dengan lebih ketat
-    final days = _calculateDays();
-    debugPrint('Days before submit: $days');
-
-    if (days < 1) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'Tanggal check-out harus minimal 1 hari setelah check-in',
-          ),
-          backgroundColor: Colors.red,
-        ),
-      );
-      return;
-    }
-
     setState(() {
       _isLoading = true;
       _errorMessage = null;
     });
 
     try {
-      // Prepare room IDs if booking specific rooms
       List<int>? roomIds;
       if (!widget.isWholePropertyBooking) {
         if (widget.room != null) {
@@ -405,12 +1065,6 @@ class _CreateBookingEnhancedScreenState
           roomIds = widget.rooms!.map((room) => room.id).toList();
         }
       }
-
-      // Debug log untuk melihat data yang akan dikirim
-      debugPrint(
-        'Submitting booking with dates: ${DateFormat('yyyy-MM-dd').format(_checkInDate)} to ${DateFormat('yyyy-MM-dd').format(_checkOutDate)}',
-      );
-      debugPrint('Days: $days');
 
       final booking = await _bookingRepository.createBooking(
         propertyId: widget.propertyId,
@@ -428,9 +1082,7 @@ class _CreateBookingEnhancedScreenState
                 : null,
       );
 
-      // Haptic feedback for successful booking
       HapticFeedback.heavyImpact();
-
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
           builder: (_) => BookingSuccessScreen(booking: booking),
@@ -441,10 +1093,7 @@ class _CreateBookingEnhancedScreenState
         _isLoading = false;
         _errorMessage = e.toString();
       });
-
-      // Haptic feedback for error
       HapticFeedback.vibrate();
-
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Gagal membuat booking: $e'),
@@ -481,7 +1130,6 @@ class _CreateBookingEnhancedScreenState
 
   @override
   Widget build(BuildContext context) {
-    // Show loading indicator while fetching property type
     if (_isLoadingPropertyType) {
       return Scaffold(
         appBar: AppBar(title: const Text('Buat Booking'), elevation: 0),
@@ -516,8 +1164,8 @@ class _CreateBookingEnhancedScreenState
       appBar: AppBar(
         title: const Text('Buat Booking'),
         elevation: 0,
-        backgroundColor: Theme.of(context).primaryColor,
-        foregroundColor: Colors.white,
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.black,
         actions: [
           IconButton(
             icon: const Icon(Icons.info_outline),
@@ -565,7 +1213,6 @@ class _CreateBookingEnhancedScreenState
                 key: _formKey,
                 child: Column(
                   children: [
-                    // Progress indicator
                     Container(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 16,
@@ -592,8 +1239,6 @@ class _CreateBookingEnhancedScreenState
                         ],
                       ),
                     ),
-
-                    // Step title
                     Padding(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 16,
@@ -620,8 +1265,6 @@ class _CreateBookingEnhancedScreenState
                         ],
                       ),
                     ),
-
-                    // Error message if any
                     if (_errorMessage != null)
                       Container(
                         width: double.infinity,
@@ -653,25 +1296,18 @@ class _CreateBookingEnhancedScreenState
                           ],
                         ),
                       ),
-
-                    // Page content
                     Expanded(
                       child: PageView(
                         controller: _pageController,
                         physics: const NeverScrollableScrollPhysics(),
                         children: [
-                          // Page 1: Booking Details
                           _buildBookingDetailsPage(
                             bookingType,
                             days,
                             totalPrice,
                             currencyFormat,
                           ),
-
-                          // Page 2: Guest Information
                           _buildGuestInformationPage(),
-
-                          // Page 3: Confirmation
                           _buildConfirmationPage(
                             bookingType,
                             days,
@@ -681,8 +1317,6 @@ class _CreateBookingEnhancedScreenState
                         ],
                       ),
                     ),
-
-                    // Navigation buttons
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
@@ -724,7 +1358,7 @@ class _CreateBookingEnhancedScreenState
                                 padding: const EdgeInsets.symmetric(
                                   vertical: 16,
                                 ),
-                                backgroundColor: Theme.of(context).primaryColor,
+                                backgroundColor: Color(0xFF4CAF50),
                                 foregroundColor: Colors.white,
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(8),
@@ -850,7 +1484,9 @@ class _CreateBookingEnhancedScreenState
                         ),
                         const SizedBox(width: 8),
                         Text(
-                          'Harga: Rp ${NumberFormat("#,###").format(widget.room!.price)}/hari',
+                          _isHomestay
+                              ? 'Harga: Rp ${NumberFormat("#,###").format(widget.room!.price)}/hari'
+                              : 'Harga: Rp ${NumberFormat("#,###").format(widget.room!.price)}/bulan',
                         ),
                       ],
                     ),
