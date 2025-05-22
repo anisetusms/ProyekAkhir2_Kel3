@@ -114,7 +114,7 @@ class _WelcomePageState extends State<WelcomePage>
                         children: [
                           // Logo
                           Container(
-                            padding: const EdgeInsets.all(20),
+                            padding: const EdgeInsets.all(5),
                             decoration: BoxDecoration(
                               color: Colors.white,
                               shape: BoxShape.circle,
@@ -129,8 +129,8 @@ class _WelcomePageState extends State<WelcomePage>
                             child: ClipOval(
                               child: Image.asset(
                                 'assets/icons/logo.jpg',
-                                height: 100,
-                                width: 100,
+                                height: 140,
+                                width: 140,
                                 fit: BoxFit.cover,
                               ),
                             ),
