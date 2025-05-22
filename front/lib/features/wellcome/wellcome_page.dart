@@ -10,7 +10,8 @@ class WelcomePage extends StatefulWidget {
   State<WelcomePage> createState() => _WelcomePageState();
 }
 
-class _WelcomePageState extends State<WelcomePage> with SingleTickerProviderStateMixin {
+class _WelcomePageState extends State<WelcomePage>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
@@ -66,7 +67,7 @@ class _WelcomePageState extends State<WelcomePage> with SingleTickerProviderStat
 
     // Jika bukan pertama kali, langsung ke bottombar setelah delay singkat
     if (!_isFirstTime) {
-      Future.delayed(const Duration(seconds: 30), () {
+      Future.delayed(const Duration(seconds: 240), () {
         if (mounted && !_hasNavigated) {
           Get.offAllNamed('/bottombar');
         }
@@ -95,7 +96,7 @@ class _WelcomePageState extends State<WelcomePage> with SingleTickerProviderStat
             end: Alignment.bottomCenter,
             colors: [
               const Color(0xFF4CAF50),
-              const Color.fromARGB(255, 124, 196, 255), 
+              const Color.fromARGB(255, 124, 196, 255),
             ],
           ),
         ),
@@ -125,14 +126,16 @@ class _WelcomePageState extends State<WelcomePage> with SingleTickerProviderStat
                                 ),
                               ],
                             ),
-                            child: Image.asset(
-                              'assets/icons/logo.jpg',
-                              height: 120,
-                              width: 120,
+                            child: ClipOval(
+                              child: Image.asset(
+                                'assets/icons/logo.jpg',
+                                height: 100,
+                                width: 100,
+                                fit: BoxFit.cover,
+                              ),
                             ),
                           ),
                           const SizedBox(height: 40),
-
                           // Judul
                           const Text(
                             'Selamat Datang di Hommie',
@@ -196,7 +199,9 @@ class _WelcomePageState extends State<WelcomePage> with SingleTickerProviderStat
                             Get.offAllNamed('/bottombar');
                           },
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF4CAF50), // Green 800
+                            backgroundColor: const Color(
+                              0xFF4CAF50,
+                            ), // Green 800
                             foregroundColor: Colors.white,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(25),
@@ -231,7 +236,10 @@ class _WelcomePageState extends State<WelcomePage> with SingleTickerProviderStat
                             Get.toNamed('/login');
                           },
                           style: OutlinedButton.styleFrom(
-                            side: const BorderSide(color: Color(0xFF2E7D32), width: 2),
+                            side: const BorderSide(
+                              color: Color(0xFF2E7D32),
+                              width: 2,
+                            ),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(25),
                             ),
