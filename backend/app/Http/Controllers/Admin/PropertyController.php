@@ -243,8 +243,8 @@ class PropertyController extends Controller
         $cities = City::where('prov_id', $property->province_id)->get();
         $districts = District::where('city_id', $property->city_id)->get();
         $subdistricts = Subdistrict::where('dis_id', $property->district_id)->get();
-
-        return view('admin.properties.edit', compact('property', 'provinces', 'cities', 'districts', 'subdistricts'));
+        $property_type_id = $property->property_type_id;
+        return view('admin.properties.edit', compact('property', 'provinces', 'cities', 'districts', 'subdistricts', 'property_type_id'));
     }
 
     /**
@@ -257,7 +257,6 @@ class PropertyController extends Controller
     public function update(Request $request, $id)
     {
         $property = Property::where('isDeleted', false)->findOrFail($id);
-
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'description' => 'required|string',
@@ -270,20 +269,17 @@ class PropertyController extends Controller
             'latitude' => 'nullable|numeric',
             'longitude' => 'nullable|numeric',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            // Kost specific
             'kost_type' => 'required_if:property_type_id,1|in:putra,putri,campur',
             'total_rooms' => 'required_if:property_type_id,1|integer|min:1',
             'available_rooms' => 'required_if:property_type_id,1|integer|min:0',
             'meal_included' => 'nullable|boolean',
             'laundry_included' => 'nullable|boolean',
-            // Homestay specific
             'total_units' => 'required_if:property_type_id,2|integer|min:1',
             'available_units' => 'required_if:property_type_id,2|integer|min:0',
             'minimum_stay' => 'required_if:property_type_id,2|integer|min:1',
             'maximum_guest' => 'required_if:property_type_id,2|integer|min:1',
             'checkin_time' => 'required_if:property_type_id,2|date_format:H:i',
             'checkout_time' => 'required_if:property_type_id,2|date_format:H:i',
-            // Common
             'rules' => 'nullable|string',
         ]);
 

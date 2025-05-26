@@ -36,11 +36,10 @@
             <form action="<?php echo e(route('admin.properties.update', $property->id)); ?>" method="POST" enctype="multipart/form-data">
                 <?php echo csrf_field(); ?>
                 <?php echo method_field('PUT'); ?>
-                
                 <!-- Hidden fields for latitude and longitude -->
                 <input type="hidden" name="latitude" value="<?php echo e(old('latitude', $property->latitude ?? 0)); ?>">
                 <input type="hidden" name="longitude" value="<?php echo e(old('longitude', $property->longitude ?? 0)); ?>">
-                
+
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
@@ -58,7 +57,7 @@ $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
 $message = $__bag->first($__errorArgs[0]); ?>
-                                <div class="invalid-feedback"><?php echo e($message); ?></div>
+                            <div class="invalid-feedback"><?php echo e($message); ?></div>
                             <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
@@ -71,7 +70,7 @@ unset($__errorArgs, $__bag); ?>
                                 <option value="1" <?php echo e($property->property_type_id == 1 ? 'selected' : ''); ?>>Kost</option>
                                 <option value="2" <?php echo e($property->property_type_id == 2 ? 'selected' : ''); ?>>Homestay</option>
                             </select>
-                            <input type="hidden" name="property_type_id" value="<?php echo e($property->property_type_id); ?>">
+                            <input type="hidden" name="property_type_id" value="<?php echo e(old('property_type_id', $property->property_type_id)); ?>">
                         </div>
 
                         <?php if($property->property_type_id == 1): ?>
@@ -94,7 +93,7 @@ $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
 $message = $__bag->first($__errorArgs[0]); ?>
-                                <div class="invalid-feedback"><?php echo e($message); ?></div>
+                            <div class="invalid-feedback"><?php echo e($message); ?></div>
                             <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
@@ -117,7 +116,7 @@ $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
 $message = $__bag->first($__errorArgs[0]); ?>
-                                <div class="invalid-feedback"><?php echo e($message); ?></div>
+                            <div class="invalid-feedback"><?php echo e($message); ?></div>
                             <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
@@ -141,7 +140,7 @@ $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
 $message = $__bag->first($__errorArgs[0]); ?>
-                                    <div class="invalid-feedback"><?php echo e($message); ?></div>
+                                <div class="invalid-feedback"><?php echo e($message); ?></div>
                                 <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
@@ -172,7 +171,7 @@ $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
 $message = $__bag->first($__errorArgs[0]); ?>
-                                <div class="invalid-feedback"><?php echo e($message); ?></div>
+                            <div class="invalid-feedback"><?php echo e($message); ?></div>
                             <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
@@ -194,7 +193,7 @@ $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
 $message = $__bag->first($__errorArgs[0]); ?>
-                                <div class="invalid-feedback"><?php echo e($message); ?></div>
+                            <div class="invalid-feedback"><?php echo e($message); ?></div>
                             <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
@@ -213,10 +212,10 @@ endif;
 unset($__errorArgs, $__bag); ?>" id="province_id" name="province_id" required>
                                 <option value="">Pilih Provinsi</option>
                                 <?php $__currentLoopData = $provinces; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $province): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                    <option value="<?php echo e($province->id); ?>" <?php echo e(old('province_id', $property->province_id) == $province->id ? 'selected' : ''); ?>>
-                                        <?php echo e($province->prov_name); ?>
+                                <option value="<?php echo e($province->id); ?>" <?php echo e(old('province_id', $property->province_id) == $province->id ? 'selected' : ''); ?>>
+                                    <?php echo e($province->prov_name); ?>
 
-                                    </option>
+                                </option>
                                 <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                             </select>
                             <?php $__errorArgs = ['province_id'];
@@ -224,7 +223,7 @@ $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
 $message = $__bag->first($__errorArgs[0]); ?>
-                                <div class="invalid-feedback"><?php echo e($message); ?></div>
+                            <div class="invalid-feedback"><?php echo e($message); ?></div>
                             <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
@@ -243,10 +242,10 @@ endif;
 unset($__errorArgs, $__bag); ?>" id="city_id" name="city_id" required>
                                 <option value="">Pilih Kota/Kabupaten</option>
                                 <?php $__currentLoopData = $cities; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $city): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                    <option value="<?php echo e($city->id); ?>" <?php echo e(old('city_id', $property->city_id) == $city->id ? 'selected' : ''); ?>>
-                                        <?php echo e($city->city_name); ?>
+                                <option value="<?php echo e($city->id); ?>" <?php echo e(old('city_id', $property->city_id) == $city->id ? 'selected' : ''); ?>>
+                                    <?php echo e($city->city_name); ?>
 
-                                    </option>
+                                </option>
                                 <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                             </select>
                             <?php $__errorArgs = ['city_id'];
@@ -254,7 +253,7 @@ $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
 $message = $__bag->first($__errorArgs[0]); ?>
-                                <div class="invalid-feedback"><?php echo e($message); ?></div>
+                            <div class="invalid-feedback"><?php echo e($message); ?></div>
                             <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
@@ -273,10 +272,10 @@ endif;
 unset($__errorArgs, $__bag); ?>" id="district_id" name="district_id" required>
                                 <option value="">Pilih Kecamatan</option>
                                 <?php $__currentLoopData = $districts; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $district): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                    <option value="<?php echo e($district->id); ?>" <?php echo e(old('district_id', $property->district_id) == $district->id ? 'selected' : ''); ?>>
-                                        <?php echo e($district->dis_name); ?>
+                                <option value="<?php echo e($district->id); ?>" <?php echo e(old('district_id', $property->district_id) == $district->id ? 'selected' : ''); ?>>
+                                    <?php echo e($district->dis_name); ?>
 
-                                    </option>
+                                </option>
                                 <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                             </select>
                             <?php $__errorArgs = ['district_id'];
@@ -284,7 +283,7 @@ $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
 $message = $__bag->first($__errorArgs[0]); ?>
-                                <div class="invalid-feedback"><?php echo e($message); ?></div>
+                            <div class="invalid-feedback"><?php echo e($message); ?></div>
                             <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
@@ -303,10 +302,10 @@ endif;
 unset($__errorArgs, $__bag); ?>" id="subdistrict_id" name="subdistrict_id" required>
                                 <option value="">Pilih Kelurahan</option>
                                 <?php $__currentLoopData = $subdistricts; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $subdistrict): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                    <option value="<?php echo e($subdistrict->id); ?>" <?php echo e(old('subdistrict_id', $property->subdistrict_id) == $subdistrict->id ? 'selected' : ''); ?>>
-                                        <?php echo e($subdistrict->subdis_name); ?>
+                                <option value="<?php echo e($subdistrict->id); ?>" <?php echo e(old('subdistrict_id', $property->subdistrict_id) == $subdistrict->id ? 'selected' : ''); ?>>
+                                    <?php echo e($subdistrict->subdis_name); ?>
 
-                                    </option>
+                                </option>
                                 <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                             </select>
                             <?php $__errorArgs = ['subdistrict_id'];
@@ -314,7 +313,7 @@ $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
 $message = $__bag->first($__errorArgs[0]); ?>
-                                <div class="invalid-feedback"><?php echo e($message); ?></div>
+                            <div class="invalid-feedback"><?php echo e($message); ?></div>
                             <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
@@ -334,12 +333,12 @@ unset($__errorArgs, $__bag); ?>
                             </div>
                             <div class="card-body">
                                 <?php if($property->property_type_id == 1): ?>
-                                    <!-- Detail Kost -->
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <div class="form-group">
-                                                <label for="total_rooms">Jumlah Kamar Total <span class="text-danger">*</span></label>
-                                                <input type="number" class="form-control <?php $__errorArgs = ['total_rooms'];
+                                <!-- Detail Kost -->
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="total_rooms">Jumlah Kamar Total <span class="text-danger">*</span></label>
+                                            <input type="number" class="form-control <?php $__errorArgs = ['total_rooms'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -347,21 +346,21 @@ $message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
 unset($__errorArgs, $__bag); ?>" id="total_rooms" name="total_rooms" value="<?php echo e(old('total_rooms', $property->kostDetail->total_rooms ?? '')); ?>" min="1" required>
-                                                <?php $__errorArgs = ['total_rooms'];
+                                            <?php $__errorArgs = ['total_rooms'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
 $message = $__bag->first($__errorArgs[0]); ?>
-                                                    <div class="invalid-feedback"><?php echo e($message); ?></div>
-                                                <?php unset($message);
+                                            <div class="invalid-feedback"><?php echo e($message); ?></div>
+                                            <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
 unset($__errorArgs, $__bag); ?>
-                                            </div>
-                                            
-                                            <div class="form-group">
-                                                <label for="available_rooms">Jumlah Kamar Tersedia <span class="text-danger">*</span></label>
-                                                <input type="number" class="form-control <?php $__errorArgs = ['available_rooms'];
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="available_rooms">Jumlah Kamar Tersedia <span class="text-danger">*</span></label>
+                                            <input type="number" class="form-control <?php $__errorArgs = ['available_rooms'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -369,40 +368,40 @@ $message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
 unset($__errorArgs, $__bag); ?>" id="available_rooms" name="available_rooms" value="<?php echo e(old('available_rooms', $property->kostDetail->available_rooms ?? '')); ?>" min="0" required>
-                                                <?php $__errorArgs = ['available_rooms'];
+                                            <?php $__errorArgs = ['available_rooms'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
 $message = $__bag->first($__errorArgs[0]); ?>
-                                                    <div class="invalid-feedback"><?php echo e($message); ?></div>
-                                                <?php unset($message);
+                                            <div class="invalid-feedback"><?php echo e($message); ?></div>
+                                            <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
 unset($__errorArgs, $__bag); ?>
-                                            </div>
                                         </div>
-                                        
-                                        <div class="col-md-6">
-                                            <div class="form-group">
-                                                <label>Fasilitas Tambahan</label>
-                                                <div class="custom-control custom-checkbox">
-                                                    <input type="checkbox" class="custom-control-input" id="meal_included" name="meal_included" value="1" <?php echo e(old('meal_included', $property->kostDetail->meal_included ?? false) ? 'checked' : ''); ?>>
-                                                    <label class="custom-control-label" for="meal_included">Termasuk Makan</label>
-                                                </div>
-                                                <div class="custom-control custom-checkbox mt-2">
-                                                    <input type="checkbox" class="custom-control-input" id="laundry_included" name="laundry_included" value="1" <?php echo e(old('laundry_included', $property->kostDetail->laundry_included ?? false) ? 'checked' : ''); ?>>
-                                                    <label class="custom-control-label" for="laundry_included">Termasuk Laundry</label>
-                                                </div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>Fasilitas Tambahan</label>
+                                            <div class="custom-control custom-checkbox">
+                                                <input type="checkbox" class="custom-control-input" id="meal_included" name="meal_included" value="1" <?php echo e(old('meal_included', $property->kostDetail->meal_included ?? false) ? 'checked' : ''); ?>>
+                                                <label class="custom-control-label" for="meal_included">Termasuk Makan</label>
+                                            </div>
+                                            <div class="custom-control custom-checkbox mt-2">
+                                                <input type="checkbox" class="custom-control-input" id="laundry_included" name="laundry_included" value="1" <?php echo e(old('laundry_included', $property->kostDetail->laundry_included ?? false) ? 'checked' : ''); ?>>
+                                                <label class="custom-control-label" for="laundry_included">Termasuk Laundry</label>
                                             </div>
                                         </div>
                                     </div>
+                                </div>
                                 <?php else: ?>
-                                    <!-- Detail Homestay -->
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <div class="form-group">
-                                                <label for="total_units">Jumlah Unit Total <span class="text-danger">*</span></label>
-                                                <input type="number" class="form-control <?php $__errorArgs = ['total_units'];
+                                <!-- Detail Homestay -->
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="total_units">Jumlah Unit Total <span class="text-danger">*</span></label>
+                                            <input type="number" class="form-control <?php $__errorArgs = ['total_units'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -410,21 +409,21 @@ $message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
 unset($__errorArgs, $__bag); ?>" id="total_units" name="total_units" value="<?php echo e(old('total_units', $property->homestayDetail->total_units ?? '')); ?>" min="1" required>
-                                                <?php $__errorArgs = ['total_units'];
+                                            <?php $__errorArgs = ['total_units'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
 $message = $__bag->first($__errorArgs[0]); ?>
-                                                    <div class="invalid-feedback"><?php echo e($message); ?></div>
-                                                <?php unset($message);
+                                            <div class="invalid-feedback"><?php echo e($message); ?></div>
+                                            <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
 unset($__errorArgs, $__bag); ?>
-                                            </div>
-                                            
-                                            <div class="form-group">
-                                                <label for="available_units">Jumlah Unit Tersedia <span class="text-danger">*</span></label>
-                                                <input type="number" class="form-control <?php $__errorArgs = ['available_units'];
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="available_units">Jumlah Unit Tersedia <span class="text-danger">*</span></label>
+                                            <input type="number" class="form-control <?php $__errorArgs = ['available_units'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -432,21 +431,21 @@ $message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
 unset($__errorArgs, $__bag); ?>" id="available_units" name="available_units" value="<?php echo e(old('available_units', $property->homestayDetail->available_units ?? '')); ?>" min="0" required>
-                                                <?php $__errorArgs = ['available_units'];
+                                            <?php $__errorArgs = ['available_units'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
 $message = $__bag->first($__errorArgs[0]); ?>
-                                                    <div class="invalid-feedback"><?php echo e($message); ?></div>
-                                                <?php unset($message);
+                                            <div class="invalid-feedback"><?php echo e($message); ?></div>
+                                            <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
 unset($__errorArgs, $__bag); ?>
-                                            </div>
-                                            
-                                            <div class="form-group">
-                                                <label for="minimum_stay">Minimum Menginap (hari) <span class="text-danger">*</span></label>
-                                                <input type="number" class="form-control <?php $__errorArgs = ['minimum_stay'];
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="minimum_stay">Minimum Menginap (hari) <span class="text-danger">*</span></label>
+                                            <input type="number" class="form-control <?php $__errorArgs = ['minimum_stay'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -454,23 +453,23 @@ $message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
 unset($__errorArgs, $__bag); ?>" id="minimum_stay" name="minimum_stay" value="<?php echo e(old('minimum_stay', $property->homestayDetail->minimum_stay ?? 1)); ?>" min="1" required>
-                                                <?php $__errorArgs = ['minimum_stay'];
+                                            <?php $__errorArgs = ['minimum_stay'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
 $message = $__bag->first($__errorArgs[0]); ?>
-                                                    <div class="invalid-feedback"><?php echo e($message); ?></div>
-                                                <?php unset($message);
+                                            <div class="invalid-feedback"><?php echo e($message); ?></div>
+                                            <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
 unset($__errorArgs, $__bag); ?>
-                                            </div>
                                         </div>
-                                        
-                                        <div class="col-md-6">
-                                            <div class="form-group">
-                                                <label for="maximum_guest">Maksimum Tamu <span class="text-danger">*</span></label>
-                                                <input type="number" class="form-control <?php $__errorArgs = ['maximum_guest'];
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="maximum_guest">Maksimum Tamu <span class="text-danger">*</span></label>
+                                            <input type="number" class="form-control <?php $__errorArgs = ['maximum_guest'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
@@ -478,65 +477,71 @@ $message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
 unset($__errorArgs, $__bag); ?>" id="maximum_guest" name="maximum_guest" value="<?php echo e(old('maximum_guest', $property->homestayDetail->maximum_guest ?? 1)); ?>" min="1" required>
-                                                <?php $__errorArgs = ['maximum_guest'];
+                                            <?php $__errorArgs = ['maximum_guest'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
 $message = $__bag->first($__errorArgs[0]); ?>
-                                                    <div class="invalid-feedback"><?php echo e($message); ?></div>
-                                                <?php unset($message);
+                                            <div class="invalid-feedback"><?php echo e($message); ?></div>
+                                            <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
 unset($__errorArgs, $__bag); ?>
-                                            </div>
-                                            
-                                            <div class="form-group">
-                                                <label for="checkin_time">Jam Check-in <span class="text-danger">*</span></label>
-                                                <input type="time" class="form-control <?php $__errorArgs = ['checkin_time'];
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="checkin_time">Jam Check-in <span class="text-danger">*</span></label>
+                                            <input type="time" class="form-control <?php $__errorArgs = ['checkin_time'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
 $message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
-unset($__errorArgs, $__bag); ?>" id="checkin_time" name="checkin_time" value="<?php echo e(old('checkin_time', $property->homestayDetail->checkin_time ?? '14:00')); ?>" required>
-                                                <?php $__errorArgs = ['checkin_time'];
+unset($__errorArgs, $__bag); ?>"
+                                                id="checkin_time" name="checkin_time"
+                                                value="<?php echo e(old('checkin_time', optional($property->homestayDetail)->checkin_time ? \Carbon\Carbon::parse($property->homestayDetail->checkin_time)->format('H:i') : '14:00')); ?>"
+                                                required>
+                                            <?php $__errorArgs = ['checkin_time'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
 $message = $__bag->first($__errorArgs[0]); ?>
-                                                    <div class="invalid-feedback"><?php echo e($message); ?></div>
-                                                <?php unset($message);
+                                            <div class="invalid-feedback"><?php echo e($message); ?></div>
+                                            <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
 unset($__errorArgs, $__bag); ?>
-                                            </div>
-                                            
-                                            <div class="form-group">
-                                                <label for="checkout_time">Jam Check-out <span class="text-danger">*</span></label>
-                                                <input type="time" class="form-control <?php $__errorArgs = ['checkout_time'];
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="checkout_time">Jam Check-out <span class="text-danger">*</span></label>
+                                            <input type="time" class="form-control <?php $__errorArgs = ['checkout_time'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
 $message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
-unset($__errorArgs, $__bag); ?>" id="checkout_time" name="checkout_time" value="<?php echo e(old('checkout_time', $property->homestayDetail->checkout_time ?? '12:00')); ?>" required>
-                                                <?php $__errorArgs = ['checkout_time'];
+unset($__errorArgs, $__bag); ?>"
+                                                id="checkout_time" name="checkout_time"
+                                                value="<?php echo e(old('checkout_time', optional($property->homestayDetail)->checkout_time ? \Carbon\Carbon::parse($property->homestayDetail->checkout_time)->format('H:i') : '12:00')); ?>"
+                                                required>
+                                            <?php $__errorArgs = ['checkout_time'];
 $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
 $message = $__bag->first($__errorArgs[0]); ?>
-                                                    <div class="invalid-feedback"><?php echo e($message); ?></div>
-                                                <?php unset($message);
+                                            <div class="invalid-feedback"><?php echo e($message); ?></div>
+                                            <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
 unset($__errorArgs, $__bag); ?>
-                                            </div>
                                         </div>
                                     </div>
+                                </div>
                                 <?php endif; ?>
-                                
+
                                 <div class="form-group mt-3">
                                     <label for="rules">Peraturan</label>
                                     <textarea class="form-control <?php $__errorArgs = ['rules'];
@@ -552,7 +557,7 @@ $__bag = $errors->getBag($__errorArgs[1] ?? 'default');
 if ($__bag->has($__errorArgs[0])) :
 if (isset($message)) { $__messageOriginal = $message; }
 $message = $__bag->first($__errorArgs[0]); ?>
-                                        <div class="invalid-feedback"><?php echo e($message); ?></div>
+                                    <div class="invalid-feedback"><?php echo e($message); ?></div>
                                     <?php unset($message);
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
@@ -579,6 +584,11 @@ unset($__errorArgs, $__bag); ?>
 
 <?php $__env->startSection('scripts'); ?>
 <script>
+    document.querySelector('.custom-file-input').addEventListener('change', function(e) {
+        var fileName = document.getElementById("image").files[0].name;
+        var nextSibling = e.target.nextElementSibling
+        nextSibling.innerText = fileName
+    })
     // Menampilkan nama file yang dipilih
     $('.custom-file-input').on('change', function() {
         let fileName = $(this).val().split('\\').pop();
@@ -597,7 +607,7 @@ unset($__errorArgs, $__bag); ?>
                     $('#city_id').empty().append('<option value="">Pilih Kota/Kabupaten</option>');
                     $('#district_id').empty().append('<option value="">Pilih Kecamatan</option>');
                     $('#subdistrict_id').empty().append('<option value="">Pilih Kelurahan</option>');
-                    
+
                     $.each(data, function(key, value) {
                         $('#city_id').append(`<option value="${value.id}">${value.city_name}</option>`);
                     });
@@ -620,7 +630,7 @@ unset($__errorArgs, $__bag); ?>
                 success: function(data) {
                     $('#district_id').empty().append('<option value="">Pilih Kecamatan</option>');
                     $('#subdistrict_id').empty().append('<option value="">Pilih Kelurahan</option>');
-                    
+
                     $.each(data, function(key, value) {
                         $('#district_id').append(`<option value="${value.id}">${value.dis_name}</option>`);
                     });
@@ -642,7 +652,7 @@ unset($__errorArgs, $__bag); ?>
                 dataType: 'json',
                 success: function(data) {
                     $('#subdistrict_id').empty().append('<option value="">Pilih Kelurahan</option>');
-                    
+
                     $.each(data, function(key, value) {
                         $('#subdistrict_id').append(`<option value="${value.id}">${value.subdis_name}</option>`);
                     });

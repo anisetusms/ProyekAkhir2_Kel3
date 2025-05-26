@@ -4,7 +4,6 @@ import 'package:front/features/room/data/models/new_room_model.dart';
 import 'package:front/core/utils/constants.dart';
 import 'package:front/features/dashboard/presentation/screens/users/penyewa/RoomDetailScreen.dart';
 import 'package:front/core/network/api_client.dart';
-import 'package:front/features/room/data/models/room_image.dart';
 
 class RoomListScreen extends StatefulWidget {
   final int propertyId;
@@ -37,28 +36,18 @@ class _RoomListScreenState extends State<RoomListScreen> {
         '$_baseurl/properties/$propertyId/rooms',
       );
 
-      print('Response: $response');
-
       if (response is Map<String, dynamic>) {
         if (response['success'] == true && response['data'] != null) {
           if (response['data']['data'] != null &&
               response['data']['data'] is List) {
-            final rooms =
-                (response['data']['data'] as List)
-                    .map((roomJson) => Room.fromJson(roomJson))
-                    .toList();
-            return rooms;
-          } else {
-            throw Exception(
-              'Format data tidak mengandung List kamar yang valid',
-            );
+            return (response['data']['data'] as List)
+                .map((roomJson) => Room.fromJson(roomJson))
+                .toList();
           }
         }
       }
-
       throw Exception('Gagal memuat kamar: ${response['message']}');
     } catch (e) {
-      print('Error fetching rooms: $e');
       throw Exception('Error fetching rooms: $e');
     }
   }
@@ -116,6 +105,7 @@ class _RoomListScreenState extends State<RoomListScreen> {
               ),
             );
           }
+          
           return RefreshIndicator(
             onRefresh: () async => _loadRooms(),
             child: ListView.builder(
@@ -160,64 +150,47 @@ class _RoomListScreenState extends State<RoomListScreen> {
   }
 
   Widget _buildRoomCard(Room room) {
-    String? imageUrl;
-    if (room.images.isNotEmpty) {
-      imageUrl = '${Constants.baseUrlImage}/storage/${room.images[0].imageUrl}';
-    }
-
-    // Menghitung harga berdasarkan tipe properti
-    String priceText = 'Rp ${_formatPrice(room.price)}';
-    if (widget.propertyTypeId == 1) {
-      priceText =
-          'Rp ${_formatPrice(room.price)}/bulan'; 
-    } else {
-      priceText = 'Rp ${_formatPrice(room.price)}/hari';
-    }
+    // Format price based on property type
+    final priceText = widget.propertyTypeId == 1
+        ? 'Rp ${_formatPrice(room.price)}/bulan'
+        : 'Rp ${_formatPrice(room.price)}/hari';
 
     return Card(
       margin: const EdgeInsets.only(bottom: 16),
       elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      clipBehavior: Clip.antiAlias,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Stack(
-            children: [
-              Container(
-                height: 180,
-                width: double.infinity,
-                color: Colors.grey[200],
-                child:
-                    imageUrl != null
-                        ? Image.network(
-                          imageUrl,
-                          fit: BoxFit.cover,
-                          height: 180,
-                          width: double.infinity,
-                          loadingBuilder: (context, child, loadingProgress) {
-                            if (loadingProgress == null) return child;
-                            return Center(
-                              child: CircularProgressIndicator(
-                                value:
-                                    loadingProgress.expectedTotalBytes != null
-                                        ? loadingProgress
-                                                .cumulativeBytesLoaded /
-                                            loadingProgress.expectedTotalBytes!
-                                        : null,
-                              ),
-                            );
-                          },
-                          errorBuilder: (context, error, stackTrace) {
-                            return _buildPlaceholderImage();
-                          },
-                        )
-                        : _buildPlaceholderImage(),
-              ),
-              Positioned(
-                top: 12,
-                right: 12,
-                child: Container(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Header row with room info and availability
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Kamar ${room.roomNumber}',
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      room.roomType,
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey[600],
+                      ),
+                    ),
+                  ],
+                ),
+                Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 12,
                     vertical: 6,
@@ -235,153 +208,165 @@ class _RoomListScreenState extends State<RoomListScreen> {
                     ),
                   ),
                 ),
+              ],
+            ),
+            
+            const SizedBox(height: 16),
+            
+            // Room details in a compact row
+            Row(
+              children: [
+                if (room.capacity != null) ...[
+                  _buildDetailChip(
+                    icon: Icons.people,
+                    label: '${room.capacity} orang',
+                  ),
+                  const SizedBox(width: 8),
+                ],
+                if (room.size != null) ...[
+                  _buildDetailChip(
+                    icon: Icons.square_foot,
+                    label: '${room.size} m²',
+                  ),
+                ],
+              ],
+            ),
+            
+            const SizedBox(height: 16),
+            
+            // Price section with highlighted background
+            Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 12,
+                vertical: 8,
+              ),
+              decoration: BoxDecoration(
+                color: Colors.green[50],
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Harga Sewa',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.grey[700],
+                    ),
+                  ),
+                  Text(
+                    priceText,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.green,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            
+            // Description (if available)
+            if (room.description != null && room.description!.isNotEmpty) ...[
+              const SizedBox(height: 16),
+              Text(
+                room.description!,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.grey[600],
+                ),
               ),
             ],
-          ),
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            
+            const SizedBox(height: 16),
+            
+            // Action buttons
+            Row(
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Text(
-                        '${room.roomType} - ${room.roomNumber}',
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => RoomDetailScreen(
+                            propertyId: widget.propertyId,
+                            roomId: room.id,
+                          ),
                         ),
+                      );
+                    },
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      side: const BorderSide(color: Color(0xFF4CAF50)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
                       ),
                     ),
-                    Text(
-                      priceText, // Menggunakan priceText yang sudah disesuaikan
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.green,
-                      ),
+                    child: const Text(
+                      'Detail',
+                      style: TextStyle(color: Color(0xFF4CAF50)),
                     ),
-                  ],
+                  ),
                 ),
-                const SizedBox(height: 12),
-                if (room.size != null || room.capacity != null)
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Colors.blue[50],
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Row(
-                      children: [
-                        if (room.capacity != null) ...[
-                          const Icon(
-                            Icons.people,
-                            color: Color(0xFF4CAF50),
-                            size: 20,
-                          ),
-                          const SizedBox(width: 8),
-                          Text('${room.capacity} orang'),
-                          const SizedBox(width: 16),
-                        ],
-                        if (room.size != null) ...[
-                          const Icon(
-                            Icons.square_foot,
-                            color: Color(0xFF4CAF50),
-                            size: 20,
-                          ),
-                          const SizedBox(width: 8),
-                          Text('${room.size} m²'),
-                        ],
-                      ],
-                    ),
-                  ),
-                const SizedBox(height: 12),
-                if (room.description != null && room.description!.isNotEmpty)
-                  Text(
-                    room.description!,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(fontSize: 14, color: Colors.grey),
-                  ),
-                const SizedBox(height: 16),
-                Row(
-                  children: [
-                    Expanded(
-                      child: OutlinedButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder:
-                                  (context) => RoomDetailScreen(
-                                    propertyId: widget.propertyId,
-                                    roomId: room.id,
-                                  ),
-                            ),
-                          );
-                        },
-                        style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          side: const BorderSide(color: Color(0xFF4CAF50)),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                        child: const Text(
-                          'Detail',
-                          style: TextStyle(color: Color(0xFF4CAF50)),
-                        ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: room.isAvailable
+                        ? () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => CreateBookingEnhancedScreen(
+                                  propertyId: widget.propertyId,
+                                  propertyTypeId: widget.propertyTypeId,
+                                  room: room,
+                                ),
+                              ),
+                            );
+                          }
+                        : null,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF4CAF50),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
                       ),
                     ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed:
-                            room.isAvailable
-                                ? () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder:
-                                          (context) =>
-                                              CreateBookingEnhancedScreen(
-                                                propertyId: widget.propertyId,
-                                                propertyTypeId:
-                                                    widget.propertyTypeId,
-                                                room: room,
-                                              ),
-                                    ),
-                                  );
-                                }
-                                : null,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Color(0xFF4CAF50),
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                        child: const Text(
-                          'Pesan',
-                          style: TextStyle(color: Colors.white),
-                        ),
-                      ),
+                    child: const Text(
+                      'Pesan',
+                      style: TextStyle(color: Colors.white),
                     ),
-                  ],
+                  ),
                 ),
               ],
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildPlaceholderImage() {
-    return const Center(
-      child: Icon(Icons.king_bed, size: 60, color: Colors.grey),
+  Widget _buildDetailChip({required IconData icon, required String label}) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: Colors.blue[50],
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 16, color: Colors.blue),
+          const SizedBox(width: 4),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 12,
+              color: Colors.blue[800],
+            ),
+          ),
+        ],
+      ),
     );
   }
 

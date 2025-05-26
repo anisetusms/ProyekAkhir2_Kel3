@@ -36,18 +36,17 @@
             <form action="{{ route('admin.properties.update', $property->id) }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 @method('PUT')
-                
                 <!-- Hidden fields for latitude and longitude -->
                 <input type="hidden" name="latitude" value="{{ old('latitude', $property->latitude ?? 0) }}">
                 <input type="hidden" name="longitude" value="{{ old('longitude', $property->longitude ?? 0) }}">
-                
+
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
                             <label for="name">Nama Properti <span class="text-danger">*</span></label>
                             <input type="text" class="form-control @error('name') is-invalid @enderror" id="name" name="name" value="{{ old('name', $property->name) }}" required>
                             @error('name')
-                                <div class="invalid-feedback">{{ $message }}</div>
+                            <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
 
@@ -57,7 +56,7 @@
                                 <option value="1" {{ $property->property_type_id == 1 ? 'selected' : '' }}>Kost</option>
                                 <option value="2" {{ $property->property_type_id == 2 ? 'selected' : '' }}>Homestay</option>
                             </select>
-                            <input type="hidden" name="property_type_id" value="{{ $property->property_type_id }}">
+                            <input type="hidden" name="property_type_id" value="{{ old('property_type_id', $property->property_type_id) }}">
                         </div>
 
                         @if($property->property_type_id == 1)
@@ -69,7 +68,7 @@
                                 <option value="campur" {{ old('kost_type', $property->kostDetail->kost_type ?? '') == 'campur' ? 'selected' : '' }}>Campur</option>
                             </select>
                             @error('kost_type')
-                                <div class="invalid-feedback">{{ $message }}</div>
+                            <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
                         @endif
@@ -78,7 +77,7 @@
                             <label for="price">Harga (Rp) <span class="text-danger">*</span></label>
                             <input type="number" class="form-control @error('price') is-invalid @enderror" id="price" name="price" value="{{ old('price', $property->price) }}" min="0" required>
                             @error('price')
-                                <div class="invalid-feedback">{{ $message }}</div>
+                            <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
 
@@ -88,7 +87,7 @@
                                 <input type="file" class="custom-file-input @error('image') is-invalid @enderror" id="image" name="image">
                                 <label class="custom-file-label" for="image">Pilih file...</label>
                                 @error('image')
-                                    <div class="invalid-feedback">{{ $message }}</div>
+                                <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
                             <small class="form-text text-muted">Biarkan kosong jika tidak ingin mengubah gambar</small>
@@ -105,7 +104,7 @@
                             <label for="description">Deskripsi <span class="text-danger">*</span></label>
                             <textarea class="form-control @error('description') is-invalid @enderror" id="description" name="description" rows="3" required>{{ old('description', $property->description) }}</textarea>
                             @error('description')
-                                <div class="invalid-feedback">{{ $message }}</div>
+                            <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
 
@@ -113,7 +112,7 @@
                             <label for="address">Alamat Lengkap <span class="text-danger">*</span></label>
                             <textarea class="form-control @error('address') is-invalid @enderror" id="address" name="address" rows="2" required>{{ old('address', $property->address) }}</textarea>
                             @error('address')
-                                <div class="invalid-feedback">{{ $message }}</div>
+                            <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
 
@@ -122,13 +121,13 @@
                             <select class="form-control @error('province_id') is-invalid @enderror" id="province_id" name="province_id" required>
                                 <option value="">Pilih Provinsi</option>
                                 @foreach($provinces as $province)
-                                    <option value="{{ $province->id }}" {{ old('province_id', $property->province_id) == $province->id ? 'selected' : '' }}>
-                                        {{ $province->prov_name }}
-                                    </option>
+                                <option value="{{ $province->id }}" {{ old('province_id', $property->province_id) == $province->id ? 'selected' : '' }}>
+                                    {{ $province->prov_name }}
+                                </option>
                                 @endforeach
                             </select>
                             @error('province_id')
-                                <div class="invalid-feedback">{{ $message }}</div>
+                            <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
 
@@ -137,13 +136,13 @@
                             <select class="form-control @error('city_id') is-invalid @enderror" id="city_id" name="city_id" required>
                                 <option value="">Pilih Kota/Kabupaten</option>
                                 @foreach($cities as $city)
-                                    <option value="{{ $city->id }}" {{ old('city_id', $property->city_id) == $city->id ? 'selected' : '' }}>
-                                        {{ $city->city_name }}
-                                    </option>
+                                <option value="{{ $city->id }}" {{ old('city_id', $property->city_id) == $city->id ? 'selected' : '' }}>
+                                    {{ $city->city_name }}
+                                </option>
                                 @endforeach
                             </select>
                             @error('city_id')
-                                <div class="invalid-feedback">{{ $message }}</div>
+                            <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
 
@@ -152,13 +151,13 @@
                             <select class="form-control @error('district_id') is-invalid @enderror" id="district_id" name="district_id" required>
                                 <option value="">Pilih Kecamatan</option>
                                 @foreach($districts as $district)
-                                    <option value="{{ $district->id }}" {{ old('district_id', $property->district_id) == $district->id ? 'selected' : '' }}>
-                                        {{ $district->dis_name }}
-                                    </option>
+                                <option value="{{ $district->id }}" {{ old('district_id', $property->district_id) == $district->id ? 'selected' : '' }}>
+                                    {{ $district->dis_name }}
+                                </option>
                                 @endforeach
                             </select>
                             @error('district_id')
-                                <div class="invalid-feedback">{{ $message }}</div>
+                            <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
 
@@ -167,13 +166,13 @@
                             <select class="form-control @error('subdistrict_id') is-invalid @enderror" id="subdistrict_id" name="subdistrict_id" required>
                                 <option value="">Pilih Kelurahan</option>
                                 @foreach($subdistricts as $subdistrict)
-                                    <option value="{{ $subdistrict->id }}" {{ old('subdistrict_id', $property->subdistrict_id) == $subdistrict->id ? 'selected' : '' }}>
-                                        {{ $subdistrict->subdis_name }}
-                                    </option>
+                                <option value="{{ $subdistrict->id }}" {{ old('subdistrict_id', $property->subdistrict_id) == $subdistrict->id ? 'selected' : '' }}>
+                                    {{ $subdistrict->subdis_name }}
+                                </option>
                                 @endforeach
                             </select>
                             @error('subdistrict_id')
-                                <div class="invalid-feedback">{{ $message }}</div>
+                            <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
                     </div>
@@ -189,102 +188,108 @@
                             </div>
                             <div class="card-body">
                                 @if($property->property_type_id == 1)
-                                    <!-- Detail Kost -->
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <div class="form-group">
-                                                <label for="total_rooms">Jumlah Kamar Total <span class="text-danger">*</span></label>
-                                                <input type="number" class="form-control @error('total_rooms') is-invalid @enderror" id="total_rooms" name="total_rooms" value="{{ old('total_rooms', $property->kostDetail->total_rooms ?? '') }}" min="1" required>
-                                                @error('total_rooms')
-                                                    <div class="invalid-feedback">{{ $message }}</div>
-                                                @enderror
-                                            </div>
-                                            
-                                            <div class="form-group">
-                                                <label for="available_rooms">Jumlah Kamar Tersedia <span class="text-danger">*</span></label>
-                                                <input type="number" class="form-control @error('available_rooms') is-invalid @enderror" id="available_rooms" name="available_rooms" value="{{ old('available_rooms', $property->kostDetail->available_rooms ?? '') }}" min="0" required>
-                                                @error('available_rooms')
-                                                    <div class="invalid-feedback">{{ $message }}</div>
-                                                @enderror
-                                            </div>
+                                <!-- Detail Kost -->
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="total_rooms">Jumlah Kamar Total <span class="text-danger">*</span></label>
+                                            <input type="number" class="form-control @error('total_rooms') is-invalid @enderror" id="total_rooms" name="total_rooms" value="{{ old('total_rooms', $property->kostDetail->total_rooms ?? '') }}" min="1" required>
+                                            @error('total_rooms')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
                                         </div>
-                                        
-                                        <div class="col-md-6">
-                                            <div class="form-group">
-                                                <label>Fasilitas Tambahan</label>
-                                                <div class="custom-control custom-checkbox">
-                                                    <input type="checkbox" class="custom-control-input" id="meal_included" name="meal_included" value="1" {{ old('meal_included', $property->kostDetail->meal_included ?? false) ? 'checked' : '' }}>
-                                                    <label class="custom-control-label" for="meal_included">Termasuk Makan</label>
-                                                </div>
-                                                <div class="custom-control custom-checkbox mt-2">
-                                                    <input type="checkbox" class="custom-control-input" id="laundry_included" name="laundry_included" value="1" {{ old('laundry_included', $property->kostDetail->laundry_included ?? false) ? 'checked' : '' }}>
-                                                    <label class="custom-control-label" for="laundry_included">Termasuk Laundry</label>
-                                                </div>
+
+                                        <div class="form-group">
+                                            <label for="available_rooms">Jumlah Kamar Tersedia <span class="text-danger">*</span></label>
+                                            <input type="number" class="form-control @error('available_rooms') is-invalid @enderror" id="available_rooms" name="available_rooms" value="{{ old('available_rooms', $property->kostDetail->available_rooms ?? '') }}" min="0" required>
+                                            @error('available_rooms')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>Fasilitas Tambahan</label>
+                                            <div class="custom-control custom-checkbox">
+                                                <input type="checkbox" class="custom-control-input" id="meal_included" name="meal_included" value="1" {{ old('meal_included', $property->kostDetail->meal_included ?? false) ? 'checked' : '' }}>
+                                                <label class="custom-control-label" for="meal_included">Termasuk Makan</label>
+                                            </div>
+                                            <div class="custom-control custom-checkbox mt-2">
+                                                <input type="checkbox" class="custom-control-input" id="laundry_included" name="laundry_included" value="1" {{ old('laundry_included', $property->kostDetail->laundry_included ?? false) ? 'checked' : '' }}>
+                                                <label class="custom-control-label" for="laundry_included">Termasuk Laundry</label>
                                             </div>
                                         </div>
                                     </div>
+                                </div>
                                 @else
-                                    <!-- Detail Homestay -->
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <div class="form-group">
-                                                <label for="total_units">Jumlah Unit Total <span class="text-danger">*</span></label>
-                                                <input type="number" class="form-control @error('total_units') is-invalid @enderror" id="total_units" name="total_units" value="{{ old('total_units', $property->homestayDetail->total_units ?? '') }}" min="1" required>
-                                                @error('total_units')
-                                                    <div class="invalid-feedback">{{ $message }}</div>
-                                                @enderror
-                                            </div>
-                                            
-                                            <div class="form-group">
-                                                <label for="available_units">Jumlah Unit Tersedia <span class="text-danger">*</span></label>
-                                                <input type="number" class="form-control @error('available_units') is-invalid @enderror" id="available_units" name="available_units" value="{{ old('available_units', $property->homestayDetail->available_units ?? '') }}" min="0" required>
-                                                @error('available_units')
-                                                    <div class="invalid-feedback">{{ $message }}</div>
-                                                @enderror
-                                            </div>
-                                            
-                                            <div class="form-group">
-                                                <label for="minimum_stay">Minimum Menginap (hari) <span class="text-danger">*</span></label>
-                                                <input type="number" class="form-control @error('minimum_stay') is-invalid @enderror" id="minimum_stay" name="minimum_stay" value="{{ old('minimum_stay', $property->homestayDetail->minimum_stay ?? 1) }}" min="1" required>
-                                                @error('minimum_stay')
-                                                    <div class="invalid-feedback">{{ $message }}</div>
-                                                @enderror
-                                            </div>
+                                <!-- Detail Homestay -->
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="total_units">Jumlah Unit Total <span class="text-danger">*</span></label>
+                                            <input type="number" class="form-control @error('total_units') is-invalid @enderror" id="total_units" name="total_units" value="{{ old('total_units', $property->homestayDetail->total_units ?? '') }}" min="1" required>
+                                            @error('total_units')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
                                         </div>
-                                        
-                                        <div class="col-md-6">
-                                            <div class="form-group">
-                                                <label for="maximum_guest">Maksimum Tamu <span class="text-danger">*</span></label>
-                                                <input type="number" class="form-control @error('maximum_guest') is-invalid @enderror" id="maximum_guest" name="maximum_guest" value="{{ old('maximum_guest', $property->homestayDetail->maximum_guest ?? 1) }}" min="1" required>
-                                                @error('maximum_guest')
-                                                    <div class="invalid-feedback">{{ $message }}</div>
-                                                @enderror
-                                            </div>
-                                            
-                                            <div class="form-group">
-                                                <label for="checkin_time">Jam Check-in <span class="text-danger">*</span></label>
-                                                <input type="time" class="form-control @error('checkin_time') is-invalid @enderror" id="checkin_time" name="checkin_time" value="{{ old('checkin_time', $property->homestayDetail->checkin_time ?? '14:00') }}" required>
-                                                @error('checkin_time')
-                                                    <div class="invalid-feedback">{{ $message }}</div>
-                                                @enderror
-                                            </div>
-                                            
-                                            <div class="form-group">
-                                                <label for="checkout_time">Jam Check-out <span class="text-danger">*</span></label>
-                                                <input type="time" class="form-control @error('checkout_time') is-invalid @enderror" id="checkout_time" name="checkout_time" value="{{ old('checkout_time', $property->homestayDetail->checkout_time ?? '12:00') }}" required>
-                                                @error('checkout_time')
-                                                    <div class="invalid-feedback">{{ $message }}</div>
-                                                @enderror
-                                            </div>
+
+                                        <div class="form-group">
+                                            <label for="available_units">Jumlah Unit Tersedia <span class="text-danger">*</span></label>
+                                            <input type="number" class="form-control @error('available_units') is-invalid @enderror" id="available_units" name="available_units" value="{{ old('available_units', $property->homestayDetail->available_units ?? '') }}" min="0" required>
+                                            @error('available_units')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="minimum_stay">Minimum Menginap (hari) <span class="text-danger">*</span></label>
+                                            <input type="number" class="form-control @error('minimum_stay') is-invalid @enderror" id="minimum_stay" name="minimum_stay" value="{{ old('minimum_stay', $property->homestayDetail->minimum_stay ?? 1) }}" min="1" required>
+                                            @error('minimum_stay')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
                                         </div>
                                     </div>
+
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="maximum_guest">Maksimum Tamu <span class="text-danger">*</span></label>
+                                            <input type="number" class="form-control @error('maximum_guest') is-invalid @enderror" id="maximum_guest" name="maximum_guest" value="{{ old('maximum_guest', $property->homestayDetail->maximum_guest ?? 1) }}" min="1" required>
+                                            @error('maximum_guest')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="checkin_time">Jam Check-in <span class="text-danger">*</span></label>
+                                            <input type="time" class="form-control @error('checkin_time') is-invalid @enderror"
+                                                id="checkin_time" name="checkin_time"
+                                                value="{{ old('checkin_time', optional($property->homestayDetail)->checkin_time ? \Carbon\Carbon::parse($property->homestayDetail->checkin_time)->format('H:i') : '14:00') }}"
+                                                required>
+                                            @error('checkin_time')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="checkout_time">Jam Check-out <span class="text-danger">*</span></label>
+                                            <input type="time" class="form-control @error('checkout_time') is-invalid @enderror"
+                                                id="checkout_time" name="checkout_time"
+                                                value="{{ old('checkout_time', optional($property->homestayDetail)->checkout_time ? \Carbon\Carbon::parse($property->homestayDetail->checkout_time)->format('H:i') : '12:00') }}"
+                                                required>
+                                            @error('checkout_time')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+                                    </div>
+                                </div>
                                 @endif
-                                
+
                                 <div class="form-group mt-3">
                                     <label for="rules">Peraturan</label>
                                     <textarea class="form-control @error('rules') is-invalid @enderror" id="rules" name="rules" rows="3">{{ old('rules', $property->rules ?? '') }}</textarea>
                                     @error('rules')
-                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
                             </div>
@@ -308,6 +313,11 @@
 
 @section('scripts')
 <script>
+    document.querySelector('.custom-file-input').addEventListener('change', function(e) {
+        var fileName = document.getElementById("image").files[0].name;
+        var nextSibling = e.target.nextElementSibling
+        nextSibling.innerText = fileName
+    })
     // Menampilkan nama file yang dipilih
     $('.custom-file-input').on('change', function() {
         let fileName = $(this).val().split('\\').pop();
@@ -326,7 +336,7 @@
                     $('#city_id').empty().append('<option value="">Pilih Kota/Kabupaten</option>');
                     $('#district_id').empty().append('<option value="">Pilih Kecamatan</option>');
                     $('#subdistrict_id').empty().append('<option value="">Pilih Kelurahan</option>');
-                    
+
                     $.each(data, function(key, value) {
                         $('#city_id').append(`<option value="${value.id}">${value.city_name}</option>`);
                     });
@@ -349,7 +359,7 @@
                 success: function(data) {
                     $('#district_id').empty().append('<option value="">Pilih Kecamatan</option>');
                     $('#subdistrict_id').empty().append('<option value="">Pilih Kelurahan</option>');
-                    
+
                     $.each(data, function(key, value) {
                         $('#district_id').append(`<option value="${value.id}">${value.dis_name}</option>`);
                     });
@@ -371,7 +381,7 @@
                 dataType: 'json',
                 success: function(data) {
                     $('#subdistrict_id').empty().append('<option value="">Pilih Kelurahan</option>');
-                    
+
                     $.each(data, function(key, value) {
                         $('#subdistrict_id').append(`<option value="${value.id}">${value.subdis_name}</option>`);
                     });
