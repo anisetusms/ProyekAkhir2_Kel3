@@ -114,14 +114,6 @@
                                         <th>Kamar Tersedia</th>
                                         <td>{{ $property->kostDetail->available_rooms }}</td>
                                     </tr>
-                                    <tr>
-                                        <th>Termasuk Makan</th>
-                                        <td>{!! $property->kostDetail->meal_included ? '<span class="text-success"><i class="fas fa-check"></i> Ya</span>' : '<span class="text-danger"><i class="fas fa-times"></i> Tidak</span>' !!}</td>
-                                    </tr>
-                                    <tr>
-                                        <th>Termasuk Laundry</th>
-                                        <td>{!! $property->kostDetail->laundry_included ? '<span class="text-success"><i class="fas fa-check"></i> Ya</span>' : '<span class="text-danger"><i class="fas fa-times"></i> Tidak</span>' !!}</td>
-                                    </tr>
                                 </table>
                             </div>
                         @elseif($property->property_type_id == 2 && $property->homestayDetail)

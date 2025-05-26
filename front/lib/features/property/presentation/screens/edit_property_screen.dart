@@ -49,8 +49,6 @@ class _EditPropertyScreenState extends State<EditPropertyScreen> {
   int? _districtId;
   int? _subdistrictId;
   String? _kostType;
-  bool _mealIncluded = false;
-  bool _laundryIncluded = false;
   bool _isLoading = false;
   String? _errorMessage;
   double? _latitude;
@@ -104,8 +102,6 @@ class _EditPropertyScreenState extends State<EditPropertyScreen> {
     _districtId = widget.property['district_id'];
     _subdistrictId = widget.property['subdistrict_id'];
     _kostType = widget.property['kost_type'];
-    _mealIncluded = widget.property['meal_included'] == 1;
-    _laundryIncluded = widget.property['laundry_included'] == 1;
     _latitude = _parseDouble(widget.property['latitude']);
     _longitude = _parseDouble(widget.property['longitude']);
     _currentImageUrl = widget.property['image'] != null
@@ -188,9 +184,6 @@ class _EditPropertyScreenState extends State<EditPropertyScreen> {
             'available_rooms': _availableRoomsController.text,
           if (_totalRoomsController.text.isNotEmpty)
             'total_rooms': _totalRoomsController.text,
-          if (_kostType != null) 'kost_type': _kostType!,
-          'meal_included': _mealIncluded ? '1' : '0',
-          'laundry_included': _laundryIncluded ? '1' : '0',
         });
       }
 
@@ -428,18 +421,6 @@ class _EditPropertyScreenState extends State<EditPropertyScreen> {
                 ),
               ],
             ),
-          ),
-          SwitchListTile(
-            title: Text('Termasuk Makan'),
-            value: _mealIncluded,
-            onChanged: (value) => setState(() => _mealIncluded = value),
-            contentPadding: EdgeInsets.zero,
-          ),
-          SwitchListTile(
-            title: Text('Termasuk Laundry'),
-            value: _laundryIncluded,
-            onChanged: (value) => setState(() => _laundryIncluded = value),
-            contentPadding: EdgeInsets.zero,
           ),
         ],
       );

@@ -71,12 +71,7 @@
                                                   onsubmit="return confirm('Apakah Anda yakin ingin menghapus owner ini?')">
                                                 <?php echo csrf_field(); ?>
                                                 <?php echo method_field('DELETE'); ?>
-                                                <button type="submit"
-                                                        class="btn btn-sm btn-outline-danger"
-                                                        data-bs-toggle="tooltip"
-                                                        title="Hapus">
-                                                    <i class="fas fa-trash-alt"></i>
-                                                </button>
+                                        
                                             </form>
                                         </div>
                                     </td>
@@ -167,5 +162,4 @@
     }
 </style>
 <?php $__env->stopSection(); ?>
-
 <?php echo $__env->make('layouts.index-superadmin', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH E:\KULIAH\SEMESTER 4\PA2\ProyekAkhir2\backend\resources\views/super_admin/entrepreneurs/approved.blade.php ENDPATH**/ ?>

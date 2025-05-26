@@ -46,8 +46,6 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
   int? _districtId;
   int? _subdistrictId;
   String? _kostType;
-  bool _mealIncluded = false;
-  bool _laundryIncluded = false;
   bool _isLoading = false;
   String? _errorMessage;
   double? _latitude;
@@ -128,9 +126,6 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
             'available_rooms': _availableRoomsController.text,
           if (_totalRoomsController.text.isNotEmpty)
             'total_rooms': _totalRoomsController.text,
-          if (_kostType != null) 'kost_type': _kostType!,
-          'meal_included': _mealIncluded ? '1' : '0',
-          'laundry_included': _laundryIncluded ? '1' : '0',
         });
       }
 
@@ -376,18 +371,6 @@ class _AddPropertyScreenState extends State<AddPropertyScreen> {
                 ),
               ],
             ),
-          ),
-          SwitchListTile(
-            title: Text('Termasuk Makan'),
-            value: _mealIncluded,
-            onChanged: (value) => setState(() => _mealIncluded = value),
-            contentPadding: EdgeInsets.zero,
-          ),
-          SwitchListTile(
-            title: Text('Termasuk Laundry'),
-            value: _laundryIncluded,
-            onChanged: (value) => setState(() => _laundryIncluded = value),
-            contentPadding: EdgeInsets.zero,
           ),
         ],
       );

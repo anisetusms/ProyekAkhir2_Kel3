@@ -16,13 +16,6 @@ class KostDetail extends Model
         'total_rooms',
         'available_rooms',
         'rules',
-        'meal_included',
-        'laundry_included'
-    ];
-
-    protected $casts = [
-        'meal_included' => 'boolean',
-        'laundry_included' => 'boolean'
     ];
 
     /**

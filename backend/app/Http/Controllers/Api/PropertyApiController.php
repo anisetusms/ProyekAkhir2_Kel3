@@ -92,8 +92,6 @@ class PropertyApiController extends Controller
             'rules' => 'nullable|string',
             'kost_type' => 'nullable|in:putra,putri,campur',
             'total_rooms' => 'nullable|integer|min:1',
-            'meal_included' => 'nullable|boolean',
-            'laundry_included' => 'nullable|boolean',
             'total_units' => 'nullable|integer|min:1',
             'available_units' => 'nullable|integer|min:0',
             'minimum_stay' => 'nullable|integer|min:1',
@@ -156,8 +154,6 @@ class PropertyApiController extends Controller
                     'kost_type' => $request->kost_type,
                     'total_rooms' => $request->total_rooms,
                     'available_rooms' => $request->available_rooms,
-                    'meal_included' => $request->meal_included ?? false,
-                    'laundry_included' => $request->laundry_included ?? false,
                     'rules' => $request->rules ?? '',
                 ]);
             } elseif ($request->property_type_id == 2) { // Homestay
@@ -220,8 +216,6 @@ class PropertyApiController extends Controller
             'rules' => 'nullable|string',
             'kost_type' => 'nullable|in:putra,putri,campur',
             'total_rooms' => 'nullable|integer|min:1',
-            'meal_included' => 'nullable|boolean',
-            'laundry_included' => 'nullable|boolean',
             'total_units' => 'nullable|integer|min:1',
             'available_units' => 'nullable|integer|min:0',
             'minimum_stay' => 'nullable|integer|min:1',
@@ -290,8 +284,6 @@ class PropertyApiController extends Controller
                 $kostDetail->kost_type = $request->kost_type;
                 $kostDetail->total_rooms = $request->total_rooms;
                 $kostDetail->available_rooms = $request->available_rooms;
-                $kostDetail->meal_included = $request->meal_included ?? false;
-                $kostDetail->laundry_included = $request->laundry_included ?? false;
                 $kostDetail->rules = $request->rules ?? '';
                 $kostDetail->save();
             } elseif ($request->property_type_id == 2) { // Homestay

@@ -207,20 +207,6 @@
                                             @enderror
                                         </div>
                                     </div>
-
-                                    <div class="col-md-6">
-                                        <div class="form-group">
-                                            <label>Fasilitas Tambahan</label>
-                                            <div class="custom-control custom-checkbox">
-                                                <input type="checkbox" class="custom-control-input" id="meal_included" name="meal_included" value="1" {{ old('meal_included', $property->kostDetail->meal_included ?? false) ? 'checked' : '' }}>
-                                                <label class="custom-control-label" for="meal_included">Termasuk Makan</label>
-                                            </div>
-                                            <div class="custom-control custom-checkbox mt-2">
-                                                <input type="checkbox" class="custom-control-input" id="laundry_included" name="laundry_included" value="1" {{ old('laundry_included', $property->kostDetail->laundry_included ?? false) ? 'checked' : '' }}>
-                                                <label class="custom-control-label" for="laundry_included">Termasuk Laundry</label>
-                                            </div>
-                                        </div>
-                                    </div>
                                 </div>
                                 @else
                                 <!-- Detail Homestay -->

@@ -201,7 +201,7 @@
     <div class="login-card card p-4 animate_animated animate_fadeIn">
         <div class="login-header text-center mb-4">
            <img src="<?php echo e(asset('assets/images/gallery/logo.jpg')); ?>" alt="Logo" class="logo-img mb-2">
-            <h4 class="finger-paint">Hommie</h4>
+            <h4 class="finger-paint"></h4>
             <p class="text-muted mb-0">Silakan login ke akun Anda</p>
         </div>
 
@@ -231,7 +231,7 @@
                     <input class="form-check-input" type="checkbox" id="remember" name="remember">
                     <label class="form-check-label" for="remember">Ingat Saya</label>
                 </div>
-                <a href="#" class="text-decoration-none">Lupa Password?</a>
+                
             </div>
 
             <div class="d-grid mb-3">
@@ -246,11 +246,11 @@
             </div>
             <?php endif; ?>
 
-            <div class="divider">ATAU</div>
+            <!-- <div class="divider">ATAU</div>
 
             <div class="login-footer text-center text-muted">
                 Belum punya akun? <a href="<?php echo e(route('register')); ?>">Daftar di sini</a>
-            </div>
+            </div> -->
         </form>
     </div>
 

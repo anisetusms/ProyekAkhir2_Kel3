@@ -44,7 +44,7 @@ class WishlistController extends Controller
     {
         $user = Auth::user();
         
-        $wishlists = Wishlist::with('property') // Pastikan relasi 'property' ada di model Wishlist
+        $wishlists = Wishlist::with('property') 
             ->where('user_id', $user->id)
             ->get()
             ->map(function ($wishlist) {

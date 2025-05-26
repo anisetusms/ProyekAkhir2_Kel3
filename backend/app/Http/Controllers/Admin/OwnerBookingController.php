@@ -106,7 +106,7 @@ class OwnerBookingController extends Controller
                 $booking->user_id, 
                 'booking_confirmed', 
                 'Pemesanan Anda telah dikonfirmasi', 
-                'Pemesanan Anda untuk ' . $booking->property->name . ' telah dikonfirmasi oleh pemilik,/n Silahkan lakukan pembayaran saat check-in di lokasi.',
+                'Pemesanan Anda untuk ' . $booking->property->name . " telah dikonfirmasi oleh pemilik.\nSilakan lakukan pembayaran saat check-in di lokasi.",
                 $id
             );
 
@@ -241,7 +241,7 @@ class OwnerBookingController extends Controller
 
             // Total pendapatan
             $totalRevenue = Booking::whereIn('property_id', $propertyIds)
-                ->whereIn('status', ['confirmed', 'completed'])
+                ->whereIn('status', ['completed'])
                 ->sum('total_price');
 
             // Recent bookings

@@ -93,8 +93,6 @@
                         <p><strong>Tipe:</strong> {{ ucfirst($property->kostDetail->kost_type) }}</p>
                         <p><strong>Total Kamar:</strong> {{ $property->kostDetail->total_rooms }}</p>
                         <p><strong>Kamar Tersedia:</strong> {{ $property->kostDetail->available_rooms }}</p>
-                        <p><strong>Termasuk Makan:</strong> {{ $property->kostDetail->meal_included ? 'Ya' : 'Tidak' }}</p>
-                        <p><strong>Termasuk Laundry:</strong> {{ $property->kostDetail->laundry_included ? 'Ya' : 'Tidak' }}</p>
                     @elseif($property->propertyType->name === 'homestay' && $property->homestayDetail)
                         <h5>Detail Homestay</h5>
                         <p><strong>Total Unit:</strong> {{ $property->homestayDetail->total_units }}</p>

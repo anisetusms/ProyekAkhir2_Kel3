@@ -66,21 +66,23 @@
                             @endif
                         </td>
                         <td>
-                            <a href="{{ route('admin.properties.bookings.show', $booking->id) }}" class="btn btn-info btn-sm">
-                                <i class="fas fa-eye"></i>
-                            </a>
-                            @if($booking->status == 'pending')
-                            <button type="button" class="btn btn-success btn-sm confirm-booking" data-id="{{ $booking->id }}" data-toggle="modal" data-target="#confirmModal">
-                                <i class="fas fa-check"></i>
-                            </button>
-                            <button type="button" class="btn btn-danger btn-sm reject-booking" data-id="{{ $booking->id }}" data-toggle="modal" data-target="#rejectModal">
-                                <i class="fas fa-times"></i>
-                            </button>
-                            @elseif($booking->status == 'confirmed')
-                            <button type="button" class="btn btn-primary btn-sm complete-booking" data-id="{{ $booking->id }}" data-toggle="modal" data-target="#completeModal">
-                                <i class="fas fa-check-double"></i>
-                            </button>
-                            @endif
+                            <div class="d-flex gap-2">
+                                <a href="{{ route('admin.properties.bookings.show', $booking->id) }}" class="btn btn-sm btn-outline-info" data-bs-toggle="tooltip" title="Detail">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                @if($booking->status == 'pending')
+                                <button type="button" class="btn btn-sm btn-outline-success confirm-booking" data-id="{{ $booking->id }}" data-toggle="modal" data-target="#confirmModal" data-bs-toggle="tooltip" title="Konfirmasi">
+                                    <i class="fas fa-check"></i>
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-danger reject-booking" data-id="{{ $booking->id }}" data-toggle="modal" data-target="#rejectModal" data-bs-toggle="tooltip" title="Tolak">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                                @elseif($booking->status == 'confirmed')
+                                <button type="button" class="btn btn-sm btn-outline-primary complete-booking" data-id="{{ $booking->id }}" data-toggle="modal" data-target="#completeModal" data-bs-toggle="tooltip" title="Selesaikan">
+                                    <i class="fas fa-check-double"></i>
+                                </button>
+                                @endif
+                            </div>
                         </td>
                     </tr>
                     @empty
@@ -170,6 +172,9 @@
 @push('scripts')
 <script>
     $(document).ready(function() {
+        // Inisialisasi tooltip
+        $('[data-bs-toggle="tooltip"]').tooltip();
+        
         // Set action URL for confirm modal
         $('.confirm-booking').click(function() {
             const id = $(this).data('id');

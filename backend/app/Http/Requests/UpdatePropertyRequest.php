@@ -40,8 +40,6 @@ class UpdatePropertyRequest extends FormRequest
             'kost_type' => 'sometimes|in:putra,putri,campur',
             'total_rooms' => 'sometimes|integer|min:1',
             'rules' => 'nullable|string',
-            'meal_included' => 'nullable|boolean',
-            'laundry_included' => 'nullable|boolean',
             
             // Homestay specific rules
             'total_units' => 'sometimes|integer|min:1',

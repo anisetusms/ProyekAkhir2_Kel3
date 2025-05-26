@@ -168,8 +168,6 @@ class PropertyController extends Controller
                     'kost_type' => $request->kost_type,
                     'total_rooms' => $request->total_rooms,
                     'available_rooms' => $request->available_rooms,
-                    'meal_included' => $request->meal_included ?? false,
-                    'laundry_included' => $request->laundry_included ?? false,
                     'rules' => $request->rules ?? ''
                 ]);
             } else { // Homestay
@@ -272,8 +270,6 @@ class PropertyController extends Controller
             'kost_type' => 'required_if:property_type_id,1|in:putra,putri,campur',
             'total_rooms' => 'required_if:property_type_id,1|integer|min:1',
             'available_rooms' => 'required_if:property_type_id,1|integer|min:0',
-            'meal_included' => 'nullable|boolean',
-            'laundry_included' => 'nullable|boolean',
             'total_units' => 'required_if:property_type_id,2|integer|min:1',
             'available_units' => 'required_if:property_type_id,2|integer|min:0',
             'minimum_stay' => 'required_if:property_type_id,2|integer|min:1',
@@ -328,8 +324,6 @@ class PropertyController extends Controller
                         'kost_type' => $request->kost_type,
                         'total_rooms' => $request->total_rooms,
                         'available_rooms' => $request->available_rooms,
-                        'meal_included' => $request->has('meal_included'),
-                        'laundry_included' => $request->has('laundry_included'),
                         'rules' => $request->rules,
                     ]);
                 } else {
@@ -338,8 +332,6 @@ class PropertyController extends Controller
                         'kost_type' => $request->kost_type,
                         'total_rooms' => $request->total_rooms,
                         'available_rooms' => $request->available_rooms,
-                        'meal_included' => $request->has('meal_included'),
-                        'laundry_included' => $request->has('laundry_included'),
                         'rules' => $request->rules,
                     ]);
                 }

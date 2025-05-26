@@ -35,8 +35,6 @@ class StorePropertyRequest extends FormRequest
             1 => [ // Kost
                 'kost_type' => 'required|in:putra,putri,campur',
                 'total_rooms' => 'required|integer|min:1',
-                'meal_included' => 'nullable|boolean',
-                'laundry_included' => 'nullable|boolean',
             ],
             2 => [ // Homestay
                 'total_units' => 'required|integer|min:1',

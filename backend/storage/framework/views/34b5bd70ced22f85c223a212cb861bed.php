@@ -66,21 +66,23 @@
                             <?php endif; ?>
                         </td>
                         <td>
-                            <a href="<?php echo e(route('admin.properties.bookings.show', $booking->id)); ?>" class="btn btn-info btn-sm">
-                                <i class="fas fa-eye"></i>
-                            </a>
-                            <?php if($booking->status == 'pending'): ?>
-                            <button type="button" class="btn btn-success btn-sm confirm-booking" data-id="<?php echo e($booking->id); ?>" data-toggle="modal" data-target="#confirmModal">
-                                <i class="fas fa-check"></i>
-                            </button>
-                            <button type="button" class="btn btn-danger btn-sm reject-booking" data-id="<?php echo e($booking->id); ?>" data-toggle="modal" data-target="#rejectModal">
-                                <i class="fas fa-times"></i>
-                            </button>
-                            <?php elseif($booking->status == 'confirmed'): ?>
-                            <button type="button" class="btn btn-primary btn-sm complete-booking" data-id="<?php echo e($booking->id); ?>" data-toggle="modal" data-target="#completeModal">
-                                <i class="fas fa-check-double"></i>
-                            </button>
-                            <?php endif; ?>
+                            <div class="d-flex gap-2">
+                                <a href="<?php echo e(route('admin.properties.bookings.show', $booking->id)); ?>" class="btn btn-sm btn-outline-info" data-bs-toggle="tooltip" title="Detail">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <?php if($booking->status == 'pending'): ?>
+                                <button type="button" class="btn btn-sm btn-outline-success confirm-booking" data-id="<?php echo e($booking->id); ?>" data-toggle="modal" data-target="#confirmModal" data-bs-toggle="tooltip" title="Konfirmasi">
+                                    <i class="fas fa-check"></i>
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-danger reject-booking" data-id="<?php echo e($booking->id); ?>" data-toggle="modal" data-target="#rejectModal" data-bs-toggle="tooltip" title="Tolak">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                                <?php elseif($booking->status == 'confirmed'): ?>
+                                <button type="button" class="btn btn-sm btn-outline-primary complete-booking" data-id="<?php echo e($booking->id); ?>" data-toggle="modal" data-target="#completeModal" data-bs-toggle="tooltip" title="Selesaikan">
+                                    <i class="fas fa-check-double"></i>
+                                </button>
+                                <?php endif; ?>
+                            </div>
                         </td>
                     </tr>
                     <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
@@ -170,6 +172,9 @@
 <?php $__env->startPush('scripts'); ?>
 <script>
     $(document).ready(function() {
+        // Inisialisasi tooltip
+        $('[data-bs-toggle="tooltip"]').tooltip();
+        
         // Set action URL for confirm modal
         $('.confirm-booking').click(function() {
             const id = $(this).data('id');
@@ -211,5 +216,4 @@
     });
 </script>
 <?php $__env->stopPush(); ?>
-
 <?php echo $__env->make('layouts.admin', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH E:\KULIAH\SEMESTER 4\PA2\ProyekAkhir2\backend\resources\views/admin/properties/bookings/dashboard.blade.php ENDPATH**/ ?>

@@ -207,28 +207,6 @@
                             </div>
                         </div>
                     </div>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="meal_included" name="meal_included" value="1" {{ old('meal_included') ? 'checked' : '' }}>
-                                    <label class="form-check-label" for="meal_included">
-                                        Termasuk makan
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="laundry_included" name="laundry_included" value="1" {{ old('laundry_included') ? 'checked' : '' }}>
-                                    <label class="form-check-label" for="laundry_included">
-                                        Termasuk laundry
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
                 </div>
 
                 <div id="homestayFields" style="display: {{ old('property_type_id') == 2 ? 'block' : 'none' }};">

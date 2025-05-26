@@ -19,17 +19,5 @@
                 <div class="invalid-feedback">{{ $message }}</div>
             @enderror
         </div>
-
-        <div class="form-check">
-            <input class="form-check-input" type="checkbox" id="meal_included" name="meal_included" 
-                {{ old('meal_included', $detail->meal_included ?? false) ? 'checked' : '' }}>
-            <label class="form-check-label" for="meal_included">Termasuk Makan</label>
-        </div>
-
-        <div class="form-check mt-2">
-            <input class="form-check-input" type="checkbox" id="laundry_included" name="laundry_included" 
-                {{ old('laundry_included', $detail->laundry_included ?? false) ? 'checked' : '' }}>
-            <label class="form-check-label" for="laundry_included">Termasuk Laundry</label>
-        </div>
     </div>
 </div>
