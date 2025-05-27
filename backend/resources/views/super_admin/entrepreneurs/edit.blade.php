@@ -1,4 +1,5 @@
 @extends('layouts.index-superadmin')
+@section('title' , 'Edit Entrepreneur')
 
 @section('content')
 <div class="container mt-5">

@@ -1,4 +1,5 @@
 @extends('layouts.index-superadmin')
+@section('title' , 'Tambah Admin Platform')
 
 @section('content')
 <div class="container py-5">

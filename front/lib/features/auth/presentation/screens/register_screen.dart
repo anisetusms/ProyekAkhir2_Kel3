@@ -86,7 +86,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
       });
 
       try {
-        // Menambahkan status 'pending' untuk user yang memilih role sebagai Owner
         final status = _selectedRoleId == 2 ? 'pending' : null;
 
         final response = await ApiClient().post(
@@ -97,14 +96,21 @@ class _RegisterScreenState extends State<RegisterScreen> {
             'email': _emailController.text,
             'password': _passwordController.text,
             'password_confirmation': _confirmPasswordController.text,
-            'user_role_id':
-                _selectedRoleId, // Kirim sebagai integer, tanpa toString()
-            'status': status, // Menambahkan status 'pending' jika role Owner
+            'user_role_id': _selectedRoleId,
+            'status': status,
           },
         );
 
+        // Tangani akun belum disetujui
+        if (response['message'] ==
+            'Akun Anda belum disetujui oleh admin. Silakan menunggu.') {
+          setState(() {
+            _errorMessage = response['message'];
+          });
+          return;
+        }
+
         if (response['access_token'] != null) {
-          // Menampilkan pesan sukses setelah registrasi berhasil
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('Registrasi berhasil! Silakan login'),

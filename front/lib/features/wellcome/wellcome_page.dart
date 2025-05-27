@@ -67,7 +67,7 @@ class _WelcomePageState extends State<WelcomePage>
 
     // Jika bukan pertama kali, langsung ke bottombar setelah delay singkat
     if (!_isFirstTime) {
-      Future.delayed(const Duration(seconds: 240), () {
+      Future.delayed(const Duration(seconds: 60480), () {
         if (mounted && !_hasNavigated) {
           Get.offAllNamed('/bottombar');
         }

@@ -1,4 +1,6 @@
 @extends('layouts.index-superadmin')
+@section('title' , 'Edit Admin Officier')
+
 
 @section('content')
 <div class="container py-5">

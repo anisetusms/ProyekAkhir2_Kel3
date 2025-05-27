@@ -1,3 +1,6 @@
+<?php $__env->startSection('title' , 'Daftar Admin Officier'); ?>
+
+
 <?php $__env->startSection('content'); ?>
 <div class="container py-5">
     <div class="card shadow-sm">
