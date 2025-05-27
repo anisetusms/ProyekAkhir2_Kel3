@@ -63,7 +63,7 @@ class _WishlistScreenState extends State<WishlistScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Wishlist Saya'),
-        backgroundColor: Colors.brown,
+        backgroundColor: Color(0xFF4CAF50),
         foregroundColor: Colors.white,
       ),
       body: _isLoading
@@ -169,9 +169,9 @@ class _WishlistScreenState extends State<WishlistScreen> {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'Rp ${wishlist.property.price.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.')} / Bulan',
+                        'Rp ${wishlist.property.price.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.')}',
                         style: TextStyle(
-                          color: Theme.of(context).primaryColor,
+                          color: Colors.red,
                           fontWeight: FontWeight.bold,
                         ),
                       ),

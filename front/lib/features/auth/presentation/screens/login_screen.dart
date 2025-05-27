@@ -152,20 +152,6 @@ class _LoginScreenState extends State<LoginScreen> {
                   },
                 ),
 
-                // Lupa password
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: TextButton(
-                    onPressed: () {
-                      // TODO: buat halaman lupa password
-                    },
-                    child: Text(
-                      'Lupa password?',
-                      style: TextStyle(color: Colors.blue),
-                    ),
-                  ),
-                ),
-
                 SizedBox(height: 8.0),
 
                 // Error Message

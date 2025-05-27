@@ -26,7 +26,7 @@ class _SearchScreenState extends State<SearchScreen> {
   Position? _currentPosition;
   String _currentAddress = 'Mendeteksi lokasi...';
   bool _locationAvailable = false;
-  
+
   // Konstanta untuk filter jarak
   final double _maxDistance = 5000; // 5km dalam meter
 
@@ -42,10 +42,10 @@ class _SearchScreenState extends State<SearchScreen> {
       _properties = [];
       _distanceMap = {};
     });
-    
+
     await _getCurrentLocation();
     await _fetchProperties();
-    
+
     setState(() {
       _isLoading = false;
     });
@@ -115,7 +115,9 @@ class _SearchScreenState extends State<SearchScreen> {
       });
 
       if (position.latitude != 0 && position.longitude != 0) {
-        print('[DEBUG] Lokasi pengguna: ${position.latitude}, ${position.longitude}');
+        print(
+          '[DEBUG] Lokasi pengguna: ${position.latitude}, ${position.longitude}',
+        );
         if (mounted) {
           setState(() {
             _currentPosition = position;
@@ -145,48 +147,58 @@ class _SearchScreenState extends State<SearchScreen> {
   // Fetch properties
   Future<void> _fetchProperties() async {
     if (!mounted) return;
-    
+
     try {
       final response = await ApiClient().get('/properties1');
-      
+
       if (!mounted) return;
-      
+
       if (response != null && response['data'] != null) {
         List<PropertyModel> allProperties = [];
         Map<int, double> distances = {};
-        
+
         try {
           List<dynamic> dataList = response['data'] as List;
-          
+
           for (var item in dataList) {
             try {
               PropertyModel property = PropertyModel.fromJson(item);
-              
+
               // Hitung jarak jika lokasi tersedia dan koordinat valid
               if (_currentPosition != null && property.hasValidCoordinates) {
                 try {
-                  double distance = property.distanceFrom(
-                    _currentPosition!.latitude,
-                    _currentPosition!.longitude,
-                  ) ?? double.infinity;
-                  
+                  double distance =
+                      property.distanceFrom(
+                        _currentPosition!.latitude,
+                        _currentPosition!.longitude,
+                      ) ??
+                      double.infinity;
+
                   // Hanya tambahkan properti dalam jarak 5km
                   if (distance <= _maxDistance) {
                     allProperties.add(property);
                     distances[property.id] = distance;
-                    print('[DEBUG] Properti "${property.name}" berjarak ${distance.toStringAsFixed(2)} meter (dalam jangkauan)');
+                    print(
+                      '[DEBUG] Properti "${property.name}" berjarak ${distance.toStringAsFixed(2)} meter (dalam jangkauan)',
+                    );
                   } else {
-                    print('[DEBUG] Properti "${property.name}" berjarak ${distance.toStringAsFixed(2)} meter (di luar jangkauan)');
+                    print(
+                      '[DEBUG] Properti "${property.name}" berjarak ${distance.toStringAsFixed(2)} meter (di luar jangkauan)',
+                    );
                   }
                 } catch (e) {
-                  print('[DEBUG] Error calculating distance for ${property.name}: $e');
+                  print(
+                    '[DEBUG] Error calculating distance for ${property.name}: $e',
+                  );
                 }
               } else {
                 // Jika lokasi tidak tersedia atau koordinat tidak valid
                 if (!property.hasValidCoordinates) {
-                  print('[DEBUG] Properti "${property.name}" memiliki koordinat tidak valid');
+                  print(
+                    '[DEBUG] Properti "${property.name}" memiliki koordinat tidak valid',
+                  );
                 }
-                
+
                 // Tambahkan properti tanpa jarak jika lokasi pengguna tidak tersedia
                 if (_currentPosition == null) {
                   allProperties.add(property);
@@ -200,24 +212,27 @@ class _SearchScreenState extends State<SearchScreen> {
           print('[DEBUG] Error parsing properties list: $e');
         }
 
-        print('[DEBUG] Jumlah properti dalam jangkauan 5km: ${allProperties.length}');
+        print(
+          '[DEBUG] Jumlah properti dalam jangkauan 5km: ${allProperties.length}',
+        );
 
         // Filter berdasarkan tipe jika dipilih
         if (_selectedPropertyType != 'Semua') {
-          allProperties = allProperties.where((property) {
-            return _selectedPropertyType == 'Kost'
-                ? property.isKost
-                : property.isHomestay;
-          }).toList();
+          allProperties =
+              allProperties.where((property) {
+                return _selectedPropertyType == 'Kost'
+                    ? property.isKost
+                    : property.isHomestay;
+              }).toList();
         }
-        
+
         // Urutkan berdasarkan jarak
         allProperties.sort((a, b) {
           double distanceA = distances[a.id] ?? double.infinity;
           double distanceB = distances[b.id] ?? double.infinity;
           return distanceA.compareTo(distanceB);
         });
-        
+
         if (mounted) {
           setState(() {
             _properties = allProperties;
@@ -323,12 +338,10 @@ class _SearchScreenState extends State<SearchScreen> {
                       ),
                     ],
                   ),
-                  
+
                   // Informasi jangkauan
                   if (_locationAvailable)
-                    Padding(
-                      padding: const EdgeInsets.only(left: 24),
-                    ),
+                    Padding(padding: const EdgeInsets.only(left: 24)),
                 ],
               ),
 
@@ -336,61 +349,63 @@ class _SearchScreenState extends State<SearchScreen> {
 
               // Properties List
               Expanded(
-                child: _isLoading
-                    ? const Center(child: CircularProgressIndicator())
-                    : _properties.isEmpty
-                    ? Center(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.location_off,
-                              size: 48,
-                              color: Colors.grey.shade400,
-                            ),
-                            const SizedBox(height: 16),
-                            Text(
-                              _locationAvailable 
-                                  ? 'Tidak ada properti dalam jarak 5 km'
-                                  : 'Aktifkan lokasi untuk melihat properti terdekat',
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w500,
-                                color: Colors.grey,
+                child:
+                    _isLoading
+                        ? const Center(child: CircularProgressIndicator())
+                        : _properties.isEmpty
+                        ? Center(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.location_off,
+                                size: 48,
+                                color: Colors.grey.shade400,
                               ),
-                              textAlign: TextAlign.center,
-                            ),
-                            const SizedBox(height: 8),
-                            ElevatedButton(
-                              onPressed: _initializeData,
-                              child: const Text('Coba Lagi'),
-                            ),
-                          ],
-                        ),
-                      )
-                    : RefreshIndicator(
-                        onRefresh: _initializeData,
-                        child: GridView.builder(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8, 
-                            vertical: 8
+                              const SizedBox(height: 16),
+                              Text(
+                                _locationAvailable
+                                    ? 'Tidak ada properti dalam jarak 5 km'
+                                    : 'Aktifkan lokasi untuk melihat properti terdekat',
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.grey,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                              const SizedBox(height: 8),
+                              ElevatedButton(
+                                onPressed: _initializeData,
+                                child: const Text('Coba Lagi'),
+                              ),
+                            ],
                           ),
-                          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2,
-                            childAspectRatio: 0.75,
-                            crossAxisSpacing: 8,
-                            mainAxisSpacing: 8,
+                        )
+                        : RefreshIndicator(
+                          onRefresh: _initializeData,
+                          child: GridView.builder(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 8,
+                            ),
+                            gridDelegate:
+                                const SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: 2,
+                                  childAspectRatio: 0.75,
+                                  crossAxisSpacing: 8,
+                                  mainAxisSpacing: 8,
+                                ),
+                            physics: const AlwaysScrollableScrollPhysics(),
+                            itemCount: _properties.length,
+                            itemBuilder: (context, index) {
+                              final property = _properties[index];
+                              final distance = _distanceMap[property.id];
+
+                              return _buildPropertyCard(property, distance);
+                            },
                           ),
-                          physics: const AlwaysScrollableScrollPhysics(),
-                          itemCount: _properties.length,
-                          itemBuilder: (context, index) {
-                            final property = _properties[index];
-                            final distance = _distanceMap[property.id];
-                            
-                            return _buildPropertyCard(property, distance);
-                          },
                         ),
-                      ),
               ),
             ],
           ),
@@ -401,14 +416,15 @@ class _SearchScreenState extends State<SearchScreen> {
 
   // Kartu properti dengan desain dari AllPropertiesScreen
   Widget _buildPropertyCard(PropertyModel property, double? distance) {
-    final imageUrl = property.image != null
-        ? '${Constants.baseUrlImage}/storage/${property.image}'
-        : Constants.defaultPropertyImage;
+    final imageUrl =
+        property.image != null
+            ? '${Constants.baseUrlImage}/storage/${property.image}'
+            : Constants.defaultPropertyImage;
 
     // Tentukan warna dan teks jarak
     Color distanceColor = Colors.black54;
     String distanceText = '';
-    
+
     if (distance != null) {
       if (distance < 100) {
         distanceColor = Colors.green.shade700;
@@ -417,7 +433,7 @@ class _SearchScreenState extends State<SearchScreen> {
       } else {
         distanceColor = Colors.blue.shade700;
       }
-      
+
       if (distance < 1000) {
         distanceText = '${distance.toStringAsFixed(0)}m';
       } else {
@@ -464,18 +480,22 @@ class _SearchScreenState extends State<SearchScreen> {
                     child: Image.network(
                       imageUrl,
                       fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) =>
-                          _buildImagePlaceholder(),
+                      errorBuilder:
+                          (context, error, stackTrace) =>
+                              _buildImagePlaceholder(),
                     ),
                   ),
                 ),
-                
+
                 // Badge tipe properti
                 Positioned(
                   top: 8,
                   left: 8,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.white.withOpacity(0.9),
                       borderRadius: BorderRadius.circular(8),
@@ -497,14 +517,17 @@ class _SearchScreenState extends State<SearchScreen> {
                     ),
                   ),
                 ),
-                
+
                 // Badge jarak
                 if (distance != null)
                   Positioned(
                     top: 8,
                     right: 8,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
                       decoration: BoxDecoration(
                         color: Colors.white.withOpacity(0.9),
                         borderRadius: BorderRadius.circular(8),
@@ -539,7 +562,7 @@ class _SearchScreenState extends State<SearchScreen> {
                   ),
               ],
             ),
-            
+
             // Detail Properti
             Padding(
               padding: const EdgeInsets.all(12),
@@ -556,40 +579,48 @@ class _SearchScreenState extends State<SearchScreen> {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  
+
                   const SizedBox(height: 4),
-                  
+
                   // Lokasi
                   Text(
                     property.address,
-                    style: TextStyle(
-                      color: Colors.grey[600], 
-                      fontSize: 12
-                    ),
+                    style: TextStyle(color: Colors.grey[600], fontSize: 12),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  
+
                   const SizedBox(height: 8),
-                  
+
                   // Harga dan Jarak
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       // Harga
-                      Flexible(
-                        child: Text(
-                          'Rp ${_formatPrice(property.price)}',
-                          style: TextStyle(
-                            color: Theme.of(context).primaryColor,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 12,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
+                      Text.rich(
+                        TextSpan(
+                          children: [
+                            TextSpan(
+                              text:
+                                  'Rp ${property.price.toInt().toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.')}',
+                              style: const TextStyle(
+                                color: Colors.red,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 14,
+                              ),
+                            ),
+                            TextSpan(
+                              text: ' ',
+                              style: const TextStyle(
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 14,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                      
+
                       // Jarak sebagai "rating"
                       // if (distance != null)
                       //   Row(
@@ -631,34 +662,15 @@ class _SearchScreenState extends State<SearchScreen> {
     );
   }
 
-  // Format harga dengan pemisah ribuan
-  String _formatPrice(dynamic price) {
-    try {
-      if (price is String) {
-        price = double.tryParse(price) ?? 0;
-      }
-      
-      if (price is double || price is int) {
-        return price.toString().replaceAllMapped(
-              RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-              (Match m) => '${m[1]}.',
-            );
-      }
-      
-      return '0';
-    } catch (e) {
-      return '0';
-    }
-  }
-
   void _showFilterDialog() async {
     final result = await showDialog<Map<String, String>>(
       context: context,
-      builder: (context) => FilterDialog(
-        initialPropertyType: _selectedPropertyType,
-        initialPriceRange: _selectedPriceRange,
-        initialLocation: _selectedLocation,
-      ),
+      builder:
+          (context) => FilterDialog(
+            initialPropertyType: _selectedPropertyType,
+            initialPriceRange: _selectedPriceRange,
+            initialLocation: _selectedLocation,
+          ),
     );
 
     if (result != null) {
@@ -675,12 +687,13 @@ class _SearchScreenState extends State<SearchScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => SearchResultScreen(
-          searchKeyword: keyword,
-          propertyType: _selectedPropertyType,
-          priceRange: _selectedPriceRange,
-          location: _selectedLocation,
-        ),
+        builder:
+            (context) => SearchResultScreen(
+              searchKeyword: keyword,
+              propertyType: _selectedPropertyType,
+              priceRange: _selectedPriceRange,
+              location: _selectedLocation,
+            ),
       ),
     );
   }

@@ -77,15 +77,15 @@ class _DashboardPageState extends State<DashboardPage> {
     try {
       await _wishlistManager.toggleWishlist(propertyId);
       setState(() {}); // Refresh UI untuk menampilkan perubahan
-      
+
       // Tampilkan snackbar untuk memberikan feedback ke pengguna
       final isWishlisted = await _wishlistManager.isWishlisted(propertyId);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            isWishlisted 
-                ? 'Properti ditambahkan ke wishlist' 
-                : 'Properti dihapus dari wishlist'
+            isWishlisted
+                ? 'Properti ditambahkan ke wishlist'
+                : 'Properti dihapus dari wishlist',
           ),
           duration: const Duration(seconds: 2),
           behavior: SnackBarBehavior.floating,
@@ -119,9 +119,12 @@ class _DashboardPageState extends State<DashboardPage> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => PropertyDetailScreen(propertyId: property.id),
+                builder:
+                    (context) => PropertyDetailScreen(propertyId: property.id),
               ),
-            ).then((_) => setState(() {})); // Refresh setelah kembali dari detail
+            ).then(
+              (_) => setState(() {}),
+            ); // Refresh setelah kembali dari detail
           },
           child: Container(
             width: 160,
@@ -163,6 +166,41 @@ class _DashboardPageState extends State<DashboardPage> {
                       ),
                     ),
                     Positioned(
+                      left: 8,
+                      top: 8,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.1),
+                              spreadRadius: 1,
+                              blurRadius: 2,
+                            ),
+                          ],
+                        ),
+                        child: Text(
+                          property.propertyType,
+                          style: TextStyle(
+                            fontSize: 8,
+                            fontWeight: FontWeight.bold,
+                            color:
+                                property.propertyType.toLowerCase() == 'Kos'
+                                    ? Colors.blue
+                                    : property.propertyType.toLowerCase() ==
+                                        'homestay'
+                                    ? Colors.green
+                                    : Colors.blue, // default jika tipe lain
+                          ),
+                        ),
+                      ),
+                    ),
+                    Positioned(
                       right: 8,
                       top: 8,
                       child: GestureDetector(
@@ -183,13 +221,19 @@ class _DashboardPageState extends State<DashboardPage> {
                           child: AnimatedSwitcher(
                             duration: const Duration(milliseconds: 300),
                             transitionBuilder: (child, animation) {
-                              return ScaleTransition(scale: animation, child: child);
+                              return ScaleTransition(
+                                scale: animation,
+                                child: child,
+                              );
                             },
                             child: Icon(
-                              isWishlisted ? Icons.favorite : Icons.favorite_border,
+                              isWishlisted
+                                  ? Icons.favorite
+                                  : Icons.favorite_border,
                               key: ValueKey<bool>(isWishlisted),
                               size: 20,
-                              color: isWishlisted ? Colors.red : Colors.grey[600],
+                              color:
+                                  isWishlisted ? Colors.red : Colors.grey[600],
                             ),
                           ),
                         ),
@@ -222,15 +266,30 @@ class _DashboardPageState extends State<DashboardPage> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(
-                            'Rp ${property.price.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.')}',
-                            style: TextStyle(
-                              color: Theme.of(context).primaryColor,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 14,
+                          Text.rich(
+                            TextSpan(
+                              children: [
+                                TextSpan(
+                                  text:
+                                      'Rp ${property.price.toInt().toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.')}',
+                                  style: const TextStyle(
+                                    color: Colors.red,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 13,
+                                  ),
+                                ),
+                                TextSpan(
+                                  text: ' ',
+                                  style: const TextStyle(
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.normal,
+                                    fontSize: 11,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                          // Ganti rating statis dengan widget PropertyRating
+
                           PropertyRating(
                             propertyId: property.id,
                             iconSize: 14,
@@ -261,9 +320,12 @@ class _DashboardPageState extends State<DashboardPage> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => PropertyDetailScreen(propertyId: property.id),
+                builder:
+                    (context) => PropertyDetailScreen(propertyId: property.id),
               ),
-            ).then((_) => setState(() {})); // Refresh setelah kembali dari detail
+            ).then(
+              (_) => setState(() {}),
+            ); // Refresh setelah kembali dari detail
           },
           child: Container(
             margin: const EdgeInsets.only(bottom: 20),
@@ -302,6 +364,41 @@ class _DashboardPageState extends State<DashboardPage> {
                       ),
                     ),
                     Positioned(
+                      left: 12,
+                      top: 12,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.1),
+                              spreadRadius: 1,
+                              blurRadius: 3,
+                            ),
+                          ],
+                        ),
+                        child: Text(
+                          property.propertyType,
+                          style: TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                            color:
+                                property.propertyType.toLowerCase() == 'Kos'
+                                    ? Colors.blue
+                                    : property.propertyType.toLowerCase() ==
+                                        'homestay'
+                                    ? Colors.green
+                                    : Colors.blue, // default jika tipe lain
+                          ),
+                        ),
+                      ),
+                    ),
+                    Positioned(
                       right: 12,
                       top: 12,
                       child: GestureDetector(
@@ -322,13 +419,19 @@ class _DashboardPageState extends State<DashboardPage> {
                           child: AnimatedSwitcher(
                             duration: const Duration(milliseconds: 300),
                             transitionBuilder: (child, animation) {
-                              return ScaleTransition(scale: animation, child: child);
+                              return ScaleTransition(
+                                scale: animation,
+                                child: child,
+                              );
                             },
                             child: Icon(
-                              isWishlisted ? Icons.favorite : Icons.favorite_border,
+                              isWishlisted
+                                  ? Icons.favorite
+                                  : Icons.favorite_border,
                               key: ValueKey<bool>(isWishlisted),
                               size: 22,
-                              color: isWishlisted ? Colors.red : Colors.grey[600],
+                              color:
+                                  isWishlisted ? Colors.red : Colors.grey[600],
                             ),
                           ),
                         ),
@@ -359,15 +462,30 @@ class _DashboardPageState extends State<DashboardPage> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(
-                            'Rp ${property.price.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.')} / Bulan',
-                            style: TextStyle(
-                              color: Theme.of(context).primaryColor,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 14,
+                          Text.rich(
+                            TextSpan(
+                              children: [
+                                TextSpan(
+                                  text:
+                                      'Rp ${property.price.toInt().toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.')}',
+                                  style: const TextStyle(
+                                    color: Colors.red,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                                TextSpan(
+                                  text: '',
+                                  style: const TextStyle(
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                          // Ganti rating statis dengan widget PropertyRating
+
                           PropertyRating(
                             propertyId: property.id,
                             iconSize: 16,
@@ -398,7 +516,6 @@ class _DashboardPageState extends State<DashboardPage> {
               padding: const EdgeInsets.all(16),
               child: DashboardHeader(
                 onWishlistUpdated: () {
-                  // Refresh wishlist status ketika kembali dari halaman wishlist
                   _wishlistManager.initializeUserWishlists().then((_) {
                     setState(() {});
                   });
@@ -410,114 +527,116 @@ class _DashboardPageState extends State<DashboardPage> {
                   _isLoading
                       ? const Center(child: CircularProgressIndicator())
                       : RefreshIndicator(
-                          onRefresh: _loadInitialData,
-                          child: ListView(
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
-                            children: [
-                              const SizedBox(height: 20),
-
-                              // Horizontal Scroll - New Properties
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  const Text(
-                                    "Kost / Homestay Terbaru",
-                                    style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.black87,
-                                    ),
+                        onRefresh: _loadInitialData,
+                        child: ListView(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          children: [
+                            const SizedBox(height: 20),
+                            // Horizontal Scroll - New Properties
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                const Text(
+                                  "Kost / Homestay Terbaru",
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black87,
                                   ),
-                                  TextButton(
-                                    onPressed: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) => AllPropertiesScreen(),
-                                        ),
-                                      ).then((_) => setState(() {})); // Refresh setelah kembali
-                                    },
-                                    child: Text(
-                                      "Lihat Semua",
-                                      style: TextStyle(
-                                        color: Theme.of(context).primaryColor,
-                                        fontWeight: FontWeight.w500,
+                                ),
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder:
+                                            (context) => AllPropertiesScreen(),
                                       ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 16),
-                              SizedBox(
-                                height: 220,
-                                child: ListView.builder(
-                                  scrollDirection: Axis.horizontal,
-                                  itemCount: homestayList.length,
-                                  itemBuilder: (context, index) {
-                                    return _buildHorizontalPropertyCard(
-                                      homestayList[index],
-                                    );
+                                    ).then((_) => setState(() {}));
                                   },
-                                ),
-                              ),
-                              const SizedBox(height: 20),
-
-                              // Error Message
-                              if (_errorMessage.isNotEmpty)
-                                Padding(
-                                  padding: const EdgeInsets.all(8.0),
                                   child: Text(
-                                    _errorMessage,
-                                    style: const TextStyle(color: Colors.red),
+                                    "Lihat Semua",
+                                    style: TextStyle(
+                                      color: Theme.of(context).primaryColor,
+                                      fontWeight: FontWeight.w500,
+                                    ),
                                   ),
                                 ),
-
-                              // Vertical List - Recommendations
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  const Text(
-                                    "Rekomendasi Untuk Anda",
-                                    style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.black87,
-                                    ),
-                                  ),
-                                  TextButton(
-                                    onPressed: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) => AllPropertiesScreen(),
-                                        ),
-                                      ).then((_) => setState(() {})); // Refresh setelah kembali
-                                    },
-                                    child: Text(
-                                      "Lihat Semua",
-                                      style: TextStyle(
-                                        color: Theme.of(context).primaryColor,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                  ),
-                                ],
+                              ],
+                            ),
+                            const SizedBox(height: 16),
+                            SizedBox(
+                              height: 220,
+                              child: ListView.builder(
+                                scrollDirection: Axis.horizontal,
+                                itemCount: homestayList.length,
+                                itemBuilder: (context, index) {
+                                  return _buildHorizontalPropertyCard(
+                                    homestayList[index],
+                                  );
+                                },
                               ),
-                              const SizedBox(height: 16),
-                              homestayList.isEmpty
-                                  ? const Center(child: Text('Tidak ada data'))
-                                  : Column(
-                                    children:
-                                        homestayList.map((property) {
-                                          return _buildVerticalPropertyCard(
-                                            property,
-                                          );
-                                        }).toList(),
+                            ),
+                            const SizedBox(height: 20),
+                            // Error Message
+                            if (_errorMessage.isNotEmpty)
+                              Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Text(
+                                  _errorMessage,
+                                  style: const TextStyle(color: Colors.red),
+                                ),
+                              ),
+                            // Vertical List - Recommendations
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                const Text(
+                                  "Rekomendasi Untuk Anda",
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black87,
                                   ),
-                              const SizedBox(height: 24),
-                            ],
-                          ),
+                                ),
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder:
+                                            (context) => AllPropertiesScreen(),
+                                      ),
+                                    ).then((_) => setState(() {}));
+                                  },
+                                  child: Text(
+                                    "Lihat Semua",
+                                    style: TextStyle(
+                                      color: Theme.of(context).primaryColor,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 16),
+                            homestayList.isEmpty
+                                ? const Center(child: Text('Tidak ada data'))
+                                : Column(
+                                  children:
+                                      homestayList
+                                          .map(
+                                            (property) =>
+                                                _buildVerticalPropertyCard(
+                                                  property,
+                                                ),
+                                          )
+                                          .toList(),
+                                ),
+                            const SizedBox(height: 24),
+                          ],
                         ),
+                      ),
             ),
           ],
         ),

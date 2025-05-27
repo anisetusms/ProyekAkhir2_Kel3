@@ -62,9 +62,10 @@ class _AllPropertiesScreenState extends State<AllPropertiesScreen> {
   }
 
   Widget _buildPropertyCard(PropertyModel property) {
-    final imageUrl = property.image != null
-        ? '${Constants.baseUrlImage}/storage/${property.image}'
-        : Constants.defaultPropertyImage;
+    final imageUrl =
+        property.image != null
+            ? '${Constants.baseUrlImage}/storage/${property.image}'
+            : Constants.defaultPropertyImage;
 
     return GestureDetector(
       onTap: () {
@@ -103,12 +104,12 @@ class _AllPropertiesScreenState extends State<AllPropertiesScreen> {
                 child: Image.network(
                   imageUrl,
                   fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) =>
-                      _buildImagePlaceholder(),
+                  errorBuilder:
+                      (context, error, stackTrace) => _buildImagePlaceholder(),
                 ),
               ),
             ),
-            
+
             // Detail Properti
             Padding(
               padding: const EdgeInsets.all(12),
@@ -125,43 +126,48 @@ class _AllPropertiesScreenState extends State<AllPropertiesScreen> {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  
+
                   const SizedBox(height: 4),
-                  
+
                   // Lokasi
                   Text(
                     property.address,
-                    style: TextStyle(
-                      color: Colors.grey[600], 
-                      fontSize: 12
-                    ),
+                    style: TextStyle(color: Colors.grey[600], fontSize: 12),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  
+
                   const SizedBox(height: 8),
-                  
+
                   // Harga dan Rating
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       // Harga
-                      Flexible(
-                        child: Text(
-                          'Rp ${property.price.toStringAsFixed(0).replaceAllMapped(
-                            RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))/ Bulan'), 
-                            (Match m) => '${m[1]}.'
-                          )}',
-                          style: TextStyle(
-                            color: Theme.of(context).primaryColor,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 12,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
+                      Text.rich(
+                        TextSpan(
+                          children: [
+                            TextSpan(
+                              text:
+                                  'Rp ${property.price.toInt().toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.')}',
+                              style: const TextStyle(
+                                color: Colors.red,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 13,
+                              ),
+                            ),
+                            TextSpan(
+                              text: ' ',
+                              style: const TextStyle(
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 10,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                      
+
                       // Rating
                       Row(
                         children: [
@@ -172,7 +178,7 @@ class _AllPropertiesScreenState extends State<AllPropertiesScreen> {
                           ),
                           const SizedBox(width: 2),
                           Text(
-                            '5.0',
+                            '0.0',
                             style: TextStyle(
                               color: Colors.grey[600],
                               fontSize: 12,
@@ -212,7 +218,7 @@ class _AllPropertiesScreenState extends State<AllPropertiesScreen> {
               padding: EdgeInsets.all(16),
               child: DashboardHeader(),
             ),
-            
+
             if (_errorMessage.isNotEmpty)
               Padding(
                 padding: const EdgeInsets.all(8.0),
@@ -221,28 +227,30 @@ class _AllPropertiesScreenState extends State<AllPropertiesScreen> {
                   style: const TextStyle(color: Colors.red),
                 ),
               ),
-            
+
             Expanded(
-              child: _isLoading
-                  ? const Center(child: CircularProgressIndicator())
-                  : allProperties.isEmpty
+              child:
+                  _isLoading
+                      ? const Center(child: CircularProgressIndicator())
+                      : allProperties.isEmpty
                       ? const Center(child: Text('Tidak ada data'))
                       : GridView.builder(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8, 
-                            vertical: 8
-                          ),
-                          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2,
-                            childAspectRatio: 0.75,
-                            crossAxisSpacing: 8,
-                            mainAxisSpacing: 8,
-                          ),
-                          itemCount: allProperties.length,
-                          itemBuilder: (context, index) {
-                            return _buildPropertyCard(allProperties[index]);
-                          },
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 8,
                         ),
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 2,
+                              childAspectRatio: 0.75,
+                              crossAxisSpacing: 8,
+                              mainAxisSpacing: 8,
+                            ),
+                        itemCount: allProperties.length,
+                        itemBuilder: (context, index) {
+                          return _buildPropertyCard(allProperties[index]);
+                        },
+                      ),
             ),
           ],
         ),

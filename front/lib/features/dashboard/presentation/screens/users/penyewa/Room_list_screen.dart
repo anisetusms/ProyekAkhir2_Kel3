@@ -105,7 +105,7 @@ class _RoomListScreenState extends State<RoomListScreen> {
               ),
             );
           }
-          
+
           return RefreshIndicator(
             onRefresh: () async => _loadRooms(),
             child: ListView.builder(
@@ -151,16 +151,15 @@ class _RoomListScreenState extends State<RoomListScreen> {
 
   Widget _buildRoomCard(Room room) {
     // Format price based on property type
-    final priceText = widget.propertyTypeId == 1
-        ? 'Rp ${_formatPrice(room.price)}/bulan'
-        : 'Rp ${_formatPrice(room.price)}/hari';
+    final priceText =
+        widget.propertyTypeId == 1
+            ? 'Rp ${_formatPrice(room.price)}/bulan'
+            : 'Rp ${_formatPrice(room.price)}/hari';
 
     return Card(
       margin: const EdgeInsets.only(bottom: 16),
       elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -183,10 +182,7 @@ class _RoomListScreenState extends State<RoomListScreen> {
                     const SizedBox(height: 4),
                     Text(
                       room.roomType,
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey[600],
-                      ),
+                      style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                     ),
                   ],
                 ),
@@ -210,9 +206,9 @@ class _RoomListScreenState extends State<RoomListScreen> {
                 ),
               ],
             ),
-            
+
             const SizedBox(height: 16),
-            
+
             // Room details in a compact row
             Row(
               children: [
@@ -231,15 +227,12 @@ class _RoomListScreenState extends State<RoomListScreen> {
                 ],
               ],
             ),
-            
+
             const SizedBox(height: 16),
-            
+
             // Price section with highlighted background
             Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 12,
-                vertical: 8,
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               decoration: BoxDecoration(
                 color: Colors.green[50],
                 borderRadius: BorderRadius.circular(8),
@@ -254,31 +247,43 @@ class _RoomListScreenState extends State<RoomListScreen> {
                       color: Colors.grey[700],
                     ),
                   ),
-                  Text(
-                    priceText,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.green,
+                  RichText(
+                    text: TextSpan(
+                      children: [
+                        TextSpan(
+                          text: 'Rp ${_formatPrice(room.price)}',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.red,
+                          ),
+                        ),
+                        TextSpan(
+                          text: widget.propertyTypeId == 1 ? ' / bulan' : ' / hari',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color:
+                                Colors
+                                    .black, // Warna hitam untuk "bulan"/"hari"
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
               ),
             ),
-            
+
             // Description (if available)
             if (room.description != null && room.description!.isNotEmpty) ...[
               const SizedBox(height: 16),
               Text(
                 room.description!,
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey[600],
-                ),
+                style: TextStyle(fontSize: 14, color: Colors.grey[600]),
               ),
             ],
-            
+
             const SizedBox(height: 16),
-            
+
             // Action buttons
             Row(
               children: [
@@ -288,10 +293,11 @@ class _RoomListScreenState extends State<RoomListScreen> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => RoomDetailScreen(
-                            propertyId: widget.propertyId,
-                            roomId: room.id,
-                          ),
+                          builder:
+                              (context) => RoomDetailScreen(
+                                propertyId: widget.propertyId,
+                                roomId: room.id,
+                              ),
                         ),
                       );
                     },
@@ -311,20 +317,22 @@ class _RoomListScreenState extends State<RoomListScreen> {
                 const SizedBox(width: 12),
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: room.isAvailable
-                        ? () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => CreateBookingEnhancedScreen(
-                                  propertyId: widget.propertyId,
-                                  propertyTypeId: widget.propertyTypeId,
-                                  room: room,
+                    onPressed:
+                        room.isAvailable
+                            ? () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder:
+                                      (context) => CreateBookingEnhancedScreen(
+                                        propertyId: widget.propertyId,
+                                        propertyTypeId: widget.propertyTypeId,
+                                        room: room,
+                                      ),
                                 ),
-                              ),
-                            );
-                          }
-                        : null,
+                              );
+                            }
+                            : null,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF4CAF50),
                       padding: const EdgeInsets.symmetric(vertical: 12),
@@ -358,13 +366,7 @@ class _RoomListScreenState extends State<RoomListScreen> {
         children: [
           Icon(icon, size: 16, color: Colors.blue),
           const SizedBox(width: 4),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 12,
-              color: Colors.blue[800],
-            ),
-          ),
+          Text(label, style: TextStyle(fontSize: 12, color: Colors.blue[800])),
         ],
       ),
     );

@@ -112,7 +112,10 @@ class PropertyController extends Controller
         $revenueData = array_values($revenues);
 
         // Statistik tambahan (bisa disesuaikan dengan data yang ada)
-        $totalViews = 120;
+        $totalViews = Booking::whereHas('property', function ($query) use ($user_id) {
+            $query->where('user_id', $user_id);
+        })->whereIn('status', ['pending', 'cancelled', 'completed'])->count();
+
         $totalMessages = 50;
 
         // Mengirim data ke tampilan (view)
