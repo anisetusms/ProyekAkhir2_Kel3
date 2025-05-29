@@ -291,13 +291,11 @@ class BookingController extends Controller
 
             $booking->update(['status' => 'cancelled']);
 
-            // Return room availability
             if ($booking->rooms->isNotEmpty()) {
                 Room::whereIn('id', $booking->rooms->pluck('id'))
                     ->update(['is_available' => true]);
             }
 
-            // Return property availability
             PropertyAvailability::where('booking_id', $booking->id)
                 ->update(['status' => 'available', 'booking_id' => null]);
 
@@ -358,7 +356,6 @@ class BookingController extends Controller
                 'unavailable_dates' => $unavailableDates->pluck('date')
             ];
 
-            // If property is kost, show available rooms
             if ($property->property_type_id == PropertyType::TYPE_KOST) {
                 $availableRooms = Room::where('property_id', $property->id)
                     ->where('is_available', true)
@@ -384,54 +381,6 @@ class BookingController extends Controller
             return response()->json([
                 'status' => 'error',
                 'message' => 'Gagal memeriksa ketersediaan',
-                'error' => $e->getMessage()
-            ], 500);
-        }
-    }
-
-    /**
-     * Upload payment proof
-     * 
-     * @param Request $request
-     * @param int $id
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function uploadPaymentProof(Request $request, $id)
-    {
-        $validator = Validator::make($request->all(), [
-            'payment_proof' => 'required|file|mimes:jpg,png,pdf|max:2048',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Validasi gagal',
-                'errors' => $validator->errors()
-            ], 422);
-        }
-
-        try {
-            $booking = Booking::where('user_id', auth()->id())
-                ->where('status', 'pending')
-                ->findOrFail($id);
-
-            $paymentProofPath = $request->file('payment_proof')->store('public/payment_proofs');
-            $paymentProofPath = str_replace('public/', '', $paymentProofPath);
-
-            $booking->update([
-                'payment_proof' => $paymentProofPath,
-                'status' => 'processing'
-            ]);
-
-            return response()->json([
-                'status' => 'success',
-                'message' => 'Bukti pembayaran berhasil diupload',
-                'data' => $booking
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Gagal mengupload bukti pembayaran',
                 'error' => $e->getMessage()
             ], 500);
         }

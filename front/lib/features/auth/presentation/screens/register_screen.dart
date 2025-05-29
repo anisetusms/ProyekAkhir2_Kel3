@@ -18,10 +18,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _confirmPasswordController =
-      TextEditingController();
+  final TextEditingController _confirmPasswordController = TextEditingController();
 
   bool _isLoading = false;
+  bool _obscurePassword = true;
+  bool _obscureConfirmPassword = true;
   String? _errorMessage;
 
   List<Map<String, dynamic>> _roles = [];
@@ -49,10 +50,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         );
 
         // Filter hanya id 2 dan 4
-        final filteredRoles =
-            allRoles
-                .where((role) => role['id'] == 2 || role['id'] == 4)
-                .toList();
+        final filteredRoles = allRoles.where((role) => role['id'] == 2 || role['id'] == 4).toList();
 
         setState(() {
           _roles = filteredRoles;
@@ -60,8 +58,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         });
       } else {
         setState(() {
-          _errorMessage =
-              'Gagal memuat data role (kode ${response.statusCode})';
+          _errorMessage = 'Gagal memuat data role (kode ${response.statusCode})';
         });
       }
     } catch (e) {
@@ -101,15 +98,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
           },
         );
 
-        // Tangani akun belum disetujui
-        if (response['message'] ==
-            'Akun Anda belum disetujui oleh admin. Silakan menunggu.') {
-          setState(() {
-            _errorMessage = response['message'];
-          });
-          return;
-        }
-
         if (response['access_token'] != null) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
@@ -142,169 +130,302 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Daftar Akun'),
-        backgroundColor: Colors.green, // Warna sesuai dengan login
-      ),
-      body: Center(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24.0),
-          child: Form(
-            key: _formKey,
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Colors.white, Colors.green.shade50],
+          ),
+        ),
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(24.0),
             child: Column(
-              children: <Widget>[
-                Image.asset(
-                  'assets/icons/logo.jpg',
-                  height: 200, // Sesuaikan dengan logo di halaman login
-                ),
-                SizedBox(height: 24.0),
-
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    "Daftar Akun",
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              children: [
+                // Logo Section
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.white,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.3),
+                        spreadRadius: 3,
+                        blurRadius: 7,
+                        offset: const Offset(0, 3),
+                      ),
+                    ],
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(100),
+                    child: Image.asset(
+                      'assets/icons/logo.jpg',
+                      height: 120,
+                      width: 120,
+                      fit: BoxFit.cover,
+                    ),
                   ),
                 ),
-                SizedBox(height: 16.0),
 
-                // Nama Lengkap
-                _buildTextField(_nameController, 'Nama Lengkap'),
-                SizedBox(height: 16.0),
+                const SizedBox(height: 24),
 
-                // Username
-                _buildTextField(_usernameController, 'Username'),
-                SizedBox(height: 16.0),
-
-                // Email
-                _buildTextField(
-                  _emailController,
-                  'Email',
-                  keyboardType: TextInputType.emailAddress,
-                  validator: (value) {
-                    if (value == null || value.isEmpty)
-                      return 'Email tidak boleh kosong';
-                    if (!value.contains('@')) return 'Email tidak valid';
-                    return null;
-                  },
-                ),
-                SizedBox(height: 16.0),
-
-                // Password
-                _buildTextField(
-                  _passwordController,
-                  'Password',
-                  obscureText: true,
-                  validator: (value) {
-                    if (value == null || value.isEmpty)
-                      return 'Password tidak boleh kosong';
-                    if (value.length < 8) return 'Password minimal 8 karakter';
-                    return null;
-                  },
-                ),
-                SizedBox(height: 16.0),
-
-                // Konfirmasi Password
-                _buildTextField(
-                  _confirmPasswordController,
-                  'Konfirmasi Password',
-                  obscureText: true,
-                  validator: (value) {
-                    if (value == null || value.isEmpty)
-                      return 'Konfirmasi password tidak boleh kosong';
-                    if (value != _passwordController.text)
-                      return 'Konfirmasi password tidak sesuai';
-                    return null;
-                  },
-                ),
-                SizedBox(height: 16.0),
-
-                // Role
-                DropdownButtonFormField<int>(
-                  decoration: InputDecoration(
-                    labelText: 'Pilih Role',
-                    border: OutlineInputBorder(),
+                // Form Section
+                Container(
+                  padding: const EdgeInsets.all(24),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.2),
+                        spreadRadius: 2,
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
                   ),
-                  value: _selectedRoleId,
-                  items:
-                      _roles.isEmpty
-                          ? [
-                            DropdownMenuItem<int>(
-                              value: null,
-                              child: Text(
-                                _errorMessage != null
-                                    ? 'Gagal memuat role'
-                                    : 'Memuat role...',
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Buat Akun Baru",
+                          style: TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.green.shade800,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          "Silakan isi form berikut untuk mendaftar",
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey.shade600,
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+
+                        // Name Field
+                        _buildTextField(
+                          controller: _nameController,
+                          label: 'Nama Lengkap',
+                          icon: Icons.person_outline,
+                        ),
+                        const SizedBox(height: 16),
+
+                        // Username Field
+                        _buildTextField(
+                          controller: _usernameController,
+                          label: 'Username',
+                          icon: Icons.person,
+                        ),
+                        const SizedBox(height: 16),
+
+                        // Email Field
+                        _buildTextField(
+                          controller: _emailController,
+                          label: 'Email',
+                          icon: Icons.email_outlined,
+                          keyboardType: TextInputType.emailAddress,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Email tidak boleh kosong';
+                            }
+                            if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
+                              return 'Email tidak valid';
+                            }
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: 16),
+
+                        // Password Field
+                        _buildTextField(
+                          controller: _passwordController,
+                          label: 'Password',
+                          icon: Icons.lock_outline,
+                          obscureText: _obscurePassword,
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                              color: Colors.grey,
+                              size: 20,
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                _obscurePassword = !_obscurePassword;
+                              });
+                            },
+                          ),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Password tidak boleh kosong';
+                            }
+                            if (value.length < 8) {
+                              return 'Password minimal 8 karakter';
+                            }
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: 16),
+
+                        // Confirm Password Field
+                        _buildTextField(
+                          controller: _confirmPasswordController,
+                          label: 'Konfirmasi Password',
+                          icon: Icons.lock_outline,
+                          obscureText: _obscureConfirmPassword,
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              _obscureConfirmPassword ? Icons.visibility_off : Icons.visibility,
+                              color: Colors.grey,
+                              size: 20,
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                _obscureConfirmPassword = !_obscureConfirmPassword;
+                              });
+                            },
+                          ),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Konfirmasi password tidak boleh kosong';
+                            }
+                            if (value != _passwordController.text) {
+                              return 'Konfirmasi password tidak sesuai';
+                            }
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: 16),
+
+                        // Role Dropdown
+                        DropdownButtonFormField<int>(
+                          decoration: InputDecoration(
+                            labelText: 'Pilih Role',
+                            labelStyle: TextStyle(color: Colors.grey.shade600),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                              borderSide: BorderSide(
+                                color: Colors.grey.shade300,
                               ),
                             ),
-                          ]
-                          : _roles.map((role) {
-                            return DropdownMenuItem<int>(
-                              value: role['id'],
-                              child: Text(role['name']),
-                            );
-                          }).toList(),
-                  onChanged:
-                      _roles.isEmpty
-                          ? null
-                          : (value) {
-                            setState(() {
-                              _selectedRoleId = value;
-                            });
-                          },
-                  validator:
-                      (value) => value == null ? 'Role harus dipilih' : null,
-                ),
-                if (_errorMessage != null && _roles.isEmpty)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8),
-                    child: Text(
-                      _errorMessage!,
-                      style: TextStyle(color: Colors.red),
-                    ),
-                  ),
-                SizedBox(height: 24.0),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                              borderSide: BorderSide(
+                                color: Colors.grey.shade300,
+                              ),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                              borderSide: BorderSide(
+                                color: Colors.green.shade400,
+                                width: 1.5,
+                              ),
+                            ),
+                            filled: true,
+                            fillColor: Colors.grey.shade50,
+                            prefixIcon: Icon(
+                              Icons.group_outlined,
+                              color: Colors.grey,
+                              size: 20,
+                            ),
+                            contentPadding: const EdgeInsets.symmetric(
+                              vertical: 14,
+                              horizontal: 16,
+                            ),
+                          ),
+                          value: _selectedRoleId,
+                          items: _roles.isEmpty
+                              ? [
+                                  DropdownMenuItem<int>(
+                                    value: null,
+                                    child: Text(
+                                      _errorMessage != null
+                                          ? 'Gagal memuat role'
+                                          : 'Memuat role...',
+                                    ),
+                                  ),
+                                ]
+                              : _roles.map((role) {
+                                  return DropdownMenuItem<int>(
+                                    value: role['id'],
+                                    child: Text(role['name']),
+                                  );
+                                }).toList(),
+                          onChanged: _roles.isEmpty
+                              ? null
+                              : (value) {
+                                  setState(() {
+                                    _selectedRoleId = value;
+                                  });
+                                },
+                          validator: (value) => value == null ? 'Role harus dipilih' : null,
+                        ),
+                        const SizedBox(height: 16),
 
-                // Error Message
-                if (_errorMessage != null)
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 16.0),
-                    child: Text(
-                      _errorMessage!,
-                      style: TextStyle(color: Colors.red),
-                    ),
-                  ),
+                        // Error Message
+                        if (_errorMessage != null)
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 16.0),
+                            child: Text(
+                              _errorMessage!,
+                              style: TextStyle(color: Colors.red),
+                            ),
+                          ),
 
-                // Tombol Daftar
-                SizedBox(
-                  width: double.infinity,
-                  height: 48,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green, // Sesuaikan warna tombol
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
-                      ),
+                        // Register Button
+                        SizedBox(
+                          width: double.infinity,
+                          height: 48,
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.green.shade700,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              elevation: 2,
+                            ),
+                            onPressed: _isLoading ? null : _register,
+                            child: _isLoading
+                                ? SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      color: Colors.white,
+                                    ),
+                                  )
+                                : Text(
+                                    'Daftar',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                          ),
+                        ),
+                      ],
                     ),
-                    onPressed: _isLoading ? null : _register,
-                    child:
-                        _isLoading
-                            ? CircularProgressIndicator(color: Colors.white)
-                            : Text('Daftar', style: TextStyle(fontSize: 16)),
                   ),
                 ),
-                SizedBox(height: 16.0),
+                const SizedBox(height: 24),
 
                 // Login Link
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      'Sudah punya akun?',
-                      style: TextStyle(color: Colors.grey),
+                      'Sudah punya akun? ',
+                      style: TextStyle(color: Colors.grey.shade600),
                     ),
-                    TextButton(
-                      onPressed: () {
+                    GestureDetector(
+                      onTap: () {
                         Navigator.pushNamed(context, LoginScreen.routeName);
                       },
                       child: Text(
@@ -325,27 +446,57 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
   }
 
-  Widget _buildTextField(
-    TextEditingController controller,
-    String label, {
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String label,
+    required IconData icon,
     TextInputType keyboardType = TextInputType.text,
     bool obscureText = false,
+    Widget? suffixIcon,
     String? Function(String?)? validator,
   }) {
     return TextFormField(
       controller: controller,
       keyboardType: keyboardType,
       obscureText: obscureText,
+      style: TextStyle(fontSize: 14),
       decoration: InputDecoration(
         labelText: label,
-        border: OutlineInputBorder(),
+        labelStyle: TextStyle(color: Colors.grey.shade600),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(
+            color: Colors.grey.shade300,
+          ),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(
+            color: Colors.grey.shade300,
+          ),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide(
+            color: Colors.green.shade400,
+            width: 1.5,
+          ),
+        ),
+        filled: true,
+        fillColor: Colors.grey.shade50,
+        prefixIcon: Icon(
+          icon,
+          color: Colors.grey,
+          size: 20,
+        ),
+        suffixIcon: suffixIcon,
+        contentPadding: const EdgeInsets.symmetric(
+          vertical: 14,
+          horizontal: 16,
+        ),
       ),
-      validator:
-          validator ??
-          (value) =>
-              value == null || value.isEmpty
-                  ? '$label tidak boleh kosong'
-                  : null,
+      validator: validator ??
+          (value) => value == null || value.isEmpty ? '$label tidak boleh kosong' : null,
     );
   }
 }

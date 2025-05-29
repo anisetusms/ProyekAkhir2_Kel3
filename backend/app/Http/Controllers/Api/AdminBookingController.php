@@ -25,10 +25,8 @@ class AdminBookingController extends Controller
     public function index()
     {
         try {
-            // Get all properties owned by the authenticated user
             $propertyIds = Property::where('user_id', Auth::id())->pluck('id');
 
-            // Get all bookings for these properties
             $bookings = Booking::whereIn('property_id', $propertyIds)
                 ->with(['property:id,name,address,user_id', 'rooms:id,room_number,room_type,price'])
                 ->orderBy('created_at', 'desc')
@@ -57,16 +55,12 @@ class AdminBookingController extends Controller
     public function show($id)
     {
         try {
-            // Get all properties owned by the authenticated user
             $propertyIds = Property::where('user_id', Auth::id())->pluck('id');
-
-            // Get the booking if it belongs to one of the user's properties
             $booking = Booking::whereIn('property_id', $propertyIds)
                 ->with([
                     'property:id,name,address,user_id,property_type_id',
                     'property.propertyType:id,name',
                     'rooms:id,room_number,room_type,price',
-                    // Removed customer relationship
                 ])
                 ->findOrFail($id);
 
@@ -94,18 +88,12 @@ class AdminBookingController extends Controller
     {
         try {
             Log::info('Starting booking confirmation process for ID: ' . $id);
-
-            // Get all properties owned by the authenticated user
             $propertyIds = Property::where('user_id', Auth::id())->pluck('id');
             Log::info('User properties: ' . $propertyIds);
-
-            // Get the booking if it belongs to one of the user's properties
             $booking = Booking::whereIn('property_id', $propertyIds)
                 ->findOrFail($id);
 
             Log::info('Found booking: ' . $booking->id . ' with status: ' . $booking->status);
-
-            // Check if booking is in a valid state to be confirmed
             if ($booking->status !== 'pending') {
                 Log::warning('Cannot confirm booking: invalid status ' . $booking->status);
                 return response()->json([
@@ -116,18 +104,14 @@ class AdminBookingController extends Controller
 
             DB::beginTransaction();
             Log::info('Starting transaction');
-
-            // Update booking status
             $booking->update(['status' => 'confirmed']);
             Log::info('Updated booking status to confirmed');
 
             try {
-                // Create notification for tenant
                 $this->createBookingStatusNotification($booking, 'confirmed');
                 Log::info('Created notification for tenant');
             } catch (\Exception $notifError) {
                 Log::error('Error creating notification: ' . $notifError->getMessage());
-                // Continue even if notification fails
             }
 
             DB::commit();
@@ -159,19 +143,13 @@ class AdminBookingController extends Controller
     {
         try {
             Log::info('Starting booking rejection process for ID: ' . $id);
-
-            // Get all properties owned by the authenticated user
             $propertyIds = Property::where('user_id', Auth::id())->pluck('id');
             Log::info('User properties: ' . $propertyIds);
-
-            // Get the booking if it belongs to one of the user's properties
             $booking = Booking::whereIn('property_id', $propertyIds)
                 ->with('rooms')
                 ->findOrFail($id);
 
             Log::info('Found booking: ' . $booking->id . ' with status: ' . $booking->status);
-
-            // Check if booking is in a valid state to be rejected
             if ($booking->status !== 'pending') {
                 Log::warning('Cannot reject booking: invalid status ' . $booking->status);
                 return response()->json([
@@ -182,18 +160,14 @@ class AdminBookingController extends Controller
 
             DB::beginTransaction();
             Log::info('Starting transaction');
-
-            // Update booking status
             $booking->update(['status' => 'cancelled']);
             Log::info('Updated booking status to cancelled');
 
             try {
-                // Create notification for tenant
                 $this->createBookingStatusNotification($booking, 'cancelled');
                 Log::info('Created notification for tenant');
             } catch (\Exception $notifError) {
                 Log::error('Error creating notification: ' . $notifError->getMessage());
-                // Continue even if notification fails
             }
 
             DB::commit();
@@ -225,15 +199,10 @@ class AdminBookingController extends Controller
     public function complete($id)
     {
         try {
-            // Mendapatkan ID properti yang dimiliki oleh user yang sedang login
             $propertyIds = Property::where('user_id', Auth::id())->pluck('id');
-
-            // Mendapatkan booking jika milik properti user
             $booking = Booking::whereIn('property_id', $propertyIds)
                 ->with('rooms')
                 ->findOrFail($id);
-
-            // Mengecek status booking, hanya yang berstatus 'confirmed' yang bisa diselesaikan
             if ($booking->status !== 'confirmed') {
                 return response()->json([
                     'status' => 'error',
@@ -243,18 +212,14 @@ class AdminBookingController extends Controller
 
             DB::beginTransaction();
             Log::info('Starting transaction');
-
-            // Update booking status
             $booking->update(['status' => 'completed']);
             Log::info('Updated booking status to completed');
 
             try {
-                // Create notification for tenant
                 $this->createBookingStatusNotification($booking, 'completed');
                 Log::info('Created notification for tenant');
             } catch (\Exception $notifError) {
                 Log::error('Error creating notification: ' . $notifError->getMessage());
-                // Continue even if notification fails
             }
 
             DB::commit();
@@ -287,8 +252,6 @@ class AdminBookingController extends Controller
     {
         try {
             Log::info('Creating notification for booking ' . $booking->id . ' with status ' . $status);
-
-            // Get property details
             $property = Property::find($booking->property_id);
             if (!$property) {
                 Log::warning('Property not found for booking ' . $booking->id);
@@ -329,8 +292,6 @@ class AdminBookingController extends Controller
                 Log::warning('No user_id found for booking ' . $booking->id);
                 return;
             }
-
-            // Log notification data before creating
             Log::info('Creating notification with data: ', [
                 'user_id' => $booking->user_id,
                 'type' => $type,
@@ -338,8 +299,6 @@ class AdminBookingController extends Controller
                 'message' => $message,
                 'reference_id' => $booking->id
             ]);
-
-            // Menggunakan NotificationModel bukan Notification
             $notification = NotificationModel::create([
                 'user_id' => $booking->user_id,
                 'type' => $type,
@@ -352,7 +311,6 @@ class AdminBookingController extends Controller
             Log::info('Notification created with ID: ' . $notification->id);
         } catch (\Exception $e) {
             Log::error('Error creating tenant notification: ' . $e->getMessage());
-            // Rethrow the exception to be caught by the calling method
             throw $e;
         }
     }
@@ -365,22 +323,15 @@ class AdminBookingController extends Controller
     public function statistics()
     {
         try {
-            // Get all properties owned by the authenticated user
             $propertyIds = Property::where('user_id', Auth::id())->pluck('id');
-
-            // Get booking statistics
             $totalBookings = Booking::whereIn('property_id', $propertyIds)->count();
             $pendingBookings = Booking::whereIn('property_id', $propertyIds)->where('status', 'pending')->count();
             $confirmedBookings = Booking::whereIn('property_id', $propertyIds)->where('status', 'confirmed')->count();
             $completedBookings = Booking::whereIn('property_id', $propertyIds)->where('status', 'completed')->count();
             $cancelledBookings = Booking::whereIn('property_id', $propertyIds)->where('status', 'cancelled')->count();
-
-            // Get total revenue
             $totalRevenue = Booking::whereIn('property_id', $propertyIds)
-                ->whereIn('status', ['confirmed', 'completed'])
+                ->whereIn('status', ['completed'])
                 ->sum('total_price');
-
-            // Get recent bookings
             $recentBookings = Booking::whereIn('property_id', $propertyIds)
                 ->with('property:id,name')
                 ->orderBy('created_at', 'desc')

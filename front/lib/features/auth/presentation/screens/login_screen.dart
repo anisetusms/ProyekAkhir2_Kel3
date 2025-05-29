@@ -35,20 +35,16 @@ class _LoginScreenState extends State<LoginScreen> {
           },
         );
 
-        // Tambahkan pengecekan jika response mengandung "message" saja
-        if (response != null &&
-            response['message'] != null &&
-            response['access_token'] == null) {
+        // Check if response contains only message (no token)
+        if (response != null && response['message'] != null && response['access_token'] == null) {
           setState(() {
             _errorMessage = response['message'];
           });
           return;
         }
 
-        // Cek validitas akses
-        if (response == null ||
-            response['access_token'] == null ||
-            response['user'] == null) {
+        // Check response validity
+        if (response == null || response['access_token'] == null || response['user'] == null) {
           setState(() {
             _errorMessage = 'Login gagal. Cek kembali email dan password Anda.';
           });
@@ -58,27 +54,26 @@ class _LoginScreenState extends State<LoginScreen> {
         final userRoleId = response['user']['user_role_id'];
         final userStatus = response['user']['status'];
 
-        // Cek jika owner status-nya belum approved
+        // Check if owner account is not approved yet
         if (userRoleId == 2 && userStatus != 'approved') {
           setState(() {
-            _errorMessage =
-                response['message'] ??
+            _errorMessage = response['message'] ?? 
                 'Login gagal. Akun Anda belum disetujui oleh admin. Silakan menunggu persetujuan.';
           });
 
-          // Simpan token untuk keperluan tertentu
+          // Save token for potential future use
           final prefs = await SharedPreferences.getInstance();
           await prefs.setString('token', response['access_token']);
           await prefs.setInt('user_role_id', userRoleId);
           return;
         }
 
-        // Simpan token & role ID
+        // Save token and role ID
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString('token', response['access_token']);
         await prefs.setInt('user_role_id', userRoleId);
 
-        // Arahkan ke halaman utama
+        // Navigate to main page
         Navigator.pushReplacementNamed(context, '/bottombar');
       } catch (e) {
         setState(() {
@@ -95,122 +90,256 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24.0),
-          child: Form(
-            key: _formKey,
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Colors.white, Colors.green.shade50],
+          ),
+        ),
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(24.0),
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                Image.asset(
-                  'assets/icons/logo.jpg', // Pastikan path sesuai dengan file Anda
-                  height: 200,
-                ),
-                SizedBox(height: 24.0),
-
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    "Login",
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                  ),
-                ),
-                SizedBox(height: 16.0),
-
-                // Email field
-                TextFormField(
-                  controller: _emailController,
-                  keyboardType: TextInputType.emailAddress,
-                  decoration: InputDecoration(
-                    hintText: 'Email',
-                    prefixIcon: Icon(Icons.email_outlined),
-                    border: UnderlineInputBorder(),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Email tidak boleh kosong';
-                    }
-                    if (!value.contains('@')) {
-                      return 'Email tidak valid';
-                    }
-                    return null;
-                  },
-                ),
-                SizedBox(height: 16.0),
-
-                // Password field
-                TextFormField(
-                  controller: _passwordController,
-                  obscureText: _obscurePassword,
-                  decoration: InputDecoration(
-                    hintText: 'Password',
-                    prefixIcon: Icon(Icons.lock_outline),
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        _obscurePassword
-                            ? Icons.visibility_off
-                            : Icons.visibility,
+              children: [
+                // Logo Section
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.white,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.3),
+                        spreadRadius: 3,
+                        blurRadius: 7,
+                        offset: const Offset(0, 3),
                       ),
-                      onPressed: () {
-                        setState(() {
-                          _obscurePassword = !_obscurePassword;
-                        });
-                      },
-                    ),
-                    border: UnderlineInputBorder(),
+                    ],
                   ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Password tidak boleh kosong';
-                    }
-                    return null;
-                  },
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(100),
+                    child: Image.asset(
+                      'assets/icons/logo.jpg',
+                      height: 120,
+                      width: 120,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
                 ),
 
-                SizedBox(height: 8.0),
+                const SizedBox(height: 24),
 
-                // Error Message
-                if (_errorMessage != null)
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 16.0),
-                    child: Text(
-                      _errorMessage!,
-                      style: TextStyle(color: Colors.red),
-                    ),
-                  ),
-
-                // Tombol Login
-                SizedBox(
-                  width: double.infinity,
-                  height: 48,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
+                // Form Section
+                Container(
+                  padding: const EdgeInsets.all(24),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.2),
+                        spreadRadius: 2,
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
                       ),
+                    ],
+                  ),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Masuk ke Akun Anda",
+                          style: TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.green.shade800,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          "Silakan masuk menggunakan email dan password",
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey.shade600,
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+
+                        // Email Field
+                        TextFormField(
+                          controller: _emailController,
+                          keyboardType: TextInputType.emailAddress,
+                          style: TextStyle(fontSize: 14),
+                          decoration: InputDecoration(
+                            labelText: 'Email',
+                            labelStyle: TextStyle(color: Colors.grey.shade600),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                              borderSide: BorderSide(
+                                color: Colors.grey.shade300,
+                              ),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                              borderSide: BorderSide(
+                                color: Colors.grey.shade300,
+                              ),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                              borderSide: BorderSide(
+                                color: Colors.green.shade400,
+                                width: 1.5,
+                              ),
+                            ),
+                            filled: true,
+                            fillColor: Colors.grey.shade50,
+                            prefixIcon: Icon(
+                              Icons.email_outlined,
+                              color: Colors.grey,
+                              size: 20,
+                            ),
+                            contentPadding: const EdgeInsets.symmetric(
+                              vertical: 14,
+                              horizontal: 16,
+                            ),
+                          ),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Email tidak boleh kosong';
+                            }
+                            if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
+                              return 'Email tidak valid';
+                            }
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: 16),
+
+                        // Password Field
+                        TextFormField(
+                          controller: _passwordController,
+                          obscureText: _obscurePassword,
+                          style: TextStyle(fontSize: 14),
+                          decoration: InputDecoration(
+                            labelText: 'Password',
+                            labelStyle: TextStyle(color: Colors.grey.shade600),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                              borderSide: BorderSide(
+                                color: Colors.grey.shade300,
+                              ),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                              borderSide: BorderSide(
+                                color: Colors.grey.shade300,
+                              ),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                              borderSide: BorderSide(
+                                color: Colors.green.shade400,
+                                width: 1.5,
+                              ),
+                            ),
+                            filled: true,
+                            fillColor: Colors.grey.shade50,
+                            prefixIcon: Icon(
+                              Icons.lock_outline,
+                              color: Colors.grey,
+                              size: 20,
+                            ),
+                            suffixIcon: IconButton(
+                              icon: Icon(
+                                _obscurePassword
+                                    ? Icons.visibility_off
+                                    : Icons.visibility,
+                                color: Colors.grey,
+                                size: 20,
+                              ),
+                              onPressed: () {
+                                setState(() {
+                                  _obscurePassword = !_obscurePassword;
+                                });
+                              },
+                            ),
+                            contentPadding: const EdgeInsets.symmetric(
+                              vertical: 14,
+                              horizontal: 16,
+                            ),
+                          ),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Password tidak boleh kosong';
+                            }
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: 8),
+
+                        // Error Message - Maintained from second example
+                        if (_errorMessage != null)
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 16.0),
+                            child: Text(
+                              _errorMessage!,
+                              style: TextStyle(color: Colors.red),
+                            ),
+                          ),
+
+                        // Login Button
+                        SizedBox(
+                          width: double.infinity,
+                          height: 48,
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.green.shade700,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              elevation: 2,
+                            ),
+                            onPressed: _isLoading ? null : _login,
+                            child: _isLoading
+                                ? SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      color: Colors.white,
+                                    ),
+                                  )
+                                : Text(
+                                    'Masuk',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                          ),
+                        ),
+                      ],
                     ),
-                    onPressed: _isLoading ? null : _login,
-                    child:
-                        _isLoading
-                            ? CircularProgressIndicator(color: Colors.white)
-                            : Text('Masuk', style: TextStyle(fontSize: 16)),
                   ),
                 ),
+                const SizedBox(height: 24),
 
-                SizedBox(height: 24.0),
-
-                // Daftar Akun
+                // Register Link
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      'Belum punya akun?',
-                      style: TextStyle(color: Colors.grey),
+                      'Belum punya akun? ',
+                      style: TextStyle(color: Colors.grey.shade600),
                     ),
-                    TextButton(
-                      onPressed: () {
+                    GestureDetector(
+                      onTap: () {
                         Navigator.pushNamed(context, RegisterScreen.routeName);
                       },
                       child: Text(

@@ -133,24 +133,42 @@ class SuperAdminController extends Controller
 
     public function storePlatformAdmin(Request $request)
     {
-        $request->validate([
+        $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
-            'username' => 'required|string|unique:users,username',
-            'password' => 'required|string|min:6|confirmed',
+            'username' => 'required|string|unique:users,username|max:50',
+            'password' => 'required|string|min:8|confirmed',
+        ], [
+            'password.confirmed' => 'Konfirmasi password tidak cocok',
+            'email.unique' => 'Email sudah digunakan',
+            'username.unique' => 'Username sudah digunakan',
         ]);
 
-        DB::table('users')->insert([
-            'name' => $request->name,
-            'email' => $request->email,
-            'username' => $request->username,
-            'password' => bcrypt($request->password),
-            'user_role_id' => 3,
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
+        if ($validator->fails()) {
+            return redirect()->back()
+                ->withErrors($validator)
+                ->withInput();
+        }
 
-        return redirect()->route('super_admin.platform_admins.index')->with('success', 'Admin Platform berhasil ditambahkan.');
+        try {
+            DB::table('users')->insert([
+                'name' => $request->name,
+                'email' => $request->email,
+                'username' => $request->username,
+                'password' => Hash::make($request->password),
+                'user_role_id' => 3, // Pastikan role ID untuk admin platform benar
+                'status' => 'approved', // Tambahkan status default
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+            return redirect()->route('super_admin.platform_admins.index')
+                ->with('success', 'Admin Platform berhasil ditambahkan.');
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with('error', 'Gagal menambahkan admin: ' . $e->getMessage())
+                ->withInput();
+        }
     }
 
     public function editPlatformAdmin($id)

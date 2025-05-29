@@ -118,7 +118,6 @@ class _BottomBarState extends State<BottomBar> {
         _bottomNavigationBarItem('Home', 'assets/icons/h.svg'),
         _bottomNavigationBarItem('Properti', 'assets/icons/Vector.svg'),
         _bottomNavigationBarItem('Booking', 'assets/icons/pesanan_owner.svg'),
-        _bottomNavigationBarItem('Ulasan', 'assets/icons/ulasan.svg'),
         _bottomNavigationBarItem('Profile', 'assets/icons/profil.svg'),
       ];
     } else if (_role == 4) {
@@ -173,8 +172,6 @@ class _BottomBarState extends State<BottomBar> {
           return PropertyListScreen();
         case 2:
           return const AdminBookingListScreen();
-        case 3:
-          return const Ulasan();
         case 4:
           return const ProfileOwner();
         default:
@@ -262,13 +259,5 @@ class _BottomBarState extends State<BottomBar> {
         ),
       ),
     );
-  }
-}
-
-class Ulasan extends StatelessWidget {
-  const Ulasan({super.key});
-  @override
-  Widget build(BuildContext context) {
-    return const Center(child: Text('Ulasan Owner'));
   }
 }
